@@ -3,7 +3,8 @@ from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, Q
 from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon
 from PySide6.QtCore import Qt, QSize
 import mathlib
-from Calculator.help_menu import HelpWindow
+from Calculator.Kalkulajda.help_menu import HelpWindow
+from Calculator.Kalkulajda.mode_menu import ModeWindow
 
 
 LIGHT_GRAY = "#979797"
@@ -104,14 +105,9 @@ class App(QWidget):
         layout.setContentsMargins(5, 5, 5, 5)
         layout.setSpacing(5)
 
-        top_left_button = QPushButton(self.displayFrame)
-        top_left_button.setFixedSize(20, 20)
-        icon = QIcon(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\help_button.png')
-        top_left_button.setIcon(icon)
-        top_left_button.setIconSize(QSize(20, 20))
+        help_menu_button = self.create_help_menu_button()
+        layout.addWidget(help_menu_button, 0, 0, alignment=Qt.AlignLeft | Qt.AlignTop)
 
-        layout.addWidget(top_left_button, 0, 0, alignment=Qt.AlignLeft | Qt.AlignTop)
-        top_left_button.clicked.connect(self.show_help_menu)
         self.totalLabel = QLabel(self.totalExpression, self.displayFrame)
         self.totalLabel.setFont(QFont("Arial bold", 16))
         self.totalLabel.setStyleSheet(f"color: WHITE; padding: 5px;")
@@ -126,10 +122,24 @@ class App(QWidget):
         layout.addWidget(self.currentLabel, 1, 0, 1, 2, alignment=Qt.AlignRight | Qt.AlignBottom)
         self.displayFrame.setLayout(layout)
 
+    def create_help_menu_button(self):
+        help_menu_button = QPushButton(self.displayFrame)
+        help_menu_button.setFixedSize(20, 20)
+        icon = QIcon(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\help_button.png')
+        help_menu_button.setIcon(icon)
+        help_menu_button.setIconSize(QSize(20, 20))
+        help_menu_button.clicked.connect(self.show_help_menu)
+        return help_menu_button
+
     def show_help_menu(self):
         # Create an instance of HelpWindow and show it
         self.help_window = HelpWindow(self)
         self.help_window.show()
+
+    def show_mode_menu(self):
+        # Create an instance of ModeWindow and show it
+        self.mode_window = ModeWindow(self)
+        self.mode_window.show
 
     def button_frame(self):
         self.buttonFrame = QWidget(self)
