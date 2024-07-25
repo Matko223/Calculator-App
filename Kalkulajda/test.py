@@ -1,11 +1,10 @@
 import sys
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel, QPushButton
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel, QPushButton, QHBoxLayout
 from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon
 from PySide6.QtCore import Qt, QSize
 import mathlib
 from Calculator.Kalkulajda.help_menu import HelpWindow
-from Calculator.Kalkulajda.mode_menu import ModeWindow
-
+from Calculator.Kalkulajda.mode_menu import Sidebar
 
 LIGHT_GRAY = "#979797"
 DARK_GRAY = "#3D3D3D"
@@ -32,6 +31,7 @@ if PRODUCTION:
 class App(QWidget):
     def __init__(self):
         super().__init__()
+        self.sidebar = None
         self.help_window = None
         self.buttonFrameLayout = None
         self.buttonLayout = None
@@ -41,7 +41,7 @@ class App(QWidget):
         self.displayFrame = None
         self.currentLabel = None
         self.setWindowTitle("Calcu-lajda")
-        self.setFixedSize(400, 405)
+        self.setFixedSize(400, 405)  # Start with the smaller size
         self.totalExpression = ""
         self.currentExpression = "0"
         self.evaluated = False
@@ -81,15 +81,22 @@ class App(QWidget):
             "=": (4, 3)
         }
 
-        main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(0)
+        self.main_layout = QHBoxLayout()
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setSpacing(0)
+
+        self.sidebar = Sidebar(self)
+        self.sidebar.hide()  # Hide the sidebar initially
+
+        self.calculator_layout = QVBoxLayout()
         self.display_frame()
         self.button_frame()
-        main_layout.addWidget(self.displayFrame)
-        main_layout.addWidget(self.buttonFrame)
-        main_layout.addStretch()
-        self.setLayout(main_layout)
+        self.calculator_layout.addWidget(self.displayFrame)
+        self.calculator_layout.addWidget(self.buttonFrame)
+        self.calculator_layout.addStretch()
+
+        self.main_layout.addLayout(self.calculator_layout)
+        self.setLayout(self.main_layout)
 
         self.create_digit_buttons()
         self.create_operator_buttons()
@@ -100,13 +107,22 @@ class App(QWidget):
         self.displayFrame.setFixedHeight(125)
         self.displayFrame.setStyleSheet(f"background-color: {DARK_GRAY};")
 
-        # Create a QGridLayout for the displayFrame
         layout = QGridLayout(self.displayFrame)
         layout.setContentsMargins(5, 5, 5, 5)
         layout.setSpacing(5)
 
+        button_layout = QHBoxLayout()
+        button_layout.setSpacing(2)
+
         help_menu_button = self.create_help_menu_button()
-        layout.addWidget(help_menu_button, 0, 0, alignment=Qt.AlignLeft | Qt.AlignTop)
+        mode_menu_button = self.create_mode_menu_button()
+
+        button_layout.addWidget(mode_menu_button)
+        button_layout.addWidget(help_menu_button)
+        button_layout.addStretch()
+
+        # Add the button layout to the main layout
+        layout.addLayout(button_layout, 0, 0, alignment=Qt.AlignLeft | Qt.AlignTop)
 
         self.totalLabel = QLabel(self.totalExpression, self.displayFrame)
         self.totalLabel.setFont(QFont("Arial bold", 16))
@@ -136,10 +152,25 @@ class App(QWidget):
         self.help_window = HelpWindow(self)
         self.help_window.show()
 
-    def show_mode_menu(self):
-        # Create an instance of ModeWindow and show it
-        self.mode_window = ModeWindow(self)
-        self.mode_window.show
+    def create_mode_menu_button(self):
+        mode_menu_button = QPushButton(self.displayFrame)
+        mode_menu_button.setFixedSize(25, 25)
+        icon = QIcon(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\menu_icon.png')
+        mode_menu_button.setIcon(icon)
+        mode_menu_button.setIconSize(QSize(25, 25))
+        mode_menu_button.setStyleSheet("background-color: transparent; border: none;")
+        mode_menu_button.clicked.connect(self.toggle_sidebar)
+        return mode_menu_button
+
+    def toggle_sidebar(self):
+        self.sidebar.toggle()
+        if self.sidebar.is_visible:
+            self.setFixedSize(600, 405)
+            self.main_layout.addWidget(self.sidebar)
+            self.sidebar.show()
+        else:
+            self.setFixedSize(400, 405)
+            self.sidebar.hide()
 
     def button_frame(self):
         self.buttonFrame = QWidget(self)
@@ -488,7 +519,7 @@ class App(QWidget):
             self.currentLabel.setFont(QFont("Arial", 11))
             self.currentLabel.setAlignment(Qt.AlignCenter)
         else:
-            self.currentLabel.setFont(QFont("Arial", 30))
+            self.currentLabel.setFont(QFont("Arial", 32))
             self.currentLabel.setAlignment(Qt.AlignRight)
 
             if len(self.currentExpression) > 16:
