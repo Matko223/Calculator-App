@@ -61,84 +61,73 @@ class HelpWindow(QMainWindow):
 
     def create_help_content(self):
         self.add_section_label("About", 25, ORANGE, Qt.AlignCenter)
-        about_text = """Simple calculator developed by: 
-        xcsirim00, xgajduv00, xlajdat00 and xvalapm00\n 
-        It supports basic arithmetic operations: 
-        Addition, subtraction, multiplication, and division. 
-        Additionally, it provides features like: 
-        Exponentiation, root, factorial, absolute value and modulo. 
-        It also supports decimal numbers and negative numbers.\n 
-        Enjoy calculating!\n 
-        The Calculator is divided into 2 frames - display and buttons. 
-        The display frame shows the current expression and the result. 
-        While the button frame contains buttons for inputting numbers, operators, and performing various operations.\n 
-        The evaluation works automatically when you press the operator or when you press the equals button. 
-        You can also perform calculations by typing directly on the keyboard, and the calculator will update accordingly.\n 
-        The calculator takes maximum two operands at the same time and performs the specified operation between them. 
-        When you make a mistake with choosing the operator, you can directly change it by selecting your desired operator.\n 
-        The current expression is limited to 16 characters, while the total expression can accommodate up to 30 characters.\n"""
+        about_text = """Simple calculator developed by:
+xcsirim00, xgajduv00, xlajdat00, and xvalapm00\n
+It supports basic arithmetic operations:
+Addition, subtraction, multiplication, and division.
+Additionally, it provides features like:
+Exponentiation, root, factorial, absolute value, and modulo.
+It also supports decimal numbers and negative numbers.\n
+Enjoy calculating!\n
+The Calculator is divided into 2 frames - display and buttons.
+The display frame shows the current expression and the result.
+While the button frame contains buttons for inputting numbers, operators, and performing various operations.\n
+The evaluation works automatically when you press the operator or when you press the equals button.
+You can also perform calculations by typing directly on the keyboard, and the calculator will update accordingly.\n
+The calculator takes maximum two operands at the same time and performs the specified operation between them.
+When you make a mistake with choosing the operator, you can directly change it by selecting your desired operator.\n
+The current expression is limited to 16 characters, while the total expression can accommodate up to 30 characters.\n"""
         self.add_text_label(about_text, 10, "white")
 
         self.add_section_label("Usage", 25, ORANGE, Qt.AlignLeft)
 
         self.add_image_and_label(self.scroll_layout, help_pictures["Clear"],
-                                 "Clear: \nClears both the current and total expression")
+                                 "Clear:\nClears both the current and total expression")
         self.add_image_and_label(self.scroll_layout, help_pictures["Del"],
-                                 "Erasor: \nErases the last digit/operator in the current expression")
+                                 "Erasor:\nErases the last digit/operator in the current expression")
         self.add_image_and_label(self.scroll_layout, help_pictures["Exponentiation"],
-                                 "Exponentiation: \nBase^Exponent = Product\n5^2 = 25")
+                                 "Exponentiation:\nBase^Exponent = Product\n\n5^2 = 25")
         self.add_image_and_label(self.scroll_layout, help_pictures["Root"],
-                                 "Root: \nⁿ√x = Root \nn - degree, x - radical\n²√25 = 5")
+                                 "Root:\nⁿ√x = Root\n\nn - degree, x - radical\n\n²√25 = 5")
         self.add_image_and_label(self.scroll_layout, help_pictures["Factorial"],
-                                 "Factorial: \nUNARY OPERATOR\nNumber!\n(Num-1)\u00D7(Num-2) \u00D7 ... \u00D7 1\n4! "
-                                 "= 4 \u00D7 3 \u00D7 2 \u00D7 1")
+                                 "Factorial:\nUNARY OPERATOR\n\nNumber!\n\n(Num-1)×(Num-2) × ... × 1\n\n4! = 4 × 3 × 2 × 1")
         self.add_image_and_label(self.scroll_layout, help_pictures["Absolute value"],
-                                 "Absolute value: \nUNARY OPERATOR\n|Number|\nReturns the distance from 0\n|5| = 5 "
-                                 "and |-5| = 5")
+                                 "Absolute value:\nUNARY OPERATOR\n\n|Number|\n\nReturns the distance from 0\n\n|5| = 5\n\n|-5| = 5")
         self.add_image_and_label(self.scroll_layout, help_pictures["Modulo"],
-                                 "Modulo: \nNum % Num = R\nEvaluates the remainder after division\n7 % 3 = 1")
+                                 "Modulo:\nNum % Num = R\n\nEvaluates the remainder after division\n\n7 % 3 = 1")
         self.add_image_and_label(self.scroll_layout, help_pictures["Addition"],
-                                 "Addition: \nNum + Num = Sum\nReturns the sum after addition\n7 + 3 = 10")
+                                 "Addition:\nNum + Num = Sum\n\nReturns the sum after addition\n\n7 + 3 = 10")
         self.add_image_and_label(self.scroll_layout, help_pictures["Subtraction"],
-                                 "Subtraction: \nNum - Num = Difference\nReturns the difference after subtraction\n7 - "
-                                 "3 = 4")
+                                 "Subtraction:\nNum - Num = Difference\n\nReturns the difference after subtraction\n\n7 - 3 = 4")
         self.add_image_and_label(self.scroll_layout, help_pictures["Multiplication"],
-                                 "Multiplication: \nNum \u00D7 Num = Product\nReturns the product after "
-                                 "multiplication\n7 \u00D7 3 = 21")
+                                 "Multiplication:\nNum × Num = Product\n\nReturns the product after multiplication\n\n7 × 3 = 21")
         self.add_image_and_label(self.scroll_layout, help_pictures["Division"],
-                                 "Division: \nNum \u00F7 Num = Quotient\nReturns the quotient after division\nNum "
-                                 "\u00F7 0 = Division error\n10 \u00F7 2 = 5")
+                                 "Division:\nNum ÷ Num = Quotient\n\nReturns the quotient after division\n\nNum ÷ 0 = Division error\n\n10 ÷ 2 = 5")
         self.add_image_and_label(self.scroll_layout, help_pictures["Equals"],
-                                 "Equals: \nEvaluates the expression:\nFrom the total and current expression\nClears "
-                                 "the total expression\nPrints the result to the current expression")
+                                 "Equals:\nEvaluates the expression:\n\nFrom the total and current expression\n\nClears the total expression\n\nPrints the result to the current expression")
         self.add_image_and_label(self.scroll_layout, help_pictures["Decimal"],
-                                 "Decimal point: \nPlaces decimal point in the current expression\nRounds the number if "
-                                 "there are only zeroes behind the decimal point\nRemoves trailing decimal point if "
-                                 "no digit follows it")
+                                 "Decimal point:\nPlaces decimal point in the current expression\n\nRounds the number if there are only zeroes behind the decimal point\n\nRemoves trailing decimal point if no digit follows it")
 
         self.add_section_label("Specific usage", 25, ORANGE, Qt.AlignLeft)
         self.add_text_label("More detailed usage of specific buttons\n", 10, "white")
 
         self.add_image_and_label(self.scroll_layout, help_pictures["Exponentiation"],
-                                 "How to use Exponentiation: \n1. Choose the base \n2. Select the exponentiation "
-                                 "button\n 3. Choose the Exponent \n 4. Exponent cannot be decimal or negative")
+                                 "How to use Exponentiation:\n1. Choose the base\n2. Select the exponentiation button\n3. Choose the Exponent\n4. Exponent cannot be decimal or negative")
         self.add_image_and_label(self.scroll_layout, help_pictures["Root"],
-                                 "How to use Root: \n1. Choose the degree \n2. Select the root button\n 3. Choose the "
-                                 "radical \n4. Radical follows mathematical rules + cannot be decimal")
+                                 "How to use Root:\n1. Choose the degree\n2. Select the root button\n3. Choose the radical\n4. Radical follows mathematical rules + cannot be decimal")
         self.add_image_and_label(self.scroll_layout, help_pictures["Factorial"],
-                                 "How to use Factorial: \n1. Choose the number - not negative or decimal \n2. Select "
-                                 "the factorial button '!'")
+                                 "How to use Factorial:\n1. Choose the number - not negative or decimal\n2. Select the factorial button '!'")
         self.add_image_and_label(self.scroll_layout, help_pictures["Absolute value"],
-                                 "How to use Absolute value: \n1. Choose the number \n2. Select the Abs. value button")
+                                 "How to use Absolute value:\n1. Choose the number\n2. Select the Abs. value button")
         self.add_image_and_label(self.scroll_layout, help_pictures["Modulo"],
-                                 "How to use Modulo: \n1. Choose the number \n2. Select the Modulo button\n3. Choose "
-                                 "the divisor except 0")
+                                 "How to use Modulo:\n1. Choose the number\n2. Select the Modulo button\n3. Choose the divisor except 0")
 
     def add_section_label(self, text, font_size, color, alignment):
         label = QLabel(text)
         label.setFont(QFont("Arial", font_size))
         label.setStyleSheet(f"color: {color}; background-color: {DARK_GRAY}; font-weight: bold;")
         label.setAlignment(alignment)
+        label.setContentsMargins(0, 10, 0, 10)  # Adding top and bottom margins
         self.scroll_layout.addWidget(label)
 
     def add_text_label(self, text, font_size, color):
@@ -146,13 +135,14 @@ class HelpWindow(QMainWindow):
         label.setFont(QFont("Arial", font_size))
         label.setStyleSheet(f"color: {color}; background-color: {DARK_GRAY}; font-weight: bold")
         label.setWordWrap(True)
+        label.setContentsMargins(0, 10, 0, 10)  # Adding top and bottom margins
         self.scroll_layout.addWidget(label)
 
     def add_image_and_label(self, layout, image_path, text):
         container = QFrame()
         container.setStyleSheet(f"background-color: {GRAY}; border-radius: 10px;")
         container_layout = QHBoxLayout(container)
-        container_layout.setContentsMargins(5, 5, 5, 5)
+        container_layout.setContentsMargins(5, 15, 5, 15)  # Adding top and bottom margins
         container_layout.setSpacing(10)
 
         image = QLabel()
