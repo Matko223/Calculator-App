@@ -5,6 +5,8 @@ from PySide6.QtCore import Qt
 import platform
 import sys
 
+# TODO: Fix the introduction
+
 LIGHT_GRAY = "#979797"
 DARK_GRAY = "#3D3D3D"
 ORANGE = "#FFA500"

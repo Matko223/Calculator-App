@@ -6,6 +6,8 @@ import mathlib
 from Calculator.Kalkulajda.help_menu import HelpWindow
 from Calculator.Kalkulajda.mode_menu import Sidebar
 
+# TODO: Sidebar fix, key inputs, import decimal, add comments
+
 LIGHT_GRAY = "#979797"
 DARK_GRAY = "#3D3D3D"
 ORANGE = "#FFA500"
@@ -48,6 +50,7 @@ class App(QWidget):
         my_icon = QIcon()
         my_icon.addFile(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\icons\real_logo.png')
         self.setWindowIcon(my_icon)
+        self.standard_mode = True
 
         self.digits = {
             7: (1, 1),
@@ -86,6 +89,7 @@ class App(QWidget):
         self.main_layout.setSpacing(0)
 
         self.sidebar = Sidebar(self)
+        self.main_layout.addWidget(self.sidebar)
         self.sidebar.hide()  # Hide the sidebar initially
 
         self.calculator_layout = QVBoxLayout()
@@ -166,7 +170,6 @@ class App(QWidget):
         self.sidebar.toggle()
         if self.sidebar.is_visible:
             self.setFixedSize(600, 405)
-            self.main_layout.addWidget(self.sidebar)
             self.sidebar.show()
         else:
             self.setFixedSize(400, 405)
