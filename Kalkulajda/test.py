@@ -6,7 +6,7 @@ import mathlib
 from Calculator.Kalkulajda.help_menu import HelpWindow
 from Calculator.Kalkulajda.mode_menu import Sidebar
 
-# TODO: Sidebar fix, key inputs, import decimal, add comments
+# TODO: import decimal, add comments, simplify the counting
 
 LIGHT_GRAY = "#979797"
 DARK_GRAY = "#3D3D3D"
@@ -294,6 +294,8 @@ class App(QWidget):
         button.setFixedSize(79 * 2, 55)
         button.clicked.connect(lambda _, op="C": self.handle_clear())
         self.buttonLayout.addWidget(button, pos[0], pos[1], pos[2], pos[3])
+        shortcut_clear = QShortcut(QKeySequence("C"), self)
+        shortcut_clear.activated.connect(self.handle_clear)
 
     def create_delete_button(self, pos):
         button = QPushButton("⌫")
@@ -387,6 +389,8 @@ class App(QWidget):
         button.setFixedSize(79, 55)
         button.clicked.connect(lambda _, op=".": self.handle_decimal_point())
         self.buttonLayout.addWidget(button, pos[0], pos[1])
+        shortcut_decimal = QShortcut(QKeySequence(Qt.Key_Period), self)
+        shortcut_decimal.activated.connect(self.handle_decimal_point)
 
     def create_equals_button(self, pos):
         button = QPushButton("=")

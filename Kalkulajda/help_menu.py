@@ -1,12 +1,9 @@
-import os
+import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, QWidget, QScrollArea, QFrame
 from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
-import platform
-import sys
 
-# TODO: Fix the introduction
-
+# Define constants
 LIGHT_GRAY = "#979797"
 DARK_GRAY = "#3D3D3D"
 ORANGE = "#FFA500"
@@ -18,6 +15,7 @@ SMALL = "Arial 15"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
 
+# Define help pictures paths
 help_pictures = {
     "Help": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\help_icon.png',
     "Clear": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\Clear.ico',
@@ -58,30 +56,58 @@ class HelpWindow(QMainWindow):
 
     def create_help_content(self):
         self.add_section_label("About", 25, ORANGE, Qt.AlignCenter)
-        about_text = """Simple calculator developed by:
-        xcsirim00, xgajduv00, xlajdat00 and xvalapm00\n
-        It supports basic arithmetic operations:
-        Addition, subtraction, multiplication, and division.
-        Additionally, it provides features like:
-        Exponentiation, root, factorial, absolute value, and modulo.
-        It also supports decimal numbers and negative numbers.\n
-        Enjoy calculating!\n
-        The Calculator is divided into 2 frames - display and buttons.
-        The display frame shows the current expression and the result.
-        While the button frame contains buttons for inputting numbers, operators, and performing various operations.\n
-        The evaluation works automatically when you press the operator or when you press the equals button.
-        You can also perform calculations by typing directly on the keyboard, and the calculator will update accordingly.\n
-        The calculator takes maximum two operands at the same time and performs the specified operation between them.
-        When you make a mistake with choosing the operator, you can directly change it by selecting your desired operator.\n
-        The current expression is limited to 16 characters, while the total expression can accommodate up to 30 characters.\n"""
-        self.add_text_label(about_text, 10, "white")
+        about_text = """
+        Simple Calculator
+
+        Developed by:
+        - xcsirim00
+        - xgajduv00
+        - xlajdat00
+        - xvalapm00
+
+        Features:
+        - Basic arithmetic operations:
+          - Addition
+          - Subtraction
+          - Multiplication
+          - Division
+        - Advanced operations:
+          - Exponentiation
+          - Root
+          - Factorial
+          - Absolute value
+          - Modulo
+        - Supports:
+          - Decimal numbers
+          - Negative numbers
+
+        Usage:
+        - The Calculator is divided into two main sections:
+          1. Display Frame: Shows the current expression and the result.
+          2. Button Frame: Contains buttons for inputting numbers, operators, and performing various operations.
+
+        Evaluation:
+        - The calculation is performed automatically when you press an operator or the equals button.
+        - You can also type directly on the keyboard, and the calculator will update accordingly.
+
+        Input Handling:
+        - The calculator accepts a maximum of two operands at a time and performs the specified operation between them.
+        - If you make a mistake in choosing the operator, you can directly change it by selecting your desired operator.
+
+        Character Limit:
+        - The current expression is limited to 16 characters.
+        - The total expression can accommodate up to 30 characters.
+
+        Enjoy calculating!
+        """
+        self.add_text_label(about_text.strip(), 10, "white")
 
         self.add_section_label("Usage", 25, ORANGE, Qt.AlignLeft)
 
         self.add_image_and_label(self.scroll_layout, help_pictures["Clear"],
                                  "Clear:\nClears both the current and total expression")
         self.add_image_and_label(self.scroll_layout, help_pictures["Del"],
-                                 "Erasor:\nErases the last digit/operator in the current expression")
+                                 "Eraser:\nErases the last digit/operator in the current expression")
         self.add_image_and_label(self.scroll_layout, help_pictures["Exponentiation"],
                                  "Exponentiation:\nBase^Exponent = Product\n5^2 = 25")
         self.add_image_and_label(self.scroll_layout, help_pictures["Root"],
@@ -132,7 +158,7 @@ class HelpWindow(QMainWindow):
     def add_text_label(self, text, font_size, color):
         label = QLabel(text)
         label.setFont(QFont("Arial", font_size))
-        label.setStyleSheet(f"color: {color}; background-color: {DARK_GRAY}; font-weight: bold")
+        label.setStyleSheet(f"color: {color}; background-color: {DARK_GRAY}; font-weight: bold;")
         label.setWordWrap(True)
         self.scroll_layout.addWidget(label)
 
