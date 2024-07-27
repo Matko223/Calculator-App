@@ -1,6 +1,5 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, QWidget, QScrollArea, \
-    QPushButton
-from PySide6.QtGui import QPixmap, QFont, QIcon
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
+from PySide6.QtGui import QFont, QIcon
 from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QSize
 
 LIGHT_GRAY = "#979797"
@@ -16,18 +15,20 @@ HOVER_OPERATOR = "#FF8409"
 
 
 class Sidebar(QWidget):
-    """!
+    """
     @brief Sidebar widget for calculator modes and settings.
     """
 
     def __init__(self, parent=None):
-        """!
+        """
         @brief Constructor for Sidebar.
-        @param parent Parent widget.
+        @param parent: Parent widget.
         """
         super().__init__(parent)
+        self.buttons = None
         self.animation = None
         self.is_visible = False
+        self.selected_mode = None  # Track the selected mode
         self.setFixedWidth(0)
         self.setMaximumWidth(200)
         self.setStyleSheet(f"""
@@ -48,9 +49,10 @@ class Sidebar(QWidget):
         self.content_layout.addStretch()
 
         main_layout.addWidget(content_widget)
+        self.select_mode("Standard")
 
     def create_title(self):
-        """!
+        """
         @brief Creates and adds the title label to the content layout.
         """
         title = QLabel("Calculator Modes")
@@ -59,31 +61,33 @@ class Sidebar(QWidget):
         self.content_layout.addWidget(title)
 
     def create_mode_buttons(self):
-        """!
+        """
         @brief Creates and adds the mode buttons to the content layout.
         """
+        self.buttons = {}
+
         modes = ["Standard", "Photomath mode", "Graphing", "Programmer", "Date Calculation", "BMI", "Currency", ""]
         for mode in modes:
             button = QPushButton(mode)
             button.setStyleSheet(self.get_button_style())
+            button.clicked.connect(lambda checked, m=mode: self.select_mode(m))
 
             if mode == "":
-                button.clicked.connect(self.toggle)
-                button.setStyleSheet(button.styleSheet())
                 icon = QIcon(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures'
                              r'\settings_icon.png')
                 button.setIcon(icon)
                 button.setIconSize(QSize(25, 25))
 
+            self.buttons[mode] = button
             self.content_layout.addWidget(button)
 
     def get_button_style(self):
-        """!
+        """
         @brief Returns the stylesheet for the buttons.
         @return Stylesheet string.
         """
         return f"""
-            QPushButton, #settingsContainer {{
+            QPushButton {{
                 background-color: {GRAY};
                 color: white;
                 border: none;
@@ -97,8 +101,36 @@ class Sidebar(QWidget):
             }}
         """
 
+    def select_mode(self, mode):
+        """
+        @brief Selects a mode and updates button styles.
+        @param mode: The mode to be selected.
+        """
+        self.selected_mode = mode
+        self.update_button_styles()
+
+    def update_button_styles(self):
+        """
+        @brief Updates the button styles based on the selected mode.
+        """
+        for mode, button in self.buttons.items():
+            if mode == self.selected_mode:
+                button.setStyleSheet(f"""
+                    QPushButton {{
+                        background-color: {ORANGE};
+                        color: white;
+                        border: none;
+                        padding: 10px;
+                        font-weight: bold;
+                        border-radius: 5px;
+                        text-align: center;
+                    }}
+                """)
+            else:
+                button.setStyleSheet(self.get_button_style())
+
     def toggle(self):
-        """!
+        """
         @brief Toggles the visibility of the sidebar with an animation.
         """
         target_width = 200 if not self.is_visible else 0
@@ -111,7 +143,7 @@ class Sidebar(QWidget):
         self.is_visible = not self.is_visible
 
     def sizeHint(self):
-        """!
+        """
         @brief Provides a size hint for the sidebar.
         @return QSize object with the recommended size.
         """

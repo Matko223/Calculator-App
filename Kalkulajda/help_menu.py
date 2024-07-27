@@ -35,7 +35,17 @@ help_pictures = {
 
 
 class HelpWindow(QMainWindow):
+    """
+    @brief Help window for the calculator application.
+    """
+
     def __init__(self, root, *args, **kwargs):
+        """
+        @brief Constructor for HelpWindow.
+        @param root: Parent window.
+        @param args: Additional arguments.
+        @param kwargs: Additional keyword arguments.
+        """
         super().__init__(*args, **kwargs)
         self.root = root
         self.setGeometry(root.geometry().x() + 65, root.geometry().y() + 80, 350, 350)
@@ -55,6 +65,9 @@ class HelpWindow(QMainWindow):
         self.create_help_content()
 
     def create_help_content(self):
+        """
+        @brief Creates the help content including sections and images.
+        """
         self.add_section_label("About", 25, ORANGE, Qt.AlignCenter)
         about_text = """
         Simple Calculator
@@ -149,6 +162,13 @@ class HelpWindow(QMainWindow):
                                  "the divisor except 0")
 
     def add_section_label(self, text, font_size, color, alignment):
+        """
+        @brief Adds a section label to the help content.
+        @param text: The text for the label.
+        @param font_size: The font size for the label.
+        @param color: The color for the label.
+        @param alignment: The alignment for the label.
+        """
         label = QLabel(text)
         label.setFont(QFont("Arial", font_size))
         label.setStyleSheet(f"color: {color}; background-color: {DARK_GRAY}; font-weight: bold;")
@@ -156,6 +176,12 @@ class HelpWindow(QMainWindow):
         self.scroll_layout.addWidget(label)
 
     def add_text_label(self, text, font_size, color):
+        """
+        @brief Adds a text label to the help content.
+        @param text: The text for the label.
+        @param font_size: The font size for the label.
+        @param color: The color for the label.
+        """
         label = QLabel(text)
         label.setFont(QFont("Arial", font_size))
         label.setStyleSheet(f"color: {color}; background-color: {DARK_GRAY}; font-weight: bold;")
@@ -163,6 +189,12 @@ class HelpWindow(QMainWindow):
         self.scroll_layout.addWidget(label)
 
     def add_image_and_label(self, layout, image_path, text):
+        """
+        @brief Adds an image and a label to the help content.
+        @param layout: The layout to add the image and label to.
+        @param image_path: The path to the image.
+        @param text: The text for the label.
+        """
         container = QFrame()
         container.setStyleSheet(f"background-color: {GRAY}; border-radius: 10px;")
         container_layout = QHBoxLayout(container)
@@ -196,6 +228,10 @@ class HelpWindow(QMainWindow):
         layout.addWidget(container)
 
         def resize_wraplength(event):
+            """
+            @brief Adjusts the width of the description label to ensure proper word wrapping.
+            @param event: The resize event that triggers this function.
+            """
             description_label.setWordWrap(True)
             description_label.setFixedWidth(event.size().width() - image.sizeHint().width() - 40)
 
