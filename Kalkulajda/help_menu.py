@@ -1,3 +1,11 @@
+"""
+@file mode_menu.py
+@brief File containing help menu of the Standard Calculator.
+
+@author Martin Valapka (xvalapm00)
+@date 27.07. 2024
+"""
+
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, QWidget, QScrollArea, QFrame
 from PySide6.QtGui import QPixmap, QFont
@@ -73,10 +81,7 @@ class HelpWindow(QMainWindow):
         Simple Calculator
 
         Developed by:
-        - xcsirim00
-        - xgajduv00
-        - xlajdat00
-        - xvalapm00
+        - Martin Valapka (xvalapm00)
 
         Features:
         - Basic arithmetic operations:

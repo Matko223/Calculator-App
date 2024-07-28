@@ -15,7 +15,7 @@ from Calculator.Kalkulajda.help_menu import HelpWindow
 from Calculator.Kalkulajda.mode_menu import Sidebar
 import ctypes
 
-# TODO: import decimal, add comments, simplify the counting
+# TODO: import decimal, simplify the counting
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -51,6 +51,7 @@ class App(QWidget):
         @brief Initializes the calculator application.
         """
         super().__init__()
+        self.equals_pressed = False
         self.sidebar = None
         self.help_window = None
         self.buttonFrameLayout = None
@@ -474,7 +475,7 @@ class App(QWidget):
     def create_equals_button(self, pos):
         """
         @brief Creates and configures the button for equals operation (=).
-        @param pos: Position of the button in the grid layout as a tuple (row, column).
+        @param pos tuple The position of the button in the grid layout as a tuple (row, column).
         """
         button = QPushButton("=")
         button.setFont(QFont("Arial", 20))
@@ -487,13 +488,34 @@ class App(QWidget):
             }}
         """)
         button.setFixedSize(79, 55)
-        button.clicked.connect(self.handle_equals)
+        button.clicked.connect(lambda: self.evaluate(equals_button=True))
         self.buttonLayout.addWidget(button, pos[0], pos[1])
+
         # Bind both Return and Enter keys to handle_equals
         shortcut_enter = QShortcut(QKeySequence(Qt.Key_Enter), self)
-        shortcut_enter.activated.connect(self.handle_equals)
+        shortcut_enter.activated.connect(lambda: self.evaluate(equals_button=True))
+        shortcut_return = QShortcut(QKeySequence(Qt.Key_Return), self)
+        shortcut_return.activated.connect(lambda: self.evaluate(equals_button=True))
         shortcut_equals = QShortcut(QKeySequence("="), self)
-        shortcut_equals.activated.connect(self.handle_equals)
+        shortcut_equals.activated.connect(lambda: self.evaluate(equals_button=True))
+
+    def handle_operator(self, operator):
+        """
+        @brief Handles the input of an operator.
+        @param operator str The operator that was input.
+        """
+        if self.currentExpression:
+            if not self.evaluated:
+                self.evaluate()
+            self.totalExpression = self.currentExpression + operator
+            self.currentExpression = ""
+            self.update_total_label()
+            self.update_current_label()
+        elif self.totalExpression and self.totalExpression[-1] in "+-*/%":
+            self.totalExpression = self.totalExpression[:-1] + operator
+            self.update_total_label()
+        self.equals_pressed = False
+        self.evaluated = False
 
     def show_numbers(self, digit):
         """
@@ -805,313 +827,166 @@ class App(QWidget):
 
     def parsing(self):
         """
-        @brief Parses the total expression into its components (left side, operator, right side) and identifies the last operator.
-        @param self: Instance of the class.
-        @return: Tuple containing the left side of the expression, operator, right side of the expression, and last operator.
+        @brief Parses the total expression into its components.
         """
-        lastOperator = ""
-        if len(self.totalExpression) >= 3:
-            lastOperator = self.totalExpression[-1]
-
-        self.totalExpression = self.totalExpression[:-1]
         operators = {'+', '-', '*', '/', '%'}
+        lastOperator = self.totalExpression[-1] if self.totalExpression else ""
+        expression = self.totalExpression[:-1] if lastOperator in operators else self.totalExpression
 
-        # Find the indices of the operators
-        separatorIndices = [i for i, char in enumerate(self.totalExpression) if char in operators]
+        # Find the last valid operator
+        for i in range(len(expression) - 1, -1, -1):
+            if expression[i] in operators and not (
+                    (expression[i] == '-' and (i == 0 or expression[i - 1] in operators)) or
+                    (i > 0 and expression[i - 1].lower() == 'e')
+            ):
+                return expression[:i], expression[i], expression[i + 1:], lastOperator
 
-        # Ignore minus sign if it's part of a negative number or if it's part of scientific notation
-        separatorIndices = [i for i in separatorIndices if not (
-                (self.totalExpression[i] == '-' and (i == 0 or self.totalExpression[i - 1] in operators)) or
-                (i > 0 and self.totalExpression[i - 1].lower() == 'e'))]
+        return expression, "", "", lastOperator
 
-        # If there's only one operator or none, split the expression normally
-        if len(separatorIndices) == 1:
-            separatorIndex = separatorIndices[0]
-            leftSide = self.totalExpression[:separatorIndex]
-            rightSide = self.totalExpression[separatorIndex + 1:]
-            separator = self.totalExpression[separatorIndex]
-            return leftSide, separator, rightSide, lastOperator
-        else:
-            # If there are no operators or more than one, return an error
-            self.error("Invalid number of operators")
-
-    def evaluate(self):
+    def evaluate(self, equals_button=False):
         """
-        @brief Evaluates the expression by parsing and calculating the result based on the components.
-        @param self: Instance of the class.
-        @return: True if the result is successfully evaluated and updated, False otherwise.
+        @brief Evaluates the expression by parsing and calculating the result.
+        @param equals_button bool True if called from equals button, False otherwise.
+        @return bool True if the evaluation was successful, False otherwise.
         """
-        components = self.parsing()
-        if components is None:
+        self.equals_pressed = equals_button
+        leftSide, operator, rightSide, lastOperator = self.parsing()
+
+        if not operator and not rightSide:
+            rightSide = self.currentExpression
+            operator = lastOperator
+
+        leftSide = self.process_special_operations(leftSide)
+        rightSide = self.process_special_operations(rightSide)
+
+        try:
+            leftValue = float(leftSide)
+            rightValue = float(rightSide)
+        except ValueError:
+            self.error("Invalid number format")
             return False
 
-        leftSide, separator, rightSide, lastOperator = components
-        result = 0
-
-        # Handle exponentiation
-        if '^' in leftSide:
-            expLeft = leftSide.split('^')[0]
-            expRight = leftSide.split('^')[1]
-            if '.' in expRight or int(expRight) < 0:
-                self.error("Exponent must be a non-negative integer")
-                return None
-            if expLeft == '0' and expRight == '0':
-                self.error("0^0 is undefined")
-                return None
-            if '.' not in expLeft:
-                leftSide = str(mathlib.pow(int(expLeft), int(expRight)))
-            else:
-                leftSide = str(mathlib.pow(float(expLeft), int(expRight)))
-
-        if '^' in rightSide:
-            expLeft = rightSide.split('^')[0]
-            expRight = rightSide.split('^')[1]
-            if '.' in expRight or int(expRight) < 0:
-                self.error("Exponent must be a non-negative integer")
-                return None
-            if expLeft == '0' and expRight == '0':
-                self.error("0^0 is undefined")
-                return None
-            if '.' not in expLeft:
-                rightSide = str(mathlib.pow(int(expLeft), int(expRight)))
-            else:
-                rightSide = str(mathlib.pow(float(expLeft), int(expRight)))
-
-        # Handle square root
-        if '√' in leftSide:
-            rootRight = leftSide.split('√')[0]
-            rootLeft = leftSide.split('√')[1]
-            if '.' in rootRight or int(rootRight) <= 0:
-                self.error("Root index must be a non-negative integer")
-                return None
-            if float(rootLeft) < 0:
-                self.error("Cannot take the root of a negative number")
-                return None
-            leftSide = str(mathlib.root(float(rootLeft), int(rootRight)))
-            if '.' in leftSide:
-                leftSideFloat = float(leftSide)
-                if round(leftSideFloat * 10 ** 5) % 10 == 0:
-                    leftSide = str(round(leftSideFloat))
-
-        if '√' in rightSide:
-            rootRight = rightSide.split('√')[0]
-            rootLeft = rightSide.split('√')[1]
-            if '.' in rootRight or int(rootRight) <= 0:
-                self.error("Root index must be a non-negative integer")
-                return None
-            if float(rootLeft) < 0:
-                self.error("Cannot take the root of a negative number")
-                return None
-            rightSide = str(mathlib.root(float(rootLeft), int(rootRight)))
-            if '.' in rightSide:
-                rightSide_float = float(rightSide)
-                if round(rightSide_float * 10 ** 5) % 10 == 0:
-                    rightSide = str(round(rightSide_float))
-
-        # Convert to float or int as necessary
-        if '.' in leftSide or 'e' in leftSide:
-            leftSideFloat = float(leftSide)
-        else:
-            leftSideFloat = int(leftSide)
-        if '.' in rightSide or 'e' in rightSide:
-            rightSideFloat = float(rightSide)
-        else:
-            rightSideFloat = int(rightSide)
-
-        # Perform the remaining operations
-        if separator == '+':
-            result += mathlib.add(leftSideFloat, rightSideFloat)
-        elif separator == '-':
-            result += mathlib.sub(leftSideFloat, rightSideFloat)
-        elif separator == '*':
-            result += mathlib.mul(leftSideFloat, rightSideFloat)
-        elif separator == '/':
-            if rightSideFloat == 0:
-                self.error("Cannot divide by zero")
-                return False
-            elif leftSideFloat % rightSideFloat == 0:
-                result = mathlib.div(leftSideFloat, rightSideFloat)
-                result = int(result)
-            else:
-                result += mathlib.div(leftSideFloat, rightSideFloat)
-        elif separator == '%':
-            if rightSideFloat == 0:
-                self.error("Cannot perform modulo operation with zero")
-                return False
-            result += mathlib.mod(leftSideFloat, rightSideFloat)
-        else:
+        result = self.perform_operation(leftValue, rightValue, operator)
+        if result is None:
             return False
 
-        # Check if the result is within a certain range to avoid scientific notation
-        if -1e16 < result < 1e16:
-            resultStr = str(result)
-            resultIntLength = len(str(int(result)))
-            # If the result string is longer than 16 characters, round the result
-            if len(resultStr) > 16:
-                if resultIntLength == 16:
-                    result = round(result)
+        self.update_result(result, lastOperator)
+        return True
+
+    def process_special_operations(self, value):
+        """
+        @brief Processes exponentiation and root operations.
+        @param value str The string representation of the value to process.
+        @return str The processed value as a string, or None if an error occurred.
+        """
+        if '^' in value:
+            base, exponent = value.split('^')
+            return self.calculate_power(float(base), int(exponent))
+        elif '√' in value:
+            parts = value.split('√')
+            if len(parts) == 2:
+                index, radicand = parts
+                if index:
+                    return self.calculate_root(float(radicand), int(index))
                 else:
-                    result = round(result, 16 - resultIntLength)
-                resultStr = str(result)
-        else:
-            resultStr = "{:.5e}".format(result)
-
-        # Update the current expression with the result
-        self.currentExpression = resultStr
-        self.update_current_label()
-
-        # Update the total expression with the new result and the operator
-        self.totalExpression = str(resultStr) + lastOperator
-        self.update_total_label()
-        self.evaluated = True
-        return self.evaluated
-
-    def handle_equals(self):
-        """
-        @brief Calculates the result of the expression when the equals button is pressed.
-        @param self: Instance of the class.
-        @return: True if the calculation is successful, False otherwise.
-        """
-        # Parse exponentiation
-        exponentiation_result = self.parse_exponentiation()
-        if exponentiation_result is not None:
-            self.currentExpression = exponentiation_result
-            self.update_current_label()
-            return True  # Return if exponentiation was performed
-
-        # Parse root
-        root_result = self.parse_root()
-        if root_result is not None:
-            self.currentExpression = root_result
-            self.update_current_label()
-            return True  # Return if root was performed
-
-        # Check if totalExpression is not empty before accessing its last character
-        if self.totalExpression:
-            leftSide = self.totalExpression[:-1]
-            operator = self.totalExpression[-1]
-        else:
-            return False  # Return False if totalExpression is empty
-
-        rightSide = self.currentExpression
-
-        # Check and handle exponentiation in leftSide
-        if '^' in leftSide:
-            expLeft = leftSide.split('^')[0]
-            expRight = leftSide.split('^')[1]
-            if '.' in expRight or int(expRight) < 0:
-                self.error("Exponent must be a non-negative integer")
-                return None
-            if expLeft == '0' and expRight == '0':
-                self.error("0^0 is undefined")
-                return None
-            if '.' not in expLeft:
-                leftSide = str(mathlib.pow(int(expLeft), int(expRight)))
+                    return self.calculate_root(float(radicand), 2)
             else:
-                leftSide = str(mathlib.pow(float(expLeft), int(expRight)))
+                self.error("Invalid root format")
+                return None
+        return value
 
-        if '^' in rightSide:
-            expLeft = rightSide.split('^')[0]
-            expRight = rightSide.split('^')[1]
-            if '.' in expRight or int(expRight) < 0:
-                self.error("Exponent must be a non-negative integer")
-                return None
-            if expLeft == '0' and expRight == '0':
-                self.error("0^0 is undefined")
-                return None
-            if '.' not in expLeft:
-                rightSide = str(mathlib.pow(int(expLeft), int(expRight)))
-            else:
-                rightSide = str(mathlib.pow(float(expLeft), int(expRight)))
+    def calculate_power(self, base, exponent):
+        """
+        @brief Calculates the power of a number.
+        @param base float The base number.
+        @param exponent int The exponent.
+        @return str The result as a string, or None if an error occurred.
+        """
+        if exponent < 0 or '.' in str(exponent):
+            self.error("Exponent must be a non-negative integer")
+            return None
+        if base == 0 and exponent == 0:
+            self.error("0^0 is undefined")
+            return None
+        return str(mathlib.pow(base, exponent))
 
-        # Check and handle root in leftSide
-        if '√' in leftSide:
-            rootLeft = leftSide.split('√')[0]
-            rootRight = leftSide.split('√')[1]
-            if '.' in rootLeft or int(rootLeft) <= 0:
-                self.error("Root index must be a non-negative integer")
-                return None
-            if float(rootRight) < 0:
-                self.error("Cannot take the root of a negative number")
-                return None
-            leftSide = str(mathlib.root(float(rootRight), int(rootLeft)))
-            if '.' in leftSide:
-                leftSideFloat = float(leftSide)
-                if round(leftSideFloat * 10 ** 5) % 10 == 0:
-                    leftSide = str(round(leftSideFloat))
-
-        # Check and handle root in rightSide
-        if '√' in rightSide:
-            rootLeft = rightSide.split('√')[0]
-            rootRight = rightSide.split('√')[1]
-            if '.' in rootLeft or int(rootLeft) <= 0:
-                self.error("Root index must be a non-negative integer")
-                return None
-            if float(rootRight) < 0:
-                self.error("Cannot take the root of a negative number")
-                return None
-            rightSide = str(mathlib.root(float(rootRight), int(rootLeft)))
-            if '.' in rightSide:
-                rightSideFloat = float(rightSide)
-                if round(rightSideFloat * 10 ** 5) % 10 == 0:
-                    rightSide = str(round(rightSideFloat))
-
-        if '.' in leftSide or 'e' in leftSide:
-            leftSideFloat = float(leftSide)
+    def calculate_root(self, radicand, index):
+        """
+        @brief Calculates the nth root of a number.
+        @param radicand float The number under the root.
+        @param index int The root index.
+        @return str The result as a string, or None if an error occurred.
+        """
+        if index <= 0 or '.' in str(index):
+            self.error("Root index must be a positive integer")
+            return None
+        if radicand < 0:
+            self.error("Cannot take the root of a negative number")
+            return None
+        result = mathlib.root(radicand, index)
+        if abs(result - round(result)) < 1e-5:
+            return str(round(result, 5))
         else:
-            leftSideFloat = int(leftSide)
+            return str(result)
 
-        if '.' in rightSide or 'e' in rightSide:
-            rightSideFloat = float(rightSide)
-        else:
-            rightSideFloat = int(rightSide)
-
+    def perform_operation(self, left, right, operator):
+        """
+        @brief Performs the specified arithmetic operation.
+        @param left float The left operand.
+        @param right float The right operand.
+        @param operator str The arithmetic operator.
+        @return float The result of the operation, or None if an error occurred.
+        """
         if operator == '+':
-            result = mathlib.add(leftSideFloat, rightSideFloat)
+            return mathlib.add(left, right)
         elif operator == '-':
-            result = mathlib.sub(leftSideFloat, rightSideFloat)
+            return mathlib.sub(left, right)
         elif operator == '*':
-            result = mathlib.mul(leftSideFloat, rightSideFloat)
+            return mathlib.mul(left, right)
         elif operator == '/':
-            if rightSideFloat == 0:
+            if right == 0:
                 self.error("Cannot divide by zero")
                 return None
-            if leftSideFloat % rightSideFloat == 0:
-                result = mathlib.div(leftSideFloat, rightSideFloat)
-                result = int(result)
-            else:
-                result = mathlib.div(leftSideFloat, rightSideFloat)
+            return mathlib.div(left, right)
         elif operator == '%':
-            if rightSideFloat == 0:
-                self.error("Cannot perform modulo operation by zero")
+            if right == 0:
+                self.error("Cannot perform modulo operation with zero")
                 return None
-            result = mathlib.mod(leftSideFloat, rightSideFloat)
+            return mathlib.mod(left, right)
         else:
-            return False
+            self.error("Invalid operator")
+            return None
 
-        # Check if the result is within a certain range to avoid scientific notation
+    def update_result(self, result, lastOperator):
+        """
+        @brief Updates the current and total expressions with the calculated result.
+        @param result float The calculated result.
+        @param lastOperator str The last operator used in the calculation.
+        """
         if -1e16 < result < 1e16:
-            resultStr = str(result)
-            resultIntLength = len(str(int(result)))
-            # If the result string is longer than 16 characters, round the result
+            if abs(result - round(result)) < 1e-10:
+                resultStr = str(int(round(result)))
+            else:
+                resultStr = str(result)
+
             if len(resultStr) > 16:
-                if resultIntLength == 16:
-                    result = round(result)
+                if '.' in resultStr:
+                    integer_part = len(str(int(float(resultStr))))
+                    result = round(result, 16 - integer_part)
                 else:
-                    result = round(result, 16 - resultIntLength)
+                    result = round(result)
                 resultStr = str(result)
         else:
             resultStr = "{:.5e}".format(result)
 
-        # Update the current expression with the result
         self.currentExpression = resultStr
+        if self.equals_pressed:
+            self.totalExpression = ""
+        else:
+            self.totalExpression = resultStr + lastOperator
         self.update_current_label()
-
-        # Update the total expression with the new result and the operator
-        self.totalExpression = ""
         self.update_total_label()
         self.evaluated = True
-        return self.evaluated
 
     def signal(self):
         """

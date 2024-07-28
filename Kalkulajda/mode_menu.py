@@ -1,3 +1,11 @@
+"""
+@file mode_menu.py
+@brief File containing sidebar of calculator app.
+
+@author Martin Valapka (xvalapm00)
+@date 27.07. 2024
+"""
+
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
 from PySide6.QtGui import QFont, QIcon
 from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QSize
