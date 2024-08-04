@@ -1,22 +1,20 @@
 """
 @file calculator2.py
-@brief File containing GUI of calculator application.
+@brief File containing GUI of calculator application with photomath mode.
 
 @author Martin Valapka (xvalapm00)
-@date 27.07. 2024
+@date 28.07. 2024
 """
 
 import sys
-from decimal import getcontext, Decimal
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel, QPushButton, QHBoxLayout, \
-    QLineEdit, QStackedLayout
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel, QPushButton, QHBoxLayout
 from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon
-from PySide6.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, Signal
+from PySide6.QtCore import Qt, QSize
 import mathlib
 from Calculator.Kalkulajda.help_menu import HelpWindow
 from Calculator.Kalkulajda.mode_menu import Sidebar
-from bmi_calculator import BMICalculator
 import ctypes
+from decimal import *
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -41,7 +39,7 @@ if PRODUCTION:
     }
 
 
-class App(QWidget):
+class PhotomathMode(QWidget):
     """
     @class App
     @brief Main class for the calculator application GUI.
@@ -52,10 +50,8 @@ class App(QWidget):
         @brief Initializes the calculator application.
         """
         super().__init__()
-        self.height_input = None
-        self.result_label = None
-        self.weight_input = None
         self.equals_pressed = False
+        self.sidebar = None
         self.help_window = None
         self.buttonFrameLayout = None
         self.buttonLayout = None
@@ -65,7 +61,7 @@ class App(QWidget):
         self.displayFrame = None
         self.currentLabel = None
         self.setWindowTitle("Calcu-lajda")
-        self.setFixedSize(400, 405)
+        self.setFixedSize(400, 405)  # Start with the smaller size
         self.totalExpression = ""
         self.currentExpression = "0"
         self.evaluated = False
@@ -98,8 +94,8 @@ class App(QWidget):
         # Special operation button positions
         self.special_operations = {
             "x²": (0, 0),
-            "C": (0, 1, 1, 2),
-            "⌫": (0, 3, 1, 2),
+            "C": (0, 3),
+            "⌫": (0, 4),
             "√": (1, 0),
             "!": (2, 0),
             "|x|": (3, 0),
@@ -108,59 +104,34 @@ class App(QWidget):
             "=": (4, 3)
         }
 
-        # Initialize layouts
-        self.main_layout = QHBoxLayout(self)
+        self.brackets = {
+            "(": (0, 1),
+            ")": (0, 2)
+        }
+
+        # Main layout configuration
+        self.main_layout = QHBoxLayout()
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
 
-        self.calculator_layout = QVBoxLayout()
-
-        # Create sidebar
         self.sidebar = Sidebar(self)
-        self.sidebar.mode_selected.connect(self.switch_mode)
-
-        # Create widgets
-        self.default_widget = self.create_default_widget()
-        self.bmi_widget = BMICalculator()
-
-        # Add widgets to calculator layout
-        self.calculator_layout.addWidget(self.default_widget)
-        self.calculator_layout.addWidget(self.bmi_widget)
-
-        # Add layouts to main layout
         self.main_layout.addWidget(self.sidebar)
-        self.main_layout.addLayout(self.calculator_layout)
-
-        # Initialize UI
-        self.sidebar.hide()
+        self.sidebar.hide()  # Hide the sidebar initially
         self.sidebar.select_mode("Standard")
-        self.switch_mode("Standard")
 
-    def create_default_widget(self):
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-
-        layout.setSpacing(0)
-        layout.setContentsMargins(0, 0, 0, 0)
-
+        self.calculator_layout = QVBoxLayout()
         self.display_frame()
-        layout.addWidget(self.displayFrame)
-
         self.button_frame()
-        layout.addWidget(self.buttonFrame)
-        return widget
+        self.calculator_layout.addWidget(self.displayFrame)
+        self.calculator_layout.addWidget(self.buttonFrame)
+        self.calculator_layout.addStretch()
 
-    def switch_mode(self, mode):
-        if mode == "BMI":
-            self.calculator_layout.removeWidget(self.default_widget)
-            self.default_widget.hide()
-            self.calculator_layout.addWidget(self.bmi_widget)
-            self.bmi_widget.show()
-        else:
-            self.calculator_layout.removeWidget(self.bmi_widget)
-            self.bmi_widget.hide()
-            self.calculator_layout.addWidget(self.default_widget)
-            self.default_widget.show()
+        self.main_layout.addLayout(self.calculator_layout)
+        self.setLayout(self.main_layout)
+
+        self.create_digit_buttons()
+        self.create_operator_buttons()
+        self.create_special_buttons()
 
     def display_frame(self):
         """
@@ -199,26 +170,6 @@ class App(QWidget):
 
         layout.addWidget(self.currentLabel, 1, 0, 1, 2, alignment=Qt.AlignRight | Qt.AlignBottom)
         self.displayFrame.setLayout(layout)
-
-    def create_help_menu_button(self):
-        """
-        @brief Creates and configures the help menu button.
-        @return QPushButton configured help menu button.
-        """
-        help_menu_button = QPushButton(self.displayFrame)
-        help_menu_button.setFixedSize(20, 20)
-        icon = QIcon(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\help_button.png')
-        help_menu_button.setIcon(icon)
-        help_menu_button.setIconSize(QSize(20, 20))
-        help_menu_button.clicked.connect(self.show_help_menu)
-        return help_menu_button
-
-    def show_help_menu(self):
-        """
-        @brief Displays the help menu window.
-        """
-        self.help_window = HelpWindow(self)
-        self.help_window.show()
 
     def create_mode_menu_button(self):
         """
@@ -260,11 +211,6 @@ class App(QWidget):
         self.buttonLayout.setSpacing(0)
         self.buttonFrameLayout.addLayout(self.buttonLayout)
         self.buttonFrame.setLayout(self.buttonFrameLayout)
-
-        # Create and display the buttons
-        self.create_digit_buttons()
-        self.create_operator_buttons()
-        self.create_special_buttons()
 
     def error(self, message):
         """
@@ -642,11 +588,6 @@ class App(QWidget):
         self.update_total_label()
         self.update_current_label()
 
-        if self.signal():
-            self.evaluate()
-        else:
-            pass
-
     def update_current_label(self):
         """
         @brief Updates the current expression label by truncating if necessary.
@@ -881,36 +822,6 @@ class App(QWidget):
 
         return expression, "", "", lastOperator
 
-    def evaluate(self, equals_button=False):
-        """
-        @brief Evaluates the expression by parsing and calculating the result.
-        @param equals_button bool True if called from equals button, False otherwise.
-        @return bool True if the evaluation was successful, False otherwise.
-        """
-        self.equals_pressed = equals_button
-        leftSide, operator, rightSide, lastOperator = self.parsing()
-
-        if not operator and not rightSide:
-            rightSide = self.currentExpression
-            operator = lastOperator
-
-        leftSide = self.process_special_operations(leftSide)
-        rightSide = self.process_special_operations(rightSide)
-
-        try:
-            leftValue = float(leftSide)
-            rightValue = float(rightSide)
-        except ValueError:
-            self.error("Invalid number format")
-            return False
-
-        result = self.perform_operation(leftValue, rightValue, operator)
-        if result is None:
-            return False
-
-        self.update_result(result, lastOperator)
-        return True
-
     def process_special_operations(self, value):
         """
         @brief Processes exponentiation and root operations.
@@ -1030,33 +941,11 @@ class App(QWidget):
         self.update_total_label()
         self.evaluated = True
 
-    def signal(self):
-        """
-        @brief Handles signal when the total expression has two operators.
-        @param self: Instance of the class.
-        @return: True if the total expression has exactly two operators, False otherwise.
-        """
-        # Check if totalExpression is not empty and has at least two characters
-        if self.totalExpression and len(self.totalExpression) >= 2:
-            operators = ['+', '-', '*', '/', '%']
-            operatorCount = 0
-            for i, char in enumerate(self.totalExpression):
-                if char in operators and i != 0 and self.totalExpression[i - 1] not in ['^', '√']:
-                    # Skip the operator if it's a minus sign and the character before it is a digit or another operator
-                    if char == '-' and self.totalExpression[i - 1] in operators:
-                        continue
-                    # Skip if previous character is 'e'
-                    if self.totalExpression[i - 1] == 'e':
-                        continue
-                    operatorCount += 1
-            return operatorCount == 2
-        return False
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(r'C:\Users\val24\PycharmProjects\pythonProject1'
                                                                   r'\Calculator\icons\real_logo.png')
-    window = App()
+    window = PhotomathMode()
     window.show()
     sys.exit(app.exec())

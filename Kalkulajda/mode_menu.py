@@ -1,47 +1,24 @@
-"""
-@file mode_menu.py
-@brief File containing sidebar of calculator app.
-
-@author Martin Valapka (xvalapm00)
-@date 27.07. 2024
-"""
-
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
 from PySide6.QtGui import QFont, QIcon
-from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QSize
+from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QSize, Signal
 
 LIGHT_GRAY = "#979797"
 DARK_GRAY = "#3D3D3D"
 ORANGE = "#FFA500"
 GRAY = "#808080"
-COLOR_REST = "#4F4F4F"
-LABEL_COLOR = "#25265E"
-LARGE = "Arial 25 bold"
-SMALL = "Arial 15"
-HOVER_COLOR = "#898989"
-HOVER_OPERATOR = "#FF8409"
 
 
 class Sidebar(QWidget):
-    """
-    @brief Sidebar widget for calculator modes and settings.
-    """
+    mode_selected = Signal(str)
 
     def __init__(self, parent=None):
-        """
-        @brief Constructor for Sidebar.
-        @param parent: Parent widget.
-        """
         super().__init__(parent)
-        self.buttons = None
+        self.buttons = {}
         self.animation = None
         self.is_visible = False
-        self.selected_mode = None  # Track the selected mode
         self.setFixedWidth(0)
         self.setMaximumWidth(200)
-        self.setStyleSheet(f"""
-            background-color: {DARK_GRAY};
-        """)
+        self.setStyleSheet(f"background-color: {DARK_GRAY};")
 
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
@@ -60,29 +37,22 @@ class Sidebar(QWidget):
         self.select_mode("Standard")
 
     def create_title(self):
-        """
-        @brief Creates and adds the title label to the content layout.
-        """
         title = QLabel("Calculator Modes")
         title.setFont(QFont("Arial", 16, QFont.Bold))
         title.setStyleSheet("color: white; margin-bottom: 5px;")
         self.content_layout.addWidget(title)
 
     def create_mode_buttons(self):
-        """
-        @brief Creates and adds the mode buttons to the content layout.
-        """
-        self.buttons = {}
-
-        modes = ["Standard", "Photomath mode", "Graphing", "Programmer", "Date Calculation", "BMI", "Currency", ""]
+        modes = ["Standard", "Photomath mode", "Graphing", "Programmer", "Date Calculation", "BMI", "Currency",
+                 "Settings"]
         for mode in modes:
             button = QPushButton(mode)
             button.setStyleSheet(self.get_button_style())
             button.clicked.connect(lambda checked, m=mode: self.select_mode(m))
 
-            if mode == "":
-                icon = QIcon(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures'
-                             r'\settings_icon.png')
+            if mode == "Settings":
+                icon = QIcon(
+                    r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\settings_icon.png')
                 button.setIcon(icon)
                 button.setIconSize(QSize(25, 25))
 
@@ -90,10 +60,6 @@ class Sidebar(QWidget):
             self.content_layout.addWidget(button)
 
     def get_button_style(self):
-        """
-        @brief Returns the stylesheet for the buttons.
-        @return Stylesheet string.
-        """
         return f"""
             QPushButton {{
                 background-color: {GRAY};
@@ -102,7 +68,7 @@ class Sidebar(QWidget):
                 padding: 10px;
                 font-weight: bold;
                 border-radius: 5px;
-                text-align: center;
+                text-align: left;
             }}
             QPushButton:hover {{
                 background-color: {LIGHT_GRAY};
@@ -110,19 +76,12 @@ class Sidebar(QWidget):
         """
 
     def select_mode(self, mode):
-        """
-        @brief Selects a mode and updates button styles.
-        @param mode: The mode to be selected.
-        """
-        self.selected_mode = mode
-        self.update_button_styles()
+        self.mode_selected.emit(mode)
+        self.update_button_styles(mode)
 
-    def update_button_styles(self):
-        """
-        @brief Updates the button styles based on the selected mode.
-        """
+    def update_button_styles(self, selected_mode):
         for mode, button in self.buttons.items():
-            if mode == self.selected_mode:
+            if mode == selected_mode:
                 button.setStyleSheet(f"""
                     QPushButton {{
                         background-color: {ORANGE};
@@ -131,16 +90,13 @@ class Sidebar(QWidget):
                         padding: 10px;
                         font-weight: bold;
                         border-radius: 5px;
-                        text-align: center;
+                        text-align: left;
                     }}
                 """)
             else:
                 button.setStyleSheet(self.get_button_style())
 
     def toggle(self):
-        """
-        @brief Toggles the visibility of the sidebar with an animation.
-        """
         target_width = 200 if not self.is_visible else 0
         self.animation = QPropertyAnimation(self, b"minimumWidth")
         self.animation.setDuration(250)
@@ -151,8 +107,4 @@ class Sidebar(QWidget):
         self.is_visible = not self.is_visible
 
     def sizeHint(self):
-        """
-        @brief Provides a size hint for the sidebar.
-        @return QSize object with the recommended size.
-        """
         return QSize(200, super().sizeHint().height())
