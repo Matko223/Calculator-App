@@ -11,7 +11,7 @@ from decimal import getcontext, Decimal
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel, QPushButton, QHBoxLayout, \
     QLineEdit, QStackedLayout
 from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon
-from PySide6.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, Signal
+from PySide6.QtCore import Qt, QSize
 import mathlib
 from Calculator.Kalkulajda.help_menu import HelpWindow
 from Calculator.Kalkulajda.mode_menu import Sidebar
