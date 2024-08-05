@@ -1,5 +1,5 @@
 from PySide6.QtGui import QKeySequence, QShortcut, QFont
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QHBoxLayout
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -14,6 +14,7 @@ HOVER_OPERATOR = "#FF8409"
 class BMICalculator(QWidget):
     def __init__(self):
         super().__init__()
+        self.displayFrame = None
         self.buttonLayout = None
         self.buttonFrame = None
         self.buttonFrameLayout = None
@@ -47,34 +48,68 @@ class BMICalculator(QWidget):
 
     def init_ui(self):
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)  # Remove main layout margins
+        layout.setSpacing(0)  # Remove spacing between widgets in the main layout
 
         input_layout = QVBoxLayout()
+        input_layout.setContentsMargins(0, 0, 0, 0)  # Remove input layout margins
+        input_layout.setSpacing(0)  # Remove spacing between widgets in the input layout
+
         input_layout.addWidget(self.display_frame())
-        input_layout.addWidget(self.button_frame())
+        input_layout.addWidget(self.button_frame(), 1)  # Add stretch factor to button frame
         layout.addLayout(input_layout)
         layout.addWidget(self.result_label)
+
         self.setLayout(layout)
+        self.setContentsMargins(0, 0, 0, 0)  # Remove widget margins
 
     def display_frame(self):
-        frame = QFrame()
-        layout = QVBoxLayout(frame)
+        """
+        Creates and configures the display frame where the calculator's input and results are shown.
+        """
+        self.displayFrame = QFrame(self)
+        self.displayFrame.setFixedHeight(125)
+        self.displayFrame.setStyleSheet(f"background-color: {DARK_GRAY};")
 
-        self.height_input.setPlaceholderText("Height (cm):")
+        layout = QVBoxLayout(self.displayFrame)
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(5)
+
+        # Height input
+        height_layout = QHBoxLayout()
+        height_label = QLabel("Height (cm):")
+        height_label.setStyleSheet("color: white;")
+        self.height_input = QLineEdit()
         self.height_input.setReadOnly(True)
-        layout.addWidget(self.height_input)
+        self.height_input.setStyleSheet("background-color: white; color: black;")
+        height_layout.addWidget(height_label)
+        height_layout.addWidget(self.height_input)
 
-        self.weight_input.setPlaceholderText("Weight (kg):")
+        # Weight input
+        weight_layout = QHBoxLayout()
+        weight_label = QLabel("Weight (kg):")
+        weight_label.setStyleSheet("color: white;")
+        self.weight_input = QLineEdit()
         self.weight_input.setReadOnly(True)
-        layout.addWidget(self.weight_input)
+        self.weight_input.setStyleSheet("background-color: white; color: black;")
+        weight_layout.addWidget(weight_label)
+        weight_layout.addWidget(self.weight_input)
 
-        return frame
+        # Add layouts to main layout
+        layout.addLayout(height_layout)
+        layout.addLayout(weight_layout)
+
+        # Set initial current input
+        self.current_input = self.height_input
+
+        return self.displayFrame
 
     def button_frame(self):
         self.buttonFrame = QFrame()
         self.buttonFrame.setFixedHeight(280)
         self.buttonFrame.setStyleSheet(f"background-color: {GRAY}; color: white;")
         self.buttonFrameLayout = QVBoxLayout(self.buttonFrame)
-        self.buttonFrameLayout.setContentsMargins(3, 3, 3, 3)
+        self.buttonFrameLayout.setContentsMargins(0, 0, 0, 0)
         self.buttonLayout = QGridLayout()
         self.buttonLayout.setSpacing(1)
         self.buttonFrameLayout.addLayout(self.buttonLayout)
@@ -93,7 +128,7 @@ class BMICalculator(QWidget):
             self.buttonLayout.addWidget(button, row, col)
 
         # Add decimal point button
-        decimal_button = self.create_digit_button(".")
+        decimal_button = self.create_decimal_button()
         self.buttonLayout.addWidget(decimal_button, *self.special_operations["."])
 
         # Add switch button at the bottom
@@ -103,7 +138,6 @@ class BMICalculator(QWidget):
         # Add calculate button
         calculate_button = self.create_calculate_button()
         self.buttonLayout.addWidget(calculate_button, *self.special_operations["CAL"])
-
         return self.buttonFrame
 
     def create_digit_button(self, digit):
@@ -124,15 +158,30 @@ class BMICalculator(QWidget):
         button.clicked.connect(lambda _, d=digit: self.append_digit(str(d)))
         return button
 
+    def create_decimal_button(self):
+        button = QPushButton(".")
+        button.setFont(QFont("Arial", 20))
+        button.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {DARK_GRAY};
+            }}
+            QPushButton:hover {{
+                background-color: {HOVER_COLOR};
+            }}
+        """)
+        button.setFixedSize(79, 55)
+        button.clicked.connect(lambda: self.append_digit("."))
+        return button
+
     def create_clear_button(self):
         button = QPushButton("C")
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
             QPushButton {{
-                background-color: {LIGHT_GRAY};
+                background-color: {COLOR_REST};
             }}
             QPushButton:hover {{
-                background-color: {GRAY};
+                background-color: {HOVER_COLOR};
             }}
         """)
         button.setFixedSize(79*3, 55)
@@ -144,10 +193,10 @@ class BMICalculator(QWidget):
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
             QPushButton {{
-                background-color: {LIGHT_GRAY};
+                background-color: {COLOR_REST};
             }}
             QPushButton:hover {{
-                background-color: {GRAY};
+                background-color: {HOVER_COLOR};
             }}
         """)
         button.setFixedSize(79*2, 55)
@@ -159,10 +208,10 @@ class BMICalculator(QWidget):
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
             QPushButton {{
-                background-color: {LIGHT_GRAY};
+                background-color: {COLOR_REST};
             }}
             QPushButton:hover {{
-                background-color: {GRAY};
+                background-color: {HOVER_COLOR};
             }}
         """)
         button.setFixedSize(79*2, 55)
@@ -174,10 +223,10 @@ class BMICalculator(QWidget):
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
             QPushButton {{
-                background-color: {LIGHT_GRAY};
+                background-color: {ORANGE};
             }}
             QPushButton:hover {{
-                background-color: {GRAY};
+                background-color: {HOVER_OPERATOR};
             }}
         """)
         button.setFixedSize(79*2, 55*3)
