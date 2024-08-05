@@ -80,6 +80,8 @@ class BMICalculator(QWidget):
             background-color: {LIGHT_GRAY};
             border: 2px solid orange;
             border-radius: 5px;
+            color: white;
+            font-size: 18px; 
         """)
         self.height_input.setFixedWidth(200)
         self.height_input.setFixedHeight(30)
@@ -93,6 +95,8 @@ class BMICalculator(QWidget):
             background-color: {LIGHT_GRAY};
             border: none;
             border-radius: 5px;
+            color: white;
+            font-size: 18px;
         """)
         self.weight_input.setFixedWidth(200)
         self.weight_input.setFixedHeight(30)
@@ -106,6 +110,8 @@ class BMICalculator(QWidget):
             background-color: {LIGHT_GRAY};
             border: none;
             border-radius: 5px;
+            color: white;
+            font-size: 18px;
         """)
         self.result_input.setFixedWidth(200)
         self.result_input.setFixedHeight(30)
@@ -251,7 +257,15 @@ class BMICalculator(QWidget):
     def append_digit(self, digit):
         if self.current_input:
             current_text = self.current_input.text()
-            self.current_input.setText(current_text + digit)
+            if len(current_text) < 3:
+                if current_text == "" and digit == "0":
+                    return
+                if digit == ".":
+                    if "." in current_text:
+                        return
+                    if current_text == "" or current_text.startswith("0"):
+                        return
+                self.current_input.setText(current_text + digit)
 
     def clear_input(self):
         self.height_input.clear()
@@ -261,7 +275,8 @@ class BMICalculator(QWidget):
         self.current_input.setStyleSheet(f"background-color: {LIGHT_GRAY}; border: none; border-radius: 5px;")
         self.current_input = self.height_input
         self.current_input.setStyleSheet(
-            f"background-color: {LIGHT_GRAY}; border: 2px solid orange; border-radius: 5px;")
+            f"background-color: {LIGHT_GRAY}; border: 2px solid orange; border-radius: 5px; color: white; font-size: "
+            f"18px;")
         self.current_input.setFocus()
 
     def delete_digit(self):
@@ -271,12 +286,14 @@ class BMICalculator(QWidget):
 
     def switch_input(self):
         if self.current_input:
-            self.current_input.setStyleSheet(f"background-color: {LIGHT_GRAY}; border: none; border-radius: 5px;")
+            self.current_input.setStyleSheet(f"background-color: {LIGHT_GRAY}; border: none; border-radius: 5px; "
+                                             f"color: white; font-size: 18px;")
         if self.current_input == self.height_input:
             self.current_input = self.weight_input
         else:
             self.current_input = self.height_input
-        self.current_input.setStyleSheet(f"background-color: {LIGHT_GRAY}; border: 2px solid orange; border-radius: 5px;")
+        self.current_input.setStyleSheet(f"background-color: {LIGHT_GRAY}; border: 2px solid orange; border-radius: 5px; "
+                                         f"color: white; font-size: 18px;")
         self.current_input.setFocus()
 
     def calculate_bmi(self):
