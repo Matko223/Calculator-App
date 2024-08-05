@@ -1,5 +1,8 @@
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout
+from PySide6.QtWidgets import (
+    QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout
+)
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -22,6 +25,10 @@ class BMICalculator(QWidget):
         self.buttonFrameLayout = None
         self.weight_input = QLineEdit()
         self.height_input = QLineEdit()
+        self.height_feet_input = QLineEdit()
+        self.height_inches_input = QLineEdit()
+        self.height_unit_combo = QComboBox()
+        self.weight_unit_combo = QComboBox()
         self.current_input = None
 
         self.digits = {
@@ -69,11 +76,12 @@ class BMICalculator(QWidget):
 
         layout = QFormLayout(self.displayFrame)
         layout.setContentsMargins(5, 5, 5, 5)
-        layout.setSpacing(15)  # Increase spacing between rows
+        layout.setSpacing(12)
 
         # Height input
         height_label = QLabel("Height:")
         height_label.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
+
         self.height_input = QLineEdit()
         self.height_input.setReadOnly(True)
         self.height_input.setStyleSheet(f"""
@@ -81,10 +89,46 @@ class BMICalculator(QWidget):
             border: 2px solid orange;
             border-radius: 5px;
             color: white;
-            font-size: 18px; 
+            font-size: 18px;
         """)
         self.height_input.setFixedWidth(200)
         self.height_input.setFixedHeight(30)
+
+        self.height_feet_input = QLineEdit()
+        self.height_feet_input.setReadOnly(True)
+        self.height_feet_input.setStyleSheet(f"""
+            background-color: {LIGHT_GRAY};
+            border: 2px solid orange;
+            border-radius: 5px;
+            color: white;
+            font-size: 18px;
+        """)
+        self.height_feet_input.setFixedWidth(95)
+        self.height_feet_input.setFixedHeight(30)
+
+        self.height_inches_input = QLineEdit()
+        self.height_inches_input.setReadOnly(True)
+        self.height_inches_input.setStyleSheet(f"""
+            background-color: {LIGHT_GRAY};
+            border: 2px solid orange;
+            border-radius: 5px;
+            color: white;
+            font-size: 18px;
+        """)
+        self.height_inches_input.setFixedWidth(95)
+        self.height_inches_input.setFixedHeight(30)
+
+        self.height_unit_combo = QComboBox()
+        self.height_unit_combo.addItems(["cm", "ft"])
+        self.height_unit_combo.setStyleSheet(f"""
+            background-color: {LIGHT_GRAY};
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 18px;
+        """)
+        self.height_unit_combo.setFixedWidth(50)
+        self.height_unit_combo.currentIndexChanged.connect(self.update_height_inputs)
 
         # Weight input
         weight_label = QLabel("Weight:")
@@ -101,6 +145,17 @@ class BMICalculator(QWidget):
         self.weight_input.setFixedWidth(200)
         self.weight_input.setFixedHeight(30)
 
+        self.weight_unit_combo = QComboBox()
+        self.weight_unit_combo.addItems(["kg", "lb"])
+        self.weight_unit_combo.setStyleSheet(f"""
+            background-color: {LIGHT_GRAY};
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 18px;
+        """)
+        self.weight_unit_combo.setFixedWidth(50)
+
         # Result label and input
         result_label = QLabel("BMI:")
         result_label.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
@@ -116,10 +171,23 @@ class BMICalculator(QWidget):
         self.result_input.setFixedWidth(200)
         self.result_input.setFixedHeight(30)
 
+        # Create layouts for height and weight fields
+        height_layout = QHBoxLayout()
+        height_layout.addWidget(self.height_feet_input)
+        height_layout.addWidget(self.height_inches_input)
+        height_layout.addWidget(self.height_input)
+        height_layout.addWidget(self.height_unit_combo)
+
+        weight_layout = QHBoxLayout()
+        weight_layout.addWidget(self.weight_input)
+        weight_layout.addWidget(self.weight_unit_combo)
+
         # Add widgets to the form layout
-        layout.addRow(height_label, self.height_input)
-        layout.addRow(weight_label, self.weight_input)
+        layout.addRow(height_label, height_layout)
+        layout.addRow(weight_label, weight_layout)
         layout.addRow(result_label, self.result_input)
+
+        self.update_height_inputs()  # Initialize layout based on default unit
 
         self.current_input = self.height_input
 
@@ -271,13 +339,10 @@ class BMICalculator(QWidget):
         self.height_input.clear()
         self.weight_input.clear()
         self.result_input.clear()
+        self.height_feet_input.clear()
+        self.height_inches_input.clear()
 
-        self.current_input.setStyleSheet(f"background-color: {LIGHT_GRAY}; border: none; border-radius: 5px;")
-        self.current_input = self.height_input
-        self.current_input.setStyleSheet(
-            f"background-color: {LIGHT_GRAY}; border: 2px solid orange; border-radius: 5px; color: white; font-size: "
-            f"18px;")
-        self.current_input.setFocus()
+        self.update_height_inputs()
 
     def delete_digit(self):
         if self.current_input:
@@ -292,14 +357,42 @@ class BMICalculator(QWidget):
             self.current_input = self.weight_input
         else:
             self.current_input = self.height_input
-        self.current_input.setStyleSheet(f"background-color: {LIGHT_GRAY}; border: 2px solid orange; border-radius: 5px; "
-                                         f"color: white; font-size: 18px;")
+        self.current_input.setStyleSheet(
+            f"background-color: {LIGHT_GRAY}; border: 2px solid orange; border-radius: 5px; "
+            f"color: white; font-size: 18px;")
         self.current_input.setFocus()
+
+    def switch_input_event(self, event):
+        self.switch_input()
+        event.accept()
+
+    def update_height_inputs(self):
+        if self.height_unit_combo.currentText() == "ft":
+            self.height_input.hide()
+            self.height_feet_input.show()
+            self.height_inches_input.show()
+        else:
+            self.height_input.show()
+            self.height_feet_input.hide()
+            self.height_inches_input.hide()
 
     def calculate_bmi(self):
         try:
-            height = float(self.height_input.text()) / 100
-            weight = float(self.weight_input.text())
+            height_unit = self.height_unit_combo.currentText()
+            weight_unit = self.weight_unit_combo.currentText()
+
+            if height_unit == "ft":
+                feet = float(self.height_feet_input.text()) if self.height_feet_input.text() else 0
+                inches = float(self.height_inches_input.text()) if self.height_inches_input.text() else 0
+                height = feet * 0.3048 + inches * 0.0254
+            else:
+                height = float(self.height_input.text()) / 100
+
+            if weight_unit == "lb":
+                weight = float(self.weight_input.text()) * 0.453592
+            else:
+                weight = float(self.weight_input.text())
+
             bmi = weight / (height * height)
             self.result_input.setText(f"{bmi:.2f}")
         except ValueError:
