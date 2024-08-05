@@ -1,5 +1,5 @@
-from PySide6.QtGui import QKeySequence, QShortcut, QFont
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QHBoxLayout
+from PySide6.QtGui import QFont
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -11,14 +11,15 @@ LABEL_COLOR = "#25265E"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
 
+
 class BMICalculator(QWidget):
     def __init__(self):
         super().__init__()
+        self.result_input = None
         self.displayFrame = None
         self.buttonLayout = None
         self.buttonFrame = None
         self.buttonFrameLayout = None
-        self.result_label = QLabel()
         self.weight_input = QLineEdit()
         self.height_input = QLineEdit()
         self.current_input = None
@@ -48,65 +49,78 @@ class BMICalculator(QWidget):
 
     def init_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)  # Remove main layout margins
-        layout.setSpacing(0)  # Remove spacing between widgets in the main layout
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
 
         input_layout = QVBoxLayout()
-        input_layout.setContentsMargins(0, 0, 0, 0)  # Remove input layout margins
-        input_layout.setSpacing(0)  # Remove spacing between widgets in the input layout
+        input_layout.setContentsMargins(0, 0, 0, 0)
+        input_layout.setSpacing(0)
 
         input_layout.addWidget(self.display_frame())
-        input_layout.addWidget(self.button_frame(), 1)  # Add stretch factor to button frame
+        input_layout.addWidget(self.button_frame())
         layout.addLayout(input_layout)
-        layout.addWidget(self.result_label)
 
         self.setLayout(layout)
-        self.setContentsMargins(0, 0, 0, 0)  # Remove widget margins
+        self.setContentsMargins(0, 0, 0, 0)
 
     def display_frame(self):
-        """
-        Creates and configures the display frame where the calculator's input and results are shown.
-        """
         self.displayFrame = QFrame(self)
-        self.displayFrame.setFixedHeight(125)
         self.displayFrame.setStyleSheet(f"background-color: {DARK_GRAY};")
 
-        layout = QVBoxLayout(self.displayFrame)
-        layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(5)
+        layout = QFormLayout(self.displayFrame)
+        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setSpacing(15)  # Increase spacing between rows
 
         # Height input
-        height_layout = QHBoxLayout()
-        height_label = QLabel("Height (cm):")
-        height_label.setStyleSheet("color: white;")
+        height_label = QLabel("Height:")
+        height_label.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
         self.height_input = QLineEdit()
         self.height_input.setReadOnly(True)
-        self.height_input.setStyleSheet("background-color: white; color: black;")
-        height_layout.addWidget(height_label)
-        height_layout.addWidget(self.height_input)
+        self.height_input.setStyleSheet(f"""
+            background-color: {LIGHT_GRAY};
+            border: 2px solid orange;
+            border-radius: 5px;
+        """)
+        self.height_input.setFixedWidth(200)
+        self.height_input.setFixedHeight(30)
 
         # Weight input
-        weight_layout = QHBoxLayout()
-        weight_label = QLabel("Weight (kg):")
-        weight_label.setStyleSheet("color: white;")
+        weight_label = QLabel("Weight:")
+        weight_label.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
         self.weight_input = QLineEdit()
         self.weight_input.setReadOnly(True)
-        self.weight_input.setStyleSheet("background-color: white; color: black;")
-        weight_layout.addWidget(weight_label)
-        weight_layout.addWidget(self.weight_input)
+        self.weight_input.setStyleSheet(f"""
+            background-color: {LIGHT_GRAY};
+            border: none;
+            border-radius: 5px;
+        """)
+        self.weight_input.setFixedWidth(200)
+        self.weight_input.setFixedHeight(30)
 
-        # Add layouts to main layout
-        layout.addLayout(height_layout)
-        layout.addLayout(weight_layout)
+        # Result label and input
+        result_label = QLabel("BMI:")
+        result_label.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
+        self.result_input = QLineEdit()
+        self.result_input.setReadOnly(True)
+        self.result_input.setStyleSheet(f"""
+            background-color: {LIGHT_GRAY};
+            border: none;
+            border-radius: 5px;
+        """)
+        self.result_input.setFixedWidth(200)
+        self.result_input.setFixedHeight(30)
 
-        # Set initial current input
+        # Add widgets to the form layout
+        layout.addRow(height_label, self.height_input)
+        layout.addRow(weight_label, self.weight_input)
+        layout.addRow(result_label, self.result_input)
+
         self.current_input = self.height_input
 
         return self.displayFrame
 
     def button_frame(self):
         self.buttonFrame = QFrame()
-        self.buttonFrame.setFixedHeight(280)
         self.buttonFrame.setStyleSheet(f"background-color: {GRAY}; color: white;")
         self.buttonFrameLayout = QVBoxLayout(self.buttonFrame)
         self.buttonFrameLayout.setContentsMargins(0, 0, 0, 0)
@@ -151,8 +165,9 @@ class BMICalculator(QWidget):
                 background-color: {GRAY};
             }}
         """)
+
         if digit == 0:
-            button.setFixedSize(158, 55)
+            button.setFixedSize(79 * 2, 55)
         else:
             button.setFixedSize(79, 55)
         button.clicked.connect(lambda _, d=digit: self.append_digit(str(d)))
@@ -184,7 +199,7 @@ class BMICalculator(QWidget):
                 background-color: {HOVER_COLOR};
             }}
         """)
-        button.setFixedSize(79*3, 55)
+        button.setFixedSize(79 * 3, 55)
         button.clicked.connect(self.clear_input)
         return button
 
@@ -199,7 +214,7 @@ class BMICalculator(QWidget):
                 background-color: {HOVER_COLOR};
             }}
         """)
-        button.setFixedSize(79*2, 55)
+        button.setFixedSize(79 * 2, 55)
         button.clicked.connect(self.switch_input)
         return button
 
@@ -214,7 +229,7 @@ class BMICalculator(QWidget):
                 background-color: {HOVER_COLOR};
             }}
         """)
-        button.setFixedSize(79*2, 55)
+        button.setFixedSize(79 * 2, 55)
         button.clicked.connect(self.delete_digit)
         return button
 
@@ -229,7 +244,7 @@ class BMICalculator(QWidget):
                 background-color: {HOVER_OPERATOR};
             }}
         """)
-        button.setFixedSize(79*2, 55*3)
+        button.setFixedSize(79 * 2, 55 * 3)
         button.clicked.connect(self.calculate_bmi)
         return button
 
@@ -239,8 +254,15 @@ class BMICalculator(QWidget):
             self.current_input.setText(current_text + digit)
 
     def clear_input(self):
-        if self.current_input:
-            self.current_input.clear()
+        self.height_input.clear()
+        self.weight_input.clear()
+        self.result_input.clear()
+
+        self.current_input.setStyleSheet(f"background-color: {LIGHT_GRAY}; border: none; border-radius: 5px;")
+        self.current_input = self.height_input
+        self.current_input.setStyleSheet(
+            f"background-color: {LIGHT_GRAY}; border: 2px solid orange; border-radius: 5px;")
+        self.current_input.setFocus()
 
     def delete_digit(self):
         if self.current_input:
@@ -248,10 +270,13 @@ class BMICalculator(QWidget):
             self.current_input.setText(current_text[:-1])
 
     def switch_input(self):
+        if self.current_input:
+            self.current_input.setStyleSheet(f"background-color: {LIGHT_GRAY}; border: none; border-radius: 5px;")
         if self.current_input == self.height_input:
             self.current_input = self.weight_input
         else:
             self.current_input = self.height_input
+        self.current_input.setStyleSheet(f"background-color: {LIGHT_GRAY}; border: 2px solid orange; border-radius: 5px;")
         self.current_input.setFocus()
 
     def calculate_bmi(self):
@@ -259,8 +284,8 @@ class BMICalculator(QWidget):
             height = float(self.height_input.text()) / 100
             weight = float(self.weight_input.text())
             bmi = weight / (height * height)
-            self.result_label.setText(f"Your BMI is: {bmi:.2f}")
+            self.result_input.setText(f"{bmi:.2f}")
         except ValueError:
-            self.result_label.setText("Please enter valid numbers.")
+            self.result_input.setText("Invalid input")
         except ZeroDivisionError:
-            self.result_label.setText("Height cannot be 0.")
+            self.result_input.setText("Height cannot be 0")
