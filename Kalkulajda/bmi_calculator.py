@@ -108,6 +108,7 @@ class BMICalculator(QWidget):
         self.height_feet_input.setFixedWidth(95)
         self.height_feet_input.setFixedHeight(30)
         self.height_feet_input.setPlaceholderText("Feet")
+        self.height_feet_input.mousePressEvent = self.switch_input_event
 
         self.height_inches_input = QLineEdit()
         self.height_inches_input.setReadOnly(True)
@@ -121,6 +122,7 @@ class BMICalculator(QWidget):
         self.height_inches_input.setFixedWidth(95)
         self.height_inches_input.setFixedHeight(30)
         self.height_inches_input.setPlaceholderText("Inches")
+        self.height_inches_input.mousePressEvent = self.switch_input_event
 
         self.height_unit_combo = QComboBox()
         self.height_unit_combo.addItems(["cm", "ft"])
@@ -453,6 +455,14 @@ class BMICalculator(QWidget):
                 font-size: 18px;
             """)
             self.height_input.setFocus()
+
+        self.weight_input.setStyleSheet(f"""
+            background-color: {LIGHT_GRAY}; 
+            border: none; 
+            border-radius: 5px; 
+            color: white; 
+            font-size: 18px;
+        """)
 
     def calculate_bmi(self):
         try:
