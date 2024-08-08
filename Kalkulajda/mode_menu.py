@@ -29,8 +29,7 @@ class Sidebar(QWidget):
         self.buttons = {}
         self.animation = None
         self.is_visible = False
-        self.setFixedWidth(0)
-        self.setMaximumWidth(200)
+        self.setFixedWidth(200)
         self.setStyleSheet(f"background-color: {DARK_GRAY};")
 
         main_layout = QVBoxLayout(self)

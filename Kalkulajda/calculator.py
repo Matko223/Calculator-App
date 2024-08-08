@@ -1,5 +1,5 @@
 """
-@file calculator2.py
+@file calculator.py
 @brief File containing GUI of calculator application.
 
 @author Martin Valapka (xvalapm00)
@@ -127,7 +127,7 @@ class App(QWidget):
         self.calculator_layout.addWidget(self.default_widget)
         self.calculator_layout.addWidget(self.bmi_widget)
 
-        # Add layouts to main layout
+        # Add layouts to the main layout
         self.main_layout.addWidget(self.sidebar)
         self.main_layout.addLayout(self.calculator_layout)
 
@@ -161,6 +161,9 @@ class App(QWidget):
             self.bmi_widget.hide()
             self.calculator_layout.addWidget(self.default_widget)
             self.default_widget.show()
+
+        if self.sidebar.is_visible:
+            self.toggle_sidebar()
 
     def display_frame(self):
         """
@@ -1045,7 +1048,7 @@ class App(QWidget):
                     # Skip the operator if it's a minus sign and the character before it is a digit or another operator
                     if char == '-' and self.totalExpression[i - 1] in operators:
                         continue
-                    # Skip if previous character is 'e'
+                    # Skip if the previous character is 'e'
                     if self.totalExpression[i - 1] == 'e':
                         continue
                     operatorCount += 1

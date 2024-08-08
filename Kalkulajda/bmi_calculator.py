@@ -1,9 +1,9 @@
-from PySide6.QtGui import QFont
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QFont, QIcon, Qt
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout
-)
-
-# TODO: Clickable widgets, menu and help button, fix calculation of the feet and inches, fix switching for feet
+    QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout)
+from Calculator.Kalkulajda.mode_menu import Sidebar
+from Calculator.Kalkulajda.help_menu import HelpWindow
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -19,6 +19,9 @@ HOVER_OPERATOR = "#FF8409"
 class BMICalculator(QWidget):
     def __init__(self):
         super().__init__()
+        self.mode_menu_button = None
+        self.help_menu_button = None
+        self.help_window = None
         self.result_input = None
         self.displayFrame = None
         self.buttonLayout = None
@@ -31,6 +34,8 @@ class BMICalculator(QWidget):
         self.height_unit_combo = QComboBox()
         self.weight_unit_combo = QComboBox()
         self.current_input = None
+
+        self.sidebar = Sidebar(self)
 
         self.digits = {
             7: (1, 0),
@@ -56,7 +61,7 @@ class BMICalculator(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        layout = QVBoxLayout(self)
+        layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
@@ -75,13 +80,24 @@ class BMICalculator(QWidget):
         self.displayFrame = QFrame(self)
         self.displayFrame.setStyleSheet(f"background-color: {DARK_GRAY};")
 
-        layout = QFormLayout(self.displayFrame)
+        # Use QGridLayout for the main layout
+        layout = QGridLayout(self.displayFrame)
         layout.setContentsMargins(5, 5, 5, 5)
         layout.setSpacing(12)
+
+        # Create menu button
+        self.mode_menu_button = self.create_mode_menu_button()
+        layout.addWidget(self.mode_menu_button, 0, 2, Qt.AlignRight | Qt.AlignTop)
+
+        self.help_menu_button = self.create_help_menu_button()
+        layout.addWidget(self.help_menu_button, 1, 2, Qt.AlignRight | Qt.AlignTop)
 
         # Height input
         height_label = QLabel("Height:")
         height_label.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
+        layout.addWidget(height_label, 0, 0)
+
+        height_layout = QHBoxLayout()
 
         self.height_input = QLineEdit()
         self.height_input.setReadOnly(True)
@@ -136,10 +152,19 @@ class BMICalculator(QWidget):
         self.height_unit_combo.setFixedWidth(50)
         self.height_unit_combo.currentIndexChanged.connect(self.update_height_inputs)
 
+        height_layout.addWidget(self.height_input)
+        height_layout.addWidget(self.height_feet_input)
+        height_layout.addWidget(self.height_inches_input)
+        height_layout.addWidget(self.height_unit_combo)
+
+        layout.addLayout(height_layout, 0, 1)
+
         # Weight input
         weight_label = QLabel("Weight:")
         weight_label.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
+        layout.addWidget(weight_label, 1, 0)
 
+        weight_layout = QHBoxLayout()
         self.weight_input = QLineEdit()
         self.weight_input.setReadOnly(True)
         self.weight_input.mousePressEvent = self.switch_input_event
@@ -164,9 +189,16 @@ class BMICalculator(QWidget):
         """)
         self.weight_unit_combo.setFixedWidth(50)
 
-        # Result label and input
+        weight_layout.addWidget(self.weight_input)
+        weight_layout.addWidget(self.weight_unit_combo)
+
+        layout.addLayout(weight_layout, 1, 1)
+
+        # Result input
         result_label = QLabel("BMI:")
         result_label.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
+        layout.addWidget(result_label, 2, 0)
+
         self.result_input = QLineEdit()
         self.result_input.setReadOnly(True)
         self.result_input.setStyleSheet(f"""
@@ -179,23 +211,9 @@ class BMICalculator(QWidget):
         self.result_input.setFixedWidth(200)
         self.result_input.setFixedHeight(30)
 
-        # Create layouts for height and weight fields
-        height_layout = QHBoxLayout()
-        height_layout.addWidget(self.height_feet_input)
-        height_layout.addWidget(self.height_inches_input)
-        height_layout.addWidget(self.height_input)
-        height_layout.addWidget(self.height_unit_combo)
+        layout.addWidget(self.result_input, 2, 1)
 
-        weight_layout = QHBoxLayout()
-        weight_layout.addWidget(self.weight_input)
-        weight_layout.addWidget(self.weight_unit_combo)
-
-        # Add widgets to the form layout
-        layout.addRow(height_label, height_layout)
-        layout.addRow(weight_label, weight_layout)
-        layout.addRow(result_label, self.result_input)
-
-        self.update_height_inputs()  # Initialize layout based on default unit
+        self.update_height_inputs()
 
         self.current_input = self.height_input
 
@@ -329,6 +347,50 @@ class BMICalculator(QWidget):
         button.setFixedSize(79 * 2, 55 * 3)
         button.clicked.connect(self.calculate_bmi)
         return button
+
+    def create_mode_menu_button(self):
+        """
+        @brief Creates and configures the mode menu button.
+        @return QPushButton configured mode menu button.
+        """
+        mode_menu_button = QPushButton(self.displayFrame)
+        mode_menu_button.setFixedSize(25, 25)
+        icon = QIcon(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\menu_icon.png')
+        mode_menu_button.setIcon(icon)
+        mode_menu_button.setIconSize(QSize(25, 25))
+        mode_menu_button.setStyleSheet("background-color: transparent; border: none;")
+        mode_menu_button.clicked.connect(self.toggle_sidebar)
+        return mode_menu_button
+
+    def create_help_menu_button(self):
+        """
+        @brief Creates and configures the help menu button.
+        @return QPushButton configured help menu button.
+        """
+        help_menu_button = QPushButton(self.displayFrame)
+        help_menu_button.setFixedSize(20, 20)
+        icon = QIcon(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\help_button.png')
+        help_menu_button.setIcon(icon)
+        help_menu_button.setIconSize(QSize(20, 20))
+        help_menu_button.clicked.connect(self.show_help_menu)
+        return help_menu_button
+
+    def toggle_sidebar(self):
+        """
+        @brief Toggles the visibility of the sidebar.
+        """
+        self.sidebar.toggle()
+        if self.sidebar.is_visible:
+            self.sidebar.show()
+        else:
+            self.sidebar.hide()
+
+    def show_help_menu(self):
+        """
+        @brief Displays the help menu window.
+        """
+        self.help_window = HelpWindow(self)
+        self.help_window.show()
 
     def append_digit(self, digit):
         if self.current_input:
