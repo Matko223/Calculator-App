@@ -1,14 +1,15 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout
 from PySide6.QtGui import QFont, QIcon
 from PySide6.QtCore import Qt, QSize, Signal
 
-LIGHT_GRAY = "#979797"
+BACKGROUND_COLOR = "#2C2C2C"
 DARK_GRAY = "#3D3D3D"
+LIGHT_GRAY = "#A9A9A9"
 ORANGE = "#FFA500"
-GRAY = "#808080"
+HOVER_COLOR = "#696969"
+BUTTON_SELECTED_COLOR = "#FFA500"
+BUTTON_TEXT_COLOR = "#FFFFFF"
 
-
-# TODO: REDO THE SIDEBAR
 
 class Sidebar(QWidget):
     """
@@ -23,8 +24,8 @@ class Sidebar(QWidget):
         """
         super().__init__(parent)
         self.buttons = {}
-        self.setFixedWidth(200)
-        self.setStyleSheet(f"background-color: {DARK_GRAY};")
+        self.setFixedWidth(240)
+        self.setStyleSheet(f"background-color: {BACKGROUND_COLOR};")
 
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
@@ -33,7 +34,7 @@ class Sidebar(QWidget):
         content_widget = QWidget()
         self.content_layout = QVBoxLayout(content_widget)
         self.content_layout.setContentsMargins(10, 10, 10, 10)
-        self.content_layout.setSpacing(10)
+        self.content_layout.setSpacing(7)
 
         self.create_title()
         self.create_mode_buttons()
@@ -46,28 +47,57 @@ class Sidebar(QWidget):
         """
         @brief Creates and adds the title label to the content layout.
         """
-        title = QLabel("         Modes")
-        title.setFont(QFont("Arial", 16, QFont.Bold))
-        title.setStyleSheet("color: white; margin-bottom: 5px;")
+        title = QLabel("Modes")
+        title.setFont(QFont("Arial", 18, QFont.Bold))
+        title.setStyleSheet(f"color: white;")
+        title.setAlignment(Qt.AlignCenter)
         self.content_layout.addWidget(title)
 
     def create_mode_buttons(self):
         """
         @brief Creates and adds the mode buttons to the content layout.
         """
-        modes = ["Standard", "Photomath mode", "Graphing", "Programmer", "Date Calculation", "BMI", "Currency",
-                 "Settings"]
-        for mode in modes:
-            button = QPushButton(mode)
+        modes = {
+            "Standard": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\calculator (1) (1).png",
+            "Expression": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\expression.png",
+            "Graphing": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\function.png",
+            "Programmer": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\programmer.png",
+            "Date Calculation": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\calendar.png",
+            "BMI": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\weights.png",
+            "Currency": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\currency.png",
+            "Settings": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\settings.png"
+        }
+
+        for mode, icon_path in modes.items():
+            button = QPushButton()
+            button.setFont(QFont("Arial", 14))
+
+            button_layout = QHBoxLayout(button)
+            button_layout.setContentsMargins(10, 8, 10, 8)
+            button_layout.setSpacing(10)
+
+            icon_label = QLabel()
+            icon = QIcon(icon_path)
+            pixmap = icon.pixmap(QSize(24, 24))
+            icon_label.setPixmap(pixmap)
+            icon_label.setStyleSheet("background-color: transparent;")
+            button_layout.addWidget(icon_label)
+
+            # Add vertical line
+            line = QWidget()
+            line.setFixedWidth(2)
+            line.setStyleSheet("background-color: white;")
+            button_layout.addWidget(line)
+
+            text_label = QLabel(mode)
+            text_label.setFont(QFont("Arial", 14))
+            text_label.setStyleSheet("color: white; background-color: transparent; font-weight: bold;")
+            button_layout.addWidget(text_label)
+
+            button_layout.setAlignment(Qt.AlignLeft)
+
             button.setStyleSheet(self.get_button_style())
             button.clicked.connect(lambda checked, m=mode: self.select_mode(m))
-
-            if mode == "Settings":
-                icon = QIcon(
-                    r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\settings_icon.png')
-                button.setIcon(icon)
-                button.setIconSize(QSize(25, 25))
-
             self.buttons[mode] = button
             self.content_layout.addWidget(button)
 
@@ -78,16 +108,16 @@ class Sidebar(QWidget):
         """
         return f"""
             QPushButton {{
-                background-color: {GRAY};
+                background-color: transparent;
                 color: white;
                 border: none;
-                padding: 10px;
+                padding: 8px 10px;
                 font-weight: bold;
-                border-radius: 5px;
-                text-align: center;
+                border-radius: 10px;
+                text-align: left;
             }}
             QPushButton:hover {{
-                background-color: {LIGHT_GRAY};
+                background-color: {HOVER_COLOR};
             }}
         """
 
@@ -107,13 +137,13 @@ class Sidebar(QWidget):
             if mode == selected_mode:
                 button.setStyleSheet(f"""
                     QPushButton {{
-                        background-color: {ORANGE};
-                        color: white;
+                        background-color: {BUTTON_SELECTED_COLOR};
+                        color: {BUTTON_TEXT_COLOR};
                         border: none;
-                        padding: 10px;
+                        padding: 8px 10px;
                         font-weight: bold;
-                        border-radius: 5px;
-                        text-align: center;
+                        border-radius: 10px;
+                        text-align: left;
                     }}
                 """)
             else:

@@ -1,5 +1,5 @@
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QFont, QIcon, Qt
+from PySide6.QtGui import QFont, QIcon, Qt, QShortcut, QKeySequence
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout,
     QSpacerItem, QSizePolicy)
@@ -58,7 +58,7 @@ class BMICalculator(QWidget):
             "CAL": (2, 3, 4, 5),
             "SWITCH": (1, 3, 1, 4)
         }
-
+        self.bind_keys()
         self.init_ui()
 
     def init_ui(self):
@@ -513,3 +513,14 @@ class BMICalculator(QWidget):
             self.result_input.setText("Invalid input")
         except ZeroDivisionError:
             self.result_input.setText("Height cannot be 0")
+
+    def bind_keys(self):
+        for digit in range(10):
+            QShortcut(QKeySequence(str(digit)), self).activated.connect(lambda d=digit: self.append_digit(str(d)))
+
+        QShortcut(QKeySequence("."), self).activated.connect(lambda: self.append_digit("."))
+        QShortcut(QKeySequence("C"), self).activated.connect(self.clear_input)
+        QShortcut(QKeySequence(Qt.Key_Backspace), self).activated.connect(self.delete_digit)
+        QShortcut(QKeySequence(Qt.Key_Return), self).activated.connect(self.calculate_bmi)
+        QShortcut(QKeySequence(Qt.Key_Enter), self).activated.connect(self.calculate_bmi)
+        QShortcut(QKeySequence(Qt.Key_Tab), self).activated.connect(self.switch_input)

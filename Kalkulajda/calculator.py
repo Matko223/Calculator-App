@@ -284,7 +284,7 @@ class App(QWidget):
             self.setFixedWidth(400)
         else:
             self.sidebar.show()
-            self.setFixedWidth(600)
+            self.setFixedWidth(640)
 
     def button_frame(self):
         """
