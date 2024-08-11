@@ -52,6 +52,9 @@ class App(QWidget):
         @brief Initializes the calculator application.
         """
         super().__init__()
+        self.help_menu_button = None
+        self.mode_menu_button = None
+        self.non_essential_widget = None
         self.height_input = None
         self.result_label = None
         self.weight_input = None
@@ -131,7 +134,6 @@ class App(QWidget):
         self.main_layout.addWidget(self.sidebar)
         self.main_layout.addLayout(self.calculator_layout)
 
-        # Initialize UI
         self.sidebar.hide()
         self.sidebar.select_mode("Standard")
         self.switch_mode("Standard")
@@ -154,16 +156,42 @@ class App(QWidget):
         if mode == "BMI":
             self.calculator_layout.removeWidget(self.default_widget)
             self.default_widget.hide()
+            self.non_essential_widget.hide()  # Show non-essential components in BMI mode
             self.calculator_layout.addWidget(self.bmi_widget)
             self.bmi_widget.show()
-        else:
+
+        elif mode == "Photomath mode":
+            self.calculator_layout.removeWidget(self.default_widget)
+            self.default_widget.hide()
+            self.non_essential_widget.hide()
+            # self.calculator_layout.addWidget(self.photomath_widget)
+            # self.photomath_widget.show()
+
+        else:  # Standard mode
             self.calculator_layout.removeWidget(self.bmi_widget)
             self.bmi_widget.hide()
+            self.create_mode_and_help_buttons()
+            self.non_essential_widget.show()
             self.calculator_layout.addWidget(self.default_widget)
             self.default_widget.show()
 
-        if self.sidebar.is_visible:
-            self.toggle_sidebar()
+    def create_mode_and_help_buttons(self):
+        """
+        @brief Creates the widget and layout for the mode and help menu buttons.
+        @return QWidget The mode and help menu buttons widget.
+        """
+        buttons_widget = QWidget(self)
+        buttons_layout = QHBoxLayout(buttons_widget)
+        buttons_layout.setContentsMargins(5, 5, 5, 5)
+        buttons_layout.setSpacing(3)
+
+        self.mode_menu_button = self.create_mode_menu_button()
+        self.help_menu_button = self.create_help_menu_button()
+
+        buttons_layout.addWidget(self.mode_menu_button)
+        buttons_layout.addWidget(self.help_menu_button)
+        buttons_layout.addStretch()
+        return buttons_widget
 
     def display_frame(self):
         """
@@ -173,39 +201,39 @@ class App(QWidget):
         self.displayFrame.setFixedHeight(125)
         self.displayFrame.setStyleSheet(f"background-color: {DARK_GRAY};")
 
-        layout = QGridLayout(self.displayFrame)
+        layout = QVBoxLayout(self.displayFrame)
         layout.setContentsMargins(5, 5, 5, 5)
         layout.setSpacing(5)
 
-        button_layout = QHBoxLayout()
-        button_layout.setSpacing(2)
-
-        help_menu_button = self.create_help_menu_button()
-        mode_menu_button = self.create_mode_menu_button()
-
-        button_layout.addWidget(mode_menu_button)
-        button_layout.addWidget(help_menu_button)
-        button_layout.addStretch()
-
-        layout.addLayout(button_layout, 0, 0, alignment=Qt.AlignLeft | Qt.AlignTop)
-
+        # Create and add the total label at the top
         self.totalLabel = QLabel(self.totalExpression, self.displayFrame)
         self.totalLabel.setFont(QFont("Arial bold", 16))
         self.totalLabel.setStyleSheet(f"color: WHITE; padding: 5px;")
         self.totalLabel.setAlignment(Qt.AlignRight)
+        layout.addWidget(self.totalLabel)
 
-        layout.addWidget(self.totalLabel, 0, 1, alignment=Qt.AlignRight | Qt.AlignTop)
-        self.currentLabel = QLabel(self.currentExpression, self.displayFrame)
+        # Add a spacer to push the non-essential widget to the bottom
+        layout.addStretch()
+
+        # Create a widget for the non-essential components
+        self.non_essential_widget = QWidget(self.displayFrame)
+        non_essential_layout = QVBoxLayout(self.non_essential_widget)
+        non_essential_layout.setContentsMargins(0, 0, 0, 0)
+        non_essential_layout.setSpacing(0)
+
+        self.currentLabel = QLabel(self.currentExpression, self.non_essential_widget)
         self.currentLabel.setFont(QFont("Arial bold", 32))
         self.currentLabel.setStyleSheet(f"color: WHITE;")
         self.currentLabel.setAlignment(Qt.AlignRight)
 
-        layout.addWidget(self.currentLabel, 1, 0, 1, 2, alignment=Qt.AlignRight | Qt.AlignBottom)
+        non_essential_layout.addWidget(self.currentLabel)
+
+        layout.addWidget(self.non_essential_widget, alignment=Qt.AlignRight | Qt.AlignBottom)
         self.displayFrame.setLayout(layout)
 
     def create_help_menu_button(self):
         """
-        @brief Creates and configures the help menu button.
+        @brief Creates and configures the help menu button and positions it lower in the parent widget.
         @return QPushButton configured help menu button.
         """
         help_menu_button = QPushButton(self.displayFrame)
@@ -213,8 +241,18 @@ class App(QWidget):
         icon = QIcon(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\help_button.png')
         help_menu_button.setIcon(icon)
         help_menu_button.setIconSize(QSize(20, 20))
+        help_menu_button.setStyleSheet("background-color: transparent; border: none;")
         help_menu_button.clicked.connect(self.show_help_menu)
-        return help_menu_button
+
+        # Create a container widget to hold the help button
+        container = QWidget(self.displayFrame)
+        container.setFixedSize(20, 22)
+        container_layout = QVBoxLayout(container)
+        container_layout.setContentsMargins(0, 2, 0, 0)
+        container_layout.setSpacing(0)
+        container_layout.addWidget(help_menu_button)
+
+        return container
 
     def show_help_menu(self):
         """
@@ -228,7 +266,7 @@ class App(QWidget):
         @brief Creates and configures the mode menu button.
         @return QPushButton configured mode menu button.
         """
-        mode_menu_button = QPushButton(self.displayFrame)
+        mode_menu_button = QPushButton(self)
         mode_menu_button.setFixedSize(25, 25)
         icon = QIcon(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\menu_icon.png')
         mode_menu_button.setIcon(icon)
@@ -239,15 +277,14 @@ class App(QWidget):
 
     def toggle_sidebar(self):
         """
-        @brief Toggles the visibility of the sidebar.
+        @brief Shows or hides the sidebar.
         """
-        self.sidebar.toggle()
-        if self.sidebar.is_visible:
-            self.setFixedSize(600, 405)
-            self.sidebar.show()
-        else:
-            self.setFixedSize(400, 405)
+        if self.sidebar.isVisible():
             self.sidebar.hide()
+            self.setFixedWidth(400)
+        else:
+            self.sidebar.show()
+            self.setFixedWidth(600)
 
     def button_frame(self):
         """

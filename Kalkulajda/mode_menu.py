@@ -1,18 +1,14 @@
-"""
-@file mode_menu.py
-@brief File containing sidebar of calculator app.
-@author Martin Valapka (xvalapm00)
-@date 27.07. 2024
-"""
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
 from PySide6.QtGui import QFont, QIcon
-from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QSize, Signal
+from PySide6.QtCore import Qt, QSize, Signal
 
 LIGHT_GRAY = "#979797"
 DARK_GRAY = "#3D3D3D"
 ORANGE = "#FFA500"
 GRAY = "#808080"
 
+
+# TODO: REDO THE SIDEBAR
 
 class Sidebar(QWidget):
     """
@@ -27,8 +23,6 @@ class Sidebar(QWidget):
         """
         super().__init__(parent)
         self.buttons = {}
-        self.animation = None
-        self.is_visible = False
         self.setFixedWidth(200)
         self.setStyleSheet(f"background-color: {DARK_GRAY};")
 
@@ -52,7 +46,7 @@ class Sidebar(QWidget):
         """
         @brief Creates and adds the title label to the content layout.
         """
-        title = QLabel("Calculator Modes")
+        title = QLabel("         Modes")
         title.setFont(QFont("Arial", 16, QFont.Bold))
         title.setStyleSheet("color: white; margin-bottom: 5px;")
         self.content_layout.addWidget(title)
@@ -124,23 +118,3 @@ class Sidebar(QWidget):
                 """)
             else:
                 button.setStyleSheet(self.get_button_style())
-
-    def toggle(self):
-        """
-        @brief Toggles the visibility of the sidebar with an animation.
-        """
-        target_width = 200 if not self.is_visible else 0
-        self.animation = QPropertyAnimation(self, b"minimumWidth")
-        self.animation.setDuration(250)
-        self.animation.setStartValue(self.width())
-        self.animation.setEndValue(target_width)
-        self.animation.setEasingCurve(QEasingCurve.InOutQuad)
-        self.animation.start()
-        self.is_visible = not self.is_visible
-
-    def sizeHint(self):
-        """
-        @brief Provides a size hint for the sidebar.
-        @return QSize object with the recommended size.
-        """
-        return QSize(200, super().sizeHint().height())

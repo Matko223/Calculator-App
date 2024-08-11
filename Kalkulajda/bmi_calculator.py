@@ -1,7 +1,8 @@
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QFont, QIcon, Qt
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout)
+    QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout,
+    QSpacerItem, QSizePolicy)
 from Calculator.Kalkulajda.mode_menu import Sidebar
 from Calculator.Kalkulajda.help_menu import HelpWindow
 
@@ -68,7 +69,6 @@ class BMICalculator(QWidget):
         input_layout = QVBoxLayout()
         input_layout.setContentsMargins(0, 0, 0, 0)
         input_layout.setSpacing(0)
-
         input_layout.addWidget(self.display_frame())
         input_layout.addWidget(self.button_frame())
         layout.addLayout(input_layout)
@@ -82,22 +82,21 @@ class BMICalculator(QWidget):
 
         # Use QGridLayout for the main layout
         layout = QGridLayout(self.displayFrame)
-        layout.setContentsMargins(5, 5, 5, 5)
-        layout.setSpacing(12)
+        layout.setContentsMargins(20, 10, 10, 10)
+        layout.setHorizontalSpacing(5)  # Reduced spacing between columns
+        layout.setVerticalSpacing(8)  # Reduced spacing between rows
 
-        # Create menu button
-        self.mode_menu_button = self.create_mode_menu_button()
-        layout.addWidget(self.mode_menu_button, 0, 2, Qt.AlignRight | Qt.AlignTop)
-
-        self.help_menu_button = self.create_help_menu_button()
-        layout.addWidget(self.help_menu_button, 1, 2, Qt.AlignRight | Qt.AlignTop)
+        # Add spacer item to push widgets to the right
+        spacer = QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        layout.addItem(spacer, 0, 0)
 
         # Height input
         height_label = QLabel("Height:")
         height_label.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
-        layout.addWidget(height_label, 0, 0)
+        layout.addWidget(height_label, 0, 1, Qt.AlignRight | Qt.AlignVCenter)
 
         height_layout = QHBoxLayout()
+        height_layout.setSpacing(5)  # Set spacing between widgets in height layout
 
         self.height_input = QLineEdit()
         self.height_input.setReadOnly(True)
@@ -157,14 +156,16 @@ class BMICalculator(QWidget):
         height_layout.addWidget(self.height_inches_input)
         height_layout.addWidget(self.height_unit_combo)
 
-        layout.addLayout(height_layout, 0, 1)
+        layout.addLayout(height_layout, 0, 2, Qt.AlignLeft | Qt.AlignVCenter)
 
         # Weight input
         weight_label = QLabel("Weight:")
         weight_label.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
-        layout.addWidget(weight_label, 1, 0)
+        layout.addWidget(weight_label, 1, 1, Qt.AlignRight | Qt.AlignVCenter)
 
         weight_layout = QHBoxLayout()
+        weight_layout.setSpacing(5)  # Set spacing between widgets in weight layout
+
         self.weight_input = QLineEdit()
         self.weight_input.setReadOnly(True)
         self.weight_input.mousePressEvent = self.switch_input_event
@@ -192,12 +193,12 @@ class BMICalculator(QWidget):
         weight_layout.addWidget(self.weight_input)
         weight_layout.addWidget(self.weight_unit_combo)
 
-        layout.addLayout(weight_layout, 1, 1)
+        layout.addLayout(weight_layout, 1, 2, Qt.AlignLeft | Qt.AlignVCenter)
 
         # Result input
         result_label = QLabel("BMI:")
         result_label.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
-        layout.addWidget(result_label, 2, 0)
+        layout.addWidget(result_label, 2, 1, Qt.AlignRight | Qt.AlignVCenter)
 
         self.result_input = QLineEdit()
         self.result_input.setReadOnly(True)
@@ -211,7 +212,7 @@ class BMICalculator(QWidget):
         self.result_input.setFixedWidth(200)
         self.result_input.setFixedHeight(30)
 
-        layout.addWidget(self.result_input, 2, 1)
+        layout.addWidget(self.result_input, 2, 2, Qt.AlignLeft | Qt.AlignVCenter)
 
         self.update_height_inputs()
 
@@ -347,43 +348,6 @@ class BMICalculator(QWidget):
         button.setFixedSize(79 * 2, 55 * 3)
         button.clicked.connect(self.calculate_bmi)
         return button
-
-    def create_mode_menu_button(self):
-        """
-        @brief Creates and configures the mode menu button.
-        @return QPushButton configured mode menu button.
-        """
-        mode_menu_button = QPushButton(self.displayFrame)
-        mode_menu_button.setFixedSize(25, 25)
-        icon = QIcon(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\menu_icon.png')
-        mode_menu_button.setIcon(icon)
-        mode_menu_button.setIconSize(QSize(25, 25))
-        mode_menu_button.setStyleSheet("background-color: transparent; border: none;")
-        mode_menu_button.clicked.connect(self.toggle_sidebar)
-        return mode_menu_button
-
-    def create_help_menu_button(self):
-        """
-        @brief Creates and configures the help menu button.
-        @return QPushButton configured help menu button.
-        """
-        help_menu_button = QPushButton(self.displayFrame)
-        help_menu_button.setFixedSize(20, 20)
-        icon = QIcon(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\help_button.png')
-        help_menu_button.setIcon(icon)
-        help_menu_button.setIconSize(QSize(20, 20))
-        help_menu_button.clicked.connect(self.show_help_menu)
-        return help_menu_button
-
-    def toggle_sidebar(self):
-        """
-        @brief Toggles the visibility of the sidebar.
-        """
-        self.sidebar.toggle()
-        if self.sidebar.is_visible:
-            self.sidebar.show()
-        else:
-            self.sidebar.hide()
 
     def show_help_menu(self):
         """
