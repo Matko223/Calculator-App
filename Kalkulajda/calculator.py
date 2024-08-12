@@ -928,6 +928,13 @@ class App(QWidget):
         @return bool True if the evaluation was successful, False otherwise.
         """
         self.equals_pressed = equals_button
+
+        if '^' in self.currentExpression or '√' in self.currentExpression:
+            result = self.process_special_operations(self.currentExpression)
+            if result is not None:
+                self.update_result(float(result), "")
+                return True
+
         leftSide, operator, rightSide, lastOperator = self.parsing()
 
         if not operator and not rightSide:
