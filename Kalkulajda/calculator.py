@@ -16,6 +16,7 @@ import mathlib
 from Calculator.Kalkulajda.help_menu import HelpWindow
 from Calculator.Kalkulajda.mode_menu import Sidebar
 from bmi_calculator import BMICalculator
+from photomath_mode import PhotomathMode
 import ctypes
 
 # Color definitions
@@ -125,10 +126,12 @@ class App(QWidget):
         # Create widgets
         self.default_widget = self.create_default_widget()
         self.bmi_widget = BMICalculator()
+        self.photomath_widget = PhotomathMode()
 
         # Add widgets to calculator layout
         self.calculator_layout.addWidget(self.default_widget)
         self.calculator_layout.addWidget(self.bmi_widget)
+        self.calculator_layout.addWidget(self.photomath_widget)
 
         # Add layouts to the main layout
         self.main_layout.addWidget(self.sidebar)
@@ -153,27 +156,27 @@ class App(QWidget):
         return widget
 
     def switch_mode(self, mode):
-        if mode == "BMI":
-            self.calculator_layout.removeWidget(self.default_widget)
-            self.default_widget.hide()
-            self.non_essential_widget.hide()  # Show non-essential components in BMI mode
-            self.calculator_layout.addWidget(self.bmi_widget)
-            self.bmi_widget.show()
+        mode_widgets = {
+            "BMI": self.bmi_widget,
+            "Expression": self.photomath_widget,
+            "Standard": self.default_widget
+        }
 
-        elif mode == "Photomath mode":
-            self.calculator_layout.removeWidget(self.default_widget)
-            self.default_widget.hide()
-            self.non_essential_widget.hide()
-            # self.calculator_layout.addWidget(self.photomath_widget)
-            # self.photomath_widget.show()
+        # Hide all widgets first
+        for widget in mode_widgets.values():
+            widget.hide()
+            self.calculator_layout.removeWidget(widget)
+        self.non_essential_widget.hide()
 
-        else:  # Standard mode
-            self.calculator_layout.removeWidget(self.bmi_widget)
-            self.bmi_widget.hide()
+        # Show and add the widget for the selected mode
+        selected_widget = mode_widgets.get(mode, self.default_widget)
+        selected_widget.show()
+        self.calculator_layout.addWidget(selected_widget)
+
+        # Special handling for Standard mode
+        if mode == "Standard":
             self.create_mode_and_help_buttons()
             self.non_essential_widget.show()
-            self.calculator_layout.addWidget(self.default_widget)
-            self.default_widget.show()
 
     def create_mode_and_help_buttons(self):
         """
