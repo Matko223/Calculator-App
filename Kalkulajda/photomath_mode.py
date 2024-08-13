@@ -1,20 +1,19 @@
 """
-@file calculator2.py
-@brief File containing GUI of calculator application with photomath mode.
+@file calculator.py
+@brief File containing GUI of calculator application.
 
 @author Martin Valapka (xvalapm00)
-@date 28.07. 2024
+@date 27.07. 2024
 """
 
 import sys
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel, QPushButton, QHBoxLayout
-from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon
-from PySide6.QtCore import Qt, QSize
+from decimal import getcontext, Decimal
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel, QPushButton, QHBoxLayout, \
+    QLineEdit, QStackedLayout, QLineEdit
+from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon, QRegularExpressionValidator
+from PySide6.QtCore import Qt, QSize, QRegularExpression
 import mathlib
-from Calculator.Kalkulajda.help_menu import HelpWindow
-from Calculator.Kalkulajda.mode_menu import Sidebar
 import ctypes
-from decimal import *
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -25,18 +24,6 @@ COLOR_REST = "#4F4F4F"
 LABEL_COLOR = "#25265E"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
-
-PRODUCTION = True
-pictures = {
-    "logo": r"Pictures/real_logo.png",
-    "help": r"Pictures/help_button.png",
-}
-
-if PRODUCTION:
-    pictures = {
-        "logo": "Kalkulajda/Pictures/real_logo.png",
-        "help": "Kalkulajda/Pictures/help_button.png",
-    }
 
 
 class PhotomathMode(QWidget):
@@ -50,24 +37,17 @@ class PhotomathMode(QWidget):
         @brief Initializes the calculator application.
         """
         super().__init__()
-        self.equals_pressed = False
-        self.sidebar = None
-        self.help_window = None
+        self.layout = None
+        self.mainLayout = None
+        self.non_essential_widget = None
         self.buttonFrameLayout = None
         self.buttonLayout = None
         self.buttonFrame = None
-        self.totalLabel = None
         self.displayLayout = None
         self.displayFrame = None
         self.currentLabel = None
-        self.setWindowTitle("Calcu-lajda")
-        self.setFixedSize(400, 405)  # Start with the smaller size
-        self.totalExpression = ""
         self.currentExpression = "0"
-        self.evaluated = False
-        my_icon = QIcon()
-        my_icon.addFile(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\icons\real_logo.png')
-        self.setWindowIcon(my_icon)
+        self.currentInput = None
 
         # Digit button positions
         self.digits = {
@@ -109,119 +89,81 @@ class PhotomathMode(QWidget):
             ")": (0, 2)
         }
 
-        # Main layout configuration
-        self.main_layout = QHBoxLayout()
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
-        self.main_layout.setSpacing(0)
+        self.init_ui()
 
-        self.sidebar = Sidebar(self)
-        self.main_layout.addWidget(self.sidebar)
-        self.sidebar.hide()  # Hide the sidebar initially
-        self.sidebar.select_mode("Standard")
+    def init_ui(self):
+        self.mainLayout = QVBoxLayout(self)
+        self.mainLayout.setContentsMargins(0, 0, 0, 0)
+        self.mainLayout.setSpacing(0)
 
-        self.calculator_layout = QVBoxLayout()
-        self.display_frame()
-        self.button_frame()
-        self.calculator_layout.addWidget(self.displayFrame)
-        self.calculator_layout.addWidget(self.buttonFrame)
-        self.calculator_layout.addStretch()
+        self.displayFrame = self.display_frame()
+        self.buttonFrame = self.button_frame()
 
-        self.main_layout.addLayout(self.calculator_layout)
-        self.setLayout(self.main_layout)
-
-        self.create_digit_buttons()
-        self.create_operator_buttons()
-        self.create_special_buttons()
+        self.mainLayout.addWidget(self.displayFrame)
+        self.mainLayout.addWidget(self.buttonFrame)
+        self.setLayout(self.mainLayout)
 
     def display_frame(self):
-        """
-        @brief Creates and configures the display frame where the calculator's input and results are shown.
-        """
-        self.displayFrame = QWidget(self)
-        self.displayFrame.setFixedHeight(125)
-        self.displayFrame.setStyleSheet(f"background-color: {DARK_GRAY};")
+        displayFrame = QWidget(self)
+        displayFrame.setFixedHeight(125)
+        displayFrame.setStyleSheet(f"background-color: {DARK_GRAY};")
 
-        layout = QGridLayout(self.displayFrame)
+        layout = QVBoxLayout(displayFrame)
         layout.setContentsMargins(5, 5, 5, 5)
         layout.setSpacing(5)
+        layout.addStretch()
 
-        button_layout = QHBoxLayout()
-        button_layout.setSpacing(2)
+        self.non_essential_widget = QWidget(displayFrame)
+        non_essential_layout = QVBoxLayout(self.non_essential_widget)
+        non_essential_layout.setContentsMargins(0, 0, 0, 0)
+        non_essential_layout.setSpacing(0)
 
-        help_menu_button = self.create_help_menu_button()
-        mode_menu_button = self.create_mode_menu_button()
+        self.currentInput = QLineEdit(self.currentExpression, self.non_essential_widget)
+        self.currentInput.setFont(QFont("Arial bold", 32))
+        self.currentInput.setStyleSheet("color: WHITE; background-color: transparent; border: none;")
+        self.currentInput.setAlignment(Qt.AlignRight)
+        self.currentInput.textChanged.connect(self.on_input_changed)
 
-        button_layout.addWidget(mode_menu_button)
-        button_layout.addWidget(help_menu_button)
-        button_layout.addStretch()
+        # Set a regular expression validator to restrict input
+        allowed_characters = QRegularExpression(r"[0-9\+\-\*/\^\(\)\.\!\|\%\√]*")
+        validator = QRegularExpressionValidator(allowed_characters, self.currentInput)
+        self.currentInput.setValidator(validator)
 
-        layout.addLayout(button_layout, 0, 0, alignment=Qt.AlignLeft | Qt.AlignTop)
-
-        self.totalLabel = QLabel(self.totalExpression, self.displayFrame)
-        self.totalLabel.setFont(QFont("Arial bold", 16))
-        self.totalLabel.setStyleSheet(f"color: WHITE; padding: 5px;")
-        self.totalLabel.setAlignment(Qt.AlignRight)
-
-        layout.addWidget(self.totalLabel, 0, 1, alignment=Qt.AlignRight | Qt.AlignTop)
-        self.currentLabel = QLabel(self.currentExpression, self.displayFrame)
-        self.currentLabel.setFont(QFont("Arial bold", 32))
-        self.currentLabel.setStyleSheet(f"color: WHITE;")
-        self.currentLabel.setAlignment(Qt.AlignRight)
-
-        layout.addWidget(self.currentLabel, 1, 0, 1, 2, alignment=Qt.AlignRight | Qt.AlignBottom)
-        self.displayFrame.setLayout(layout)
-
-    def create_mode_menu_button(self):
-        """
-        @brief Creates and configures the mode menu button.
-        @return QPushButton configured mode menu button.
-        """
-        mode_menu_button = QPushButton(self.displayFrame)
-        mode_menu_button.setFixedSize(25, 25)
-        icon = QIcon(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\menu_icon.png')
-        mode_menu_button.setIcon(icon)
-        mode_menu_button.setIconSize(QSize(25, 25))
-        mode_menu_button.setStyleSheet("background-color: transparent; border: none;")
-        mode_menu_button.clicked.connect(self.toggle_sidebar)
-        return mode_menu_button
-
-    def toggle_sidebar(self):
-        """
-        @brief Toggles the visibility of the sidebar.
-        """
-        self.sidebar.toggle()
-        if self.sidebar.is_visible:
-            self.setFixedSize(600, 405)
-            self.sidebar.show()
-        else:
-            self.setFixedSize(400, 405)
-            self.sidebar.hide()
+        non_essential_layout.addWidget(self.currentInput)
+        layout.addWidget(self.non_essential_widget, alignment=Qt.AlignRight | Qt.AlignBottom)
+        displayFrame.setLayout(layout)
+        return displayFrame
 
     def button_frame(self):
-        """
-        @brief Creates and configures the button frame which contains the calculator's buttons.
-        """
-        self.buttonFrame = QWidget(self)
-        self.buttonFrame.setFixedHeight(280)
-        self.buttonFrame.setStyleSheet(f"background-color: {GRAY}; color: white;")
-        self.buttonFrameLayout = QVBoxLayout(self.buttonFrame)
+        buttonFrame = QWidget(self)
+        buttonFrame.setFixedHeight(280)
+        buttonFrame.setStyleSheet(f"background-color: {GRAY}; color: white;")
+        self.buttonFrameLayout = QVBoxLayout(buttonFrame)
         self.buttonFrameLayout.setContentsMargins(3, 3, 3, 3)
 
         self.buttonLayout = QGridLayout()
         self.buttonLayout.setSpacing(0)
         self.buttonFrameLayout.addLayout(self.buttonLayout)
-        self.buttonFrame.setLayout(self.buttonFrameLayout)
+        buttonFrame.setLayout(self.buttonFrameLayout)
+
+        self.create_digit_buttons()
+        self.create_operator_buttons()
+        self.create_special_buttons()
+        self.create_bracket_buttons()
+        return buttonFrame
+
+    def on_input_changed(self, text):
+        self.currentExpression = text
+        self.update_current_input()
 
     def error(self, message):
         """
         @brief Displays an error message on the calculator's display.
         @param message The error message to display.
         """
-        self.totalExpression = ""
-        self.update_total_label()
         self.currentExpression = "Error: " + message
         self.currentLabel.setText(self.currentExpression)
-        self.update_current_label()
+        self.update_current_input()
 
     def create_digit_buttons(self):
         """
@@ -298,6 +240,25 @@ class PhotomathMode(QWidget):
             elif operation == "=":
                 self.create_equals_button(pos)
 
+    def create_bracket_buttons(self):
+        """
+        @brief Creates and configures buttons for brackets
+        """
+        for bracket, pos in self.brackets.items():
+            button = QPushButton(bracket)
+            button.setFont(QFont("Arial", 20))
+            button.setStyleSheet(f"""
+                QPushButton {{
+                    background-color: {DARK_GRAY};
+                }}
+                QPushButton:hover {{
+                    background-color: {HOVER_COLOR};
+                }}
+            """)
+            button.setFixedSize(79, 55)
+            button.clicked.connect(lambda _, b=bracket: self.show_brackets(b))
+            self.buttonLayout.addWidget(button, pos[0], pos[1])
+
     def create_exponentiation_button(self, pos):
         """
         @brief Creates and configures the button for exponentiation (x²).
@@ -332,9 +293,9 @@ class PhotomathMode(QWidget):
                 background-color: {HOVER_COLOR};
             }}
         """)
-        button.setFixedSize(79 * 2, 55)
+        button.setFixedSize(79, 55)
         button.clicked.connect(self.handle_clear)
-        self.buttonLayout.addWidget(button, pos[0], pos[1], pos[2], pos[3])
+        self.buttonLayout.addWidget(button, pos[0], pos[1])
         shortcut_clear = QShortcut(QKeySequence("C"), self)
         shortcut_clear.activated.connect(self.handle_clear)
 
@@ -353,9 +314,9 @@ class PhotomathMode(QWidget):
                 background-color: {HOVER_COLOR};
             }}
         """)
-        button.setFixedSize(79 * 2, 55)
+        button.setFixedSize(79, 55)
         button.clicked.connect(self.handle_delete)
-        self.buttonLayout.addWidget(button, pos[0], pos[1], pos[2], pos[3])
+        self.buttonLayout.addWidget(button, pos[0], pos[1])
         shortcut = QShortcut(QKeySequence(Qt.Key_Backspace), self)
         shortcut.activated.connect(self.handle_delete)
 
@@ -472,34 +433,8 @@ class PhotomathMode(QWidget):
             }}
         """)
         button.setFixedSize(79, 55)
-        button.clicked.connect(lambda: self.evaluate(equals_button=True))
+        # button.clicked.connect()
         self.buttonLayout.addWidget(button, pos[0], pos[1])
-
-        # Bind both Return and Enter keys to handle_equals
-        shortcut_enter = QShortcut(QKeySequence(Qt.Key_Enter), self)
-        shortcut_enter.activated.connect(lambda: self.evaluate(equals_button=True))
-        shortcut_return = QShortcut(QKeySequence(Qt.Key_Return), self)
-        shortcut_return.activated.connect(lambda: self.evaluate(equals_button=True))
-        shortcut_equals = QShortcut(QKeySequence("="), self)
-        shortcut_equals.activated.connect(lambda: self.evaluate(equals_button=True))
-
-    def handle_operator(self, operator):
-        """
-        @brief Handles the input of an operator.
-        @param operator str The operator that was input.
-        """
-        if self.currentExpression:
-            if not self.evaluated:
-                self.evaluate()
-            self.totalExpression = self.currentExpression + operator
-            self.currentExpression = ""
-            self.update_total_label()
-            self.update_current_label()
-        elif self.totalExpression and self.totalExpression[-1] in "+-*/%":
-            self.totalExpression = self.totalExpression[:-1] + operator
-            self.update_total_label()
-        self.equals_pressed = False
-        self.evaluated = False
 
     def show_numbers(self, digit):
         """
@@ -511,114 +446,36 @@ class PhotomathMode(QWidget):
             self.currentExpression = self.currentExpression[1:]
         if 'Error' in self.currentExpression or 'inf' in self.currentExpression:
             self.currentExpression = str(digit)
-        elif self.evaluated:
-            self.currentExpression = ''
-            self.currentExpression += str(digit)
-            self.evaluated = False
         else:
             self.currentExpression += str(digit)
-        self.update_current_label()
+        self.update_current_input()
+        self.currentInput.setText(self.currentExpression)
 
     def show_operators(self, operator):
         """
         @brief Appends the provided operator to the current expression and updates the labels.
         @param operator: The operator to append to the current expression.
         """
-        self.update_current_label()
+        self.currentInput.setText(self.currentExpression)
 
-        if '.' in self.currentExpression and not self.currentExpression[-1].isdigit():
-            self.currentExpression = self.currentExpression[:-1]
-
-        if '.' in self.currentExpression:
-            if all(char == '0' for char in self.currentExpression[self.currentExpression.index('.') + 1:]):
-                rounded_num = round(float(self.currentExpression))
-                self.currentExpression = str(rounded_num)
-
-        if 'Error' in self.currentExpression or 'inf' in self.currentExpression:
-            if operator == '-':
-                self.currentLabel.setFont(QFont("Arial", 50))
-                self.currentLabel.setContentsMargins(0, 20, 0, 20)
-                self.currentExpression = operator
-                self.update_current_label()
-                return
-            else:
-                return
-
-        if self.currentExpression.endswith('e+') or self.currentExpression.endswith('e-'):
-            self.currentExpression += '0'
-
-        if self.currentExpression == '0':
-            if operator == '-':
-                self.currentExpression = operator
-            elif not self.totalExpression:
-                self.totalExpression = self.currentExpression + operator
-        self.update_current_label()
-
-        if '-' in self.currentExpression and not self.currentExpression[-1].isdigit():
-            return
-
-        if '√' in self.currentExpression and not self.currentExpression[-1].isdigit():
-            if operator == '-':
-                self.currentExpression += operator
-                self.update_current_label()
-                return
-            else:
-                self.currentExpression += '0'
-
-        if '^' in self.currentExpression and not self.currentExpression[-1].isdigit():
-            if operator == '-':
-                self.currentExpression += operator
-                self.update_current_label()
-                return
-            else:
-                self.currentExpression += '0'
-
-        if self.totalExpression and self.totalExpression[-1] in "+-*/%" and self.currentExpression == '0' and len(
-                self.totalExpression) != 0:
-            if operator == '-' and self.totalExpression[-1] in "+-*/%":
-                self.currentExpression = operator
-            else:
-                self.totalExpression = self.totalExpression[:-1] + operator
-        else:
-            if self.currentLabel.text() != '0':
-                self.totalExpression += self.currentExpression + operator
-
-        self.evaluated = False
-        self.currentExpression = ''
-        self.update_total_label()
-        self.update_current_label()
-
-    def update_current_label(self):
+    def update_current_input(self):
         """
         @brief Updates the current expression label by truncating if necessary.
         """
         if 'Error' in self.currentExpression:
             if len(self.currentExpression) > 80:
                 self.currentExpression = self.currentExpression[:80]
-            self.currentLabel.setFont(QFont("Arial", 11))
-            self.currentLabel.setAlignment(Qt.AlignCenter)
+            self.currentInput.setFont(QFont("Arial", 11))
+            self.currentInput.setAlignment(Qt.AlignCenter)
         else:
-            self.currentLabel.setFont(QFont("Arial", 32))
-            self.currentLabel.setAlignment(Qt.AlignRight)
-
-            if len(self.currentExpression) > 16:
-                self.currentExpression = self.currentExpression[:16]
+            self.currentInput.setFont(QFont("Arial", 32))
+            self.currentInput.setAlignment(Qt.AlignRight)
 
         if not self.currentExpression or self.currentExpression == "0":
-            self.currentLabel.setText("0")
+            self.currentInput.setText("0")
             self.currentExpression = '0'
         else:
-            self.currentLabel.setText(self.currentExpression)
-
-    def update_total_label(self):
-        """
-        @brief Updates the total expression label with formatted operators.
-        """
-        expression = self.totalExpression
-
-        for operator, symbol in self.operations.items():
-            expression = expression.replace(operator, f'{symbol}')
-        self.totalLabel.setText(expression[:30])
+            self.currentInput.setText(self.currentExpression)
 
     def parse_exponentiation(self):
         """
@@ -627,7 +484,7 @@ class PhotomathMode(QWidget):
         @return: Result of the exponentiation operation if successful, None otherwise.
         """
         result = None
-        if '^' in self.currentExpression and not self.totalExpression:
+        if '^' in self.currentExpression:
             expCurrLeft = self.currentExpression.split('^')[0]
             expCurrRight = self.currentExpression.split('^')[1]
             if '.' in expCurrRight or int(expCurrRight) < 0:
@@ -652,7 +509,7 @@ class PhotomathMode(QWidget):
         @return: Result of the root operation if successful, None otherwise.
         """
         result = None
-        if '√' in self.currentExpression and not self.totalExpression:
+        if '√' in self.currentExpression:
             rootCurrLeft = self.currentExpression.split('√')[0]
             rootCurrRight = self.currentExpression.split('√')[1]
             if '.' in rootCurrLeft or int(rootCurrLeft) < 0 or int(rootCurrLeft) == 0:
@@ -674,12 +531,10 @@ class PhotomathMode(QWidget):
 
     def handle_clear(self):
         """
-        @brief Clears the current expression and total expression, resetting the calculator.
+        @brief Clears the current expression, resetting the calculator.
         """
         self.currentExpression = "0"
-        self.totalExpression = ""
-        self.update_total_label()
-        self.update_current_label()
+        self.update_current_input()
 
     def handle_delete(self):
         """
@@ -688,11 +543,11 @@ class PhotomathMode(QWidget):
         if 'Error' not in self.currentExpression and 'inf' not in self.currentExpression:
             if self.currentExpression:
                 self.currentExpression = self.currentExpression[:-1]
-                self.update_current_label()
+                self.update_current_input()
 
         if len(self.currentExpression) == 0:
             self.currentExpression = "0"
-            self.update_current_label()
+            self.update_current_input()
 
     def handle_exponentiation(self):
         """
@@ -702,7 +557,7 @@ class PhotomathMode(QWidget):
                 and self.currentExpression[-1] != '.' and self.currentExpression[-1] != '-'
                 and 'Error' not in self.currentExpression and 'inf' not in self.currentExpression):
             self.currentExpression += '^'
-            self.update_current_label()
+            self.update_current_input()
 
     def handle_root(self):
         """
@@ -712,15 +567,12 @@ class PhotomathMode(QWidget):
                 and self.currentExpression[-1] != '.' and self.currentExpression[-1] != '-'
                 and 'Error' not in self.currentExpression and 'inf' not in self.currentExpression):
             self.currentExpression += '√'
-        self.update_current_label()
+        self.update_current_input()
 
     def handle_factorial(self):
         """
         @brief Calculates the factorial of the current expression if valid and updates it.
         """
-        if self.totalExpression:
-            self.error("The total expression is not empty. Clear it first!")
-            return
 
         functions_to_parse = [self.parse_exponentiation, self.parse_root]
 
@@ -738,7 +590,7 @@ class PhotomathMode(QWidget):
                 if result.is_integer():
                     result = int(result)
                 self.currentExpression = str(result)
-                self.update_current_label()
+                self.update_current_input()
                 return
 
         if '.' in self.currentExpression or int(self.currentExpression) < 0:
@@ -755,36 +607,30 @@ class PhotomathMode(QWidget):
         else:
             result = int(result)
         self.currentExpression = str(result)
-        self.update_current_label()
+        self.update_current_input()
 
     def handle_absolute_value(self):
         """
         @brief Calculates the absolute value of the current expression if valid and updates it.
         """
-        if self.totalExpression:
-            self.error("The total expression is not empty. Clear it first!")
-            return
-
-        if not self.totalExpression:
-            functions_to_parse = [self.parse_exponentiation, self.parse_root]
-            for func in functions_to_parse:
-                result = func()
-                if result is not None:
-                    if '.' in result:
-                        result = mathlib.abs(float(result))
-                    else:
-                        result = mathlib.abs(int(result))
-                    self.currentExpression = str(result)
-                    self.update_current_label()
-                    return
-
+        functions_to_parse = [self.parse_exponentiation, self.parse_root]
+        for func in functions_to_parse:
+            result = func()
+            if result is not None:
+                if '.' in result:
+                    result = mathlib.abs(float(result))
+                else:
+                    result = mathlib.abs(int(result))
+                self.currentExpression = str(result)
+                self.update_current_input()
+                return
         if '.' in self.currentExpression:
             result = mathlib.abs(float(self.currentExpression))
         else:
             result = mathlib.abs(int(self.currentExpression))
 
         self.currentExpression = str(result)
-        self.update_current_label()
+        self.update_current_input()
 
     def handle_modulo(self):
         """
@@ -802,150 +648,12 @@ class PhotomathMode(QWidget):
                     self.currentExpression += '0.'
                 elif '.' not in self.currentExpression:
                     self.currentExpression += '.'
-        self.update_current_label()
+        self.update_current_input()
 
-    def parsing(self):
+    def show_brackets(self, bracket):
         """
-        @brief Parses the total expression into its components.
+        @brief Appends the provided bracket to the current expression and updates the labels.
+        @param bracket: The bracket to append to the current expression.
         """
-        operators = {'+', '-', '*', '/', '%'}
-        lastOperator = self.totalExpression[-1] if self.totalExpression else ""
-        expression = self.totalExpression[:-1] if lastOperator in operators else self.totalExpression
-
-        # Find the last valid operator
-        for i in range(len(expression) - 1, -1, -1):
-            if expression[i] in operators and not (
-                    (expression[i] == '-' and (i == 0 or expression[i - 1] in operators)) or
-                    (i > 0 and expression[i - 1].lower() == 'e')
-            ):
-                return expression[:i], expression[i], expression[i + 1:], lastOperator
-
-        return expression, "", "", lastOperator
-
-    def process_special_operations(self, value):
-        """
-        @brief Processes exponentiation and root operations.
-        @param value str The string representation of the value to process.
-        @return str The processed value as a string, or None if an error occurred.
-        """
-        if '^' in value:
-            base, exponent = value.split('^')
-            return self.calculate_power(float(base), int(exponent))
-        elif '√' in value:
-            parts = value.split('√')
-            if len(parts) == 2:
-                index, radicand = parts
-                if index:
-                    return self.calculate_root(float(radicand), int(index))
-                else:
-                    return self.calculate_root(float(radicand), 2)
-            else:
-                self.error("Invalid root format")
-                return None
-        return value
-
-    def calculate_power(self, base, exponent):
-        """
-        @brief Calculates the power of a number.
-        @param base float The base number.
-        @param exponent int The exponent.
-        @return str The result as a string, or None if an error occurred.
-        """
-        if exponent < 0 or '.' in str(exponent):
-            self.error("Exponent must be a non-negative integer")
-            return None
-        if base == 0 and exponent == 0:
-            self.error("0^0 is undefined")
-            return None
-        return str(mathlib.pow(base, exponent))
-
-    def calculate_root(self, radicand, index):
-        """
-        @brief Calculates the nth root of a number.
-        @param radicand float The number under the root.
-        @param index int The root index.
-        @return str The result as a string, or None if an error occurred.
-        """
-        if index <= 0 or '.' in str(index):
-            self.error("Root index must be a positive integer")
-            return None
-        if radicand < 0:
-            self.error("Cannot take the root of a negative number")
-            return None
-        result = mathlib.root(radicand, index)
-        if abs(result - round(result)) < 1e-5:
-            return str(round(result, 5))
-        else:
-            return str(result)
-
-    def perform_operation(self, left, right, operator):
-        """
-        @brief Performs the specified arithmetic operation.
-        @param left float The left operand.
-        @param right float The right operand.
-        @param operator str The arithmetic operator.
-        @return float The result of the operation, or None if an error occurred.
-        """
-        getcontext().prec = 28  # Set the precision high enough
-        left = Decimal(left)
-        right = Decimal(right)
-
-        if operator == '+':
-            return float(left + right)
-        elif operator == '-':
-            return float(left - right)
-        elif operator == '*':
-            return float(left * right)
-        elif operator == '/':
-            if right == 0:
-                self.error("Cannot divide by zero")
-                return None
-            return float(left / right)
-        elif operator == '%':
-            if right == 0:
-                self.error("Cannot perform modulo operation with zero")
-                return None
-            return float(left % right)
-        else:
-            self.error("Invalid operator")
-            return None
-
-    def update_result(self, result, lastOperator):
-        """
-        @brief Updates the current and total expressions with the calculated result.
-        @param result float The calculated result.
-        @param lastOperator str The last operator used in the calculation.
-        """
-        if -1e16 < result < 1e16:
-            if abs(result - round(result)) < 1e-10:
-                resultStr = str(int(round(result)))
-            else:
-                resultStr = str(result)
-
-            if len(resultStr) > 16:
-                if '.' in resultStr:
-                    integer_part = len(str(int(float(resultStr))))
-                    result = round(result, 16 - integer_part)
-                else:
-                    result = round(result)
-                resultStr = str(result)
-        else:
-            resultStr = "{:.10e}".format(result)
-
-        self.currentExpression = resultStr
-        if self.equals_pressed:
-            self.totalExpression = ""
-        else:
-            self.totalExpression = resultStr + lastOperator
-        self.update_current_label()
-        self.update_total_label()
-        self.evaluated = True
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(r'C:\Users\val24\PycharmProjects\pythonProject1'
-                                                                  r'\Calculator\icons\real_logo.png')
-    window = PhotomathMode()
-    window.show()
-    sys.exit(app.exec())
+        self.currentExpression += bracket
+        self.update_current_input()

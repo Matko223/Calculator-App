@@ -3,8 +3,6 @@ from PySide6.QtGui import QFont, QIcon, Qt, QShortcut, QKeySequence
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout,
     QSpacerItem, QSizePolicy)
-from Calculator.Kalkulajda.mode_menu import Sidebar
-from Calculator.Kalkulajda.help_menu import HelpWindow
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -36,8 +34,6 @@ class BMICalculator(QWidget):
         self.weight_unit_combo = QComboBox()
         self.current_input = None
 
-        self.sidebar = Sidebar(self)
-
         self.digits = {
             7: (1, 0),
             8: (1, 1),
@@ -58,7 +54,6 @@ class BMICalculator(QWidget):
             "CAL": (2, 3, 4, 5),
             "SWITCH": (1, 3, 1, 4)
         }
-        self.bind_keys()
         self.init_ui()
 
     def init_ui(self):
@@ -229,33 +224,19 @@ class BMICalculator(QWidget):
         self.buttonLayout.setSpacing(1)
         self.buttonFrameLayout.addLayout(self.buttonLayout)
 
-        # Add clear button at the top
-        clear_button = self.create_clear_button()
-        self.buttonLayout.addWidget(clear_button, *self.special_operations["C"])
+        self.create_clear_button()
+        self.create_delete_button()
 
-        # Add delete button
-        delete_button = self.create_delete_button()
-        self.buttonLayout.addWidget(delete_button, *self.special_operations["⌫"])
-
-        # Create and add digit buttons
         for digit, (row, col) in self.digits.items():
-            button = self.create_digit_button(digit)
-            self.buttonLayout.addWidget(button, row, col)
+            self.create_digit_button(digit, row, col)
 
-        # Add decimal point button
-        decimal_button = self.create_decimal_button()
-        self.buttonLayout.addWidget(decimal_button, *self.special_operations["."])
+        self.create_decimal_button()
+        self.create_switch_button()
+        self.create_calculate_button()
 
-        # Add switch button at the bottom
-        switch_button = self.create_switch_button()
-        self.buttonLayout.addWidget(switch_button, *self.special_operations["SWITCH"])
-
-        # Add calculate button
-        calculate_button = self.create_calculate_button()
-        self.buttonLayout.addWidget(calculate_button, *self.special_operations["CAL"])
         return self.buttonFrame
 
-    def create_digit_button(self, digit):
+    def create_digit_button(self, digit, row, col):
         button = QPushButton(str(digit))
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
@@ -272,7 +253,10 @@ class BMICalculator(QWidget):
         else:
             button.setFixedSize(79, 55)
         button.clicked.connect(lambda _, d=digit: self.append_digit(str(d)))
-        return button
+        self.buttonLayout.addWidget(button, row, col)
+
+        shortcut = QShortcut(QKeySequence(str(digit)), self)
+        shortcut.activated.connect(lambda d=digit: self.append_digit(d))
 
     def create_decimal_button(self):
         button = QPushButton(".")
@@ -287,7 +271,7 @@ class BMICalculator(QWidget):
         """)
         button.setFixedSize(79, 55)
         button.clicked.connect(lambda: self.append_digit("."))
-        return button
+        self.buttonLayout.addWidget(button, *self.special_operations["."])
 
     def create_clear_button(self):
         button = QPushButton("C")
@@ -302,7 +286,7 @@ class BMICalculator(QWidget):
         """)
         button.setFixedSize(79 * 3, 55)
         button.clicked.connect(self.clear_input)
-        return button
+        self.buttonLayout.addWidget(button, *self.special_operations["C"])
 
     def create_switch_button(self):
         button = QPushButton("Switch")
@@ -317,7 +301,7 @@ class BMICalculator(QWidget):
         """)
         button.setFixedSize(79 * 2, 55)
         button.clicked.connect(self.switch_input)
-        return button
+        self.buttonLayout.addWidget(button, *self.special_operations["SWITCH"])
 
     def create_delete_button(self):
         button = QPushButton("⌫")
@@ -332,7 +316,7 @@ class BMICalculator(QWidget):
         """)
         button.setFixedSize(79 * 2, 55)
         button.clicked.connect(self.delete_digit)
-        return button
+        self.buttonLayout.addWidget(button, *self.special_operations["⌫"])
 
     def create_calculate_button(self):
         button = QPushButton("CAL")
@@ -347,14 +331,7 @@ class BMICalculator(QWidget):
         """)
         button.setFixedSize(79 * 2, 55 * 3)
         button.clicked.connect(self.calculate_bmi)
-        return button
-
-    def show_help_menu(self):
-        """
-        @brief Displays the help menu window.
-        """
-        self.help_window = HelpWindow(self)
-        self.help_window.show()
+        self.buttonLayout.addWidget(button, *self.special_operations["CAL"])
 
     def append_digit(self, digit):
         if self.current_input:
@@ -382,8 +359,6 @@ class BMICalculator(QWidget):
                     self.current_input.setText(current_text + digit)
 
     def clear_input(self):
-        previous_input = self.current_input
-
         self.height_input.clear()
         self.weight_input.clear()
         self.result_input.clear()
@@ -513,14 +488,3 @@ class BMICalculator(QWidget):
             self.result_input.setText("Invalid input")
         except ZeroDivisionError:
             self.result_input.setText("Height cannot be 0")
-
-    def bind_keys(self):
-        for digit in range(10):
-            QShortcut(QKeySequence(str(digit)), self).activated.connect(lambda d=digit: self.append_digit(str(d)))
-
-        QShortcut(QKeySequence("."), self).activated.connect(lambda: self.append_digit("."))
-        QShortcut(QKeySequence("C"), self).activated.connect(self.clear_input)
-        QShortcut(QKeySequence(Qt.Key_Backspace), self).activated.connect(self.delete_digit)
-        QShortcut(QKeySequence(Qt.Key_Return), self).activated.connect(self.calculate_bmi)
-        QShortcut(QKeySequence(Qt.Key_Enter), self).activated.connect(self.calculate_bmi)
-        QShortcut(QKeySequence(Qt.Key_Tab), self).activated.connect(self.switch_input)

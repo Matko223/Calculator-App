@@ -48,7 +48,7 @@ class Sidebar(QWidget):
         @brief Creates and adds the title label to the content layout.
         """
         title = QLabel("Modes")
-        title.setFont(QFont("Arial", 18, QFont.Bold))
+        title.setFont(QFont("Arial", 20, QFont.Bold))
         title.setStyleSheet(f"color: white;")
         title.setAlignment(Qt.AlignCenter)
         self.content_layout.addWidget(title)
