@@ -6,14 +6,10 @@
 @date 27.07. 2024
 """
 
-import sys
-from decimal import getcontext, Decimal
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel, QPushButton, QHBoxLayout, \
     QLineEdit, QStackedLayout, QLineEdit
 from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon, QRegularExpressionValidator
 from PySide6.QtCore import Qt, QSize, QRegularExpression
-import mathlib
-import ctypes
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -275,7 +271,6 @@ class PhotomathMode(QWidget):
             }}
         """)
         button.setFixedSize(79, 55)
-        button.clicked.connect(self.handle_exponentiation)
         self.buttonLayout.addWidget(button, pos[0], pos[1])
 
     def create_clear_button(self, pos):
@@ -336,7 +331,6 @@ class PhotomathMode(QWidget):
             }}
         """)
         button.setFixedSize(79, 55)
-        button.clicked.connect(self.handle_root)
         self.buttonLayout.addWidget(button, pos[0], pos[1])
 
     def create_factorial_button(self, pos):
@@ -355,7 +349,6 @@ class PhotomathMode(QWidget):
             }}
         """)
         button.setFixedSize(79, 55)
-        button.clicked.connect(self.handle_factorial)
         self.buttonLayout.addWidget(button, pos[0], pos[1])
 
     def create_absolute_value_button(self, pos):
@@ -374,7 +367,6 @@ class PhotomathMode(QWidget):
             }}
         """)
         button.setFixedSize(79, 55)
-        button.clicked.connect(self.handle_absolute_value)
         self.buttonLayout.addWidget(button, pos[0], pos[1])
 
     def create_modulo_button(self, pos):
@@ -393,7 +385,6 @@ class PhotomathMode(QWidget):
             }}
         """)
         button.setFixedSize(79, 55)
-        button.clicked.connect(self.handle_modulo)
         self.buttonLayout.addWidget(button, pos[0], pos[1])
 
     def create_decimal_button(self, pos):
@@ -441,10 +432,9 @@ class PhotomathMode(QWidget):
         @brief Updates the current expression when a digit is pressed.
         @param digit: The digit to add to the current expression.
         """
-        if (self.currentExpression.startswith("0") and not self.currentExpression.startswith("0.")
-                and '^' not in self.currentExpression and '√' not in self.currentExpression):
-            self.currentExpression = self.currentExpression[1:]
-        if 'Error' in self.currentExpression or 'inf' in self.currentExpression:
+        if self.currentExpression == "0":
+            self.currentExpression = str(digit)
+        elif 'Error' in self.currentExpression or 'inf' in self.currentExpression:
             self.currentExpression = str(digit)
         else:
             self.currentExpression += str(digit)
@@ -477,58 +467,6 @@ class PhotomathMode(QWidget):
         else:
             self.currentInput.setText(self.currentExpression)
 
-    def parse_exponentiation(self):
-        """
-        @brief Parses the current expression for exponentiation operation (x^y).
-        @param self: Instance of the class.
-        @return: Result of the exponentiation operation if successful, None otherwise.
-        """
-        result = None
-        if '^' in self.currentExpression:
-            expCurrLeft = self.currentExpression.split('^')[0]
-            expCurrRight = self.currentExpression.split('^')[1]
-            if '.' in expCurrRight or int(expCurrRight) < 0:
-                self.error("Exponent must be a non-negative integer")
-                return None
-            if expCurrLeft == '0' and expCurrRight == '0':
-                self.error("0^0 is undefined")
-                return None
-            if '.' not in expCurrLeft:
-                result = str(mathlib.pow(int(expCurrLeft), int(expCurrRight)))
-            else:
-                result = str(mathlib.pow(float(expCurrLeft), int(expCurrRight)))
-
-            if len(result) > 16:
-                result = "{:.5e}".format(float(result))
-        return result
-
-    def parse_root(self):
-        """
-        @brief Parses the current expression for root operation (√x).
-        @param self: Instance of the class.
-        @return: Result of the root operation if successful, None otherwise.
-        """
-        result = None
-        if '√' in self.currentExpression:
-            rootCurrLeft = self.currentExpression.split('√')[0]
-            rootCurrRight = self.currentExpression.split('√')[1]
-            if '.' in rootCurrLeft or int(rootCurrLeft) < 0 or int(rootCurrLeft) == 0:
-                return None
-            if float(rootCurrRight) < 0:
-                return None
-            result_float = mathlib.root(float(rootCurrRight), int(rootCurrLeft))
-
-            epsilon = 1e-10
-            if abs(result_float - round(result_float)) < epsilon:
-                result = str(int(round(result_float)))
-            else:
-                result = f"{result_float:.10f}".rstrip('0').rstrip('.')
-
-            if len(result) > 16:
-                result = f"{float(result):.5e}"
-
-        return result
-
     def handle_clear(self):
         """
         @brief Clears the current expression, resetting the calculator.
@@ -549,95 +487,6 @@ class PhotomathMode(QWidget):
             self.currentExpression = "0"
             self.update_current_input()
 
-    def handle_exponentiation(self):
-        """
-        @brief Appends the exponentiation operator (^) to the current expression if valid.
-        """
-        if ('^' not in self.currentExpression and '√' not in self.currentExpression
-                and self.currentExpression[-1] != '.' and self.currentExpression[-1] != '-'
-                and 'Error' not in self.currentExpression and 'inf' not in self.currentExpression):
-            self.currentExpression += '^'
-            self.update_current_input()
-
-    def handle_root(self):
-        """
-        @brief Appends the root operator (√) to the current expression if valid.
-        """
-        if ('√' not in self.currentExpression and '^' not in self.currentExpression
-                and self.currentExpression[-1] != '.' and self.currentExpression[-1] != '-'
-                and 'Error' not in self.currentExpression and 'inf' not in self.currentExpression):
-            self.currentExpression += '√'
-        self.update_current_input()
-
-    def handle_factorial(self):
-        """
-        @brief Calculates the factorial of the current expression if valid and updates it.
-        """
-
-        functions_to_parse = [self.parse_exponentiation, self.parse_root]
-
-        for func in functions_to_parse:
-            result = func()
-            if result is not None:
-                if '.' in result or int(result) < 0:
-                    self.error("Factorial is only defined for non-negative integers")
-                    return
-                elif int(result) > 100:
-                    self.error("Factorial of numbers greater than 100 is too large")
-                    return
-                else:
-                    result = mathlib.fac(int(result))
-                if result.is_integer():
-                    result = int(result)
-                self.currentExpression = str(result)
-                self.update_current_input()
-                return
-
-        if '.' in self.currentExpression or int(self.currentExpression) < 0:
-            self.error("Factorial is only defined for non-negative integers")
-            return
-        elif int(self.currentExpression) > 100:
-            self.error("Factorial of numbers greater than 100 is too large")
-            return
-        else:
-            result = mathlib.fac(int(self.currentExpression))
-
-        if len(str(result)) > 16:
-            result = "{:.5e}".format(result)
-        else:
-            result = int(result)
-        self.currentExpression = str(result)
-        self.update_current_input()
-
-    def handle_absolute_value(self):
-        """
-        @brief Calculates the absolute value of the current expression if valid and updates it.
-        """
-        functions_to_parse = [self.parse_exponentiation, self.parse_root]
-        for func in functions_to_parse:
-            result = func()
-            if result is not None:
-                if '.' in result:
-                    result = mathlib.abs(float(result))
-                else:
-                    result = mathlib.abs(int(result))
-                self.currentExpression = str(result)
-                self.update_current_input()
-                return
-        if '.' in self.currentExpression:
-            result = mathlib.abs(float(self.currentExpression))
-        else:
-            result = mathlib.abs(int(self.currentExpression))
-
-        self.currentExpression = str(result)
-        self.update_current_input()
-
-    def handle_modulo(self):
-        """
-        @brief Appends the modulo operator (%) to the current expression.
-        """
-        self.show_operators('%')
-
     def handle_decimal_point(self):
         """
         @brief Appends a decimal point to the current expression if valid.
@@ -655,5 +504,11 @@ class PhotomathMode(QWidget):
         @brief Appends the provided bracket to the current expression and updates the labels.
         @param bracket: The bracket to append to the current expression.
         """
+        open_brackets = self.currentExpression.count('(')
+        close_brackets = self.currentExpression.count(')')
+
+        if bracket == ')' and open_brackets <= close_brackets:
+            return
+
         self.currentExpression += bracket
         self.update_current_input()
