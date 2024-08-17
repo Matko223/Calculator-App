@@ -11,6 +11,13 @@ from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, Q
 from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon, QRegularExpressionValidator
 from PySide6.QtCore import Qt, QSize, QRegularExpression
 
+# TODO: Add the following features:
+#  exponentiation, square root, factorial, absolute value, modulo, decimal point, equals
+#  Add shortcuts for all buttons
+#  Add calculation logic
+#  FIX: Switching the operators, bracket logic
+
+
 # Color definitions
 LIGHT_GRAY = "#979797"
 DARK_GRAY = "#3D3D3D"
@@ -505,6 +512,21 @@ class PhotomathMode(QWidget):
                     self.currentExpression += '.'
         self.update_current_input()
 
+    def handle_exponentiation(self):
+        pass
+
+    def handle_root(self):
+        pass
+
+    def handle_factorial(self):
+        pass
+
+    def handle_absolute_value(self):
+        pass
+
+    def calculate(self):
+        pass
+
     def show_brackets(self, bracket):
         """
         @brief Appends the provided bracket to the current expression and updates the labels.
@@ -513,11 +535,20 @@ class PhotomathMode(QWidget):
         open_brackets = self.currentExpression.count('(')
         close_brackets = self.currentExpression.count(')')
 
+        # Handle opening bracket
         if bracket == '(':
-            self.currentExpression += bracket
-        elif bracket == ')' and open_brackets > close_brackets:
-            self.currentExpression += bracket
+            if (not self.currentExpression or self.currentExpression[-1] in self.operations.values() or
+                    self.currentExpression[-1] in '(['):
+                self.currentExpression += bracket
 
+        # Handle closing bracket
+        elif bracket == ')':
+            if (open_brackets > close_brackets and self.currentExpression and
+                    self.currentExpression[-1] not in self.operations.values() and self.currentExpression[-1] != '('):
+                self.currentExpression += bracket
+
+        # Update display
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
+
 
