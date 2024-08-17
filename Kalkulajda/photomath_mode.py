@@ -1,9 +1,9 @@
 """
-@file calculator.py
-@brief File containing GUI of calculator application.
+@file photomath_mod.py
+@brief File containing Expression mode for the calculator application.
 
 @author Martin Valapka (xvalapm00)
-@date 27.07. 2024
+@date 14.08. 2024
 """
 
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel, QPushButton, QHBoxLayout, \
@@ -23,15 +23,7 @@ HOVER_OPERATOR = "#FF8409"
 
 
 class PhotomathMode(QWidget):
-    """
-    @class App
-    @brief Main class for the calculator application GUI.
-    """
-
     def __init__(self):
-        """
-        @brief Initializes the calculator application.
-        """
         super().__init__()
         self.layout = None
         self.mainLayout = None
@@ -42,10 +34,9 @@ class PhotomathMode(QWidget):
         self.displayLayout = None
         self.displayFrame = None
         self.currentLabel = None
-        self.currentExpression = "0"
+        self.currentExpression = ""
         self.currentInput = None
 
-        # Digit button positions
         self.digits = {
             7: (1, 1),
             8: (1, 2),
@@ -59,7 +50,6 @@ class PhotomathMode(QWidget):
             0: (4, 2)
         }
 
-        # Operation button symbols
         self.operations = {
             "/": "\u00F7",
             "*": "\u00D7",
@@ -67,7 +57,6 @@ class PhotomathMode(QWidget):
             "+": "+"
         }
 
-        # Special operation button positions
         self.special_operations = {
             "x²": (0, 0),
             "C": (0, 3),
@@ -120,7 +109,6 @@ class PhotomathMode(QWidget):
         self.currentInput.setAlignment(Qt.AlignRight)
         self.currentInput.textChanged.connect(self.on_input_changed)
 
-        # Set a regular expression validator to restrict input
         allowed_characters = QRegularExpression(r"[0-9\+\-\*/\^\(\)\.\!\|\%\√]*")
         validator = QRegularExpressionValidator(allowed_characters, self.currentInput)
         self.currentInput.setValidator(validator)
@@ -446,6 +434,21 @@ class PhotomathMode(QWidget):
         @brief Appends the provided operator to the current expression and updates the labels.
         @param operator: The operator to append to the current expression.
         """
+        if 'Error' not in self.currentExpression and 'inf' not in self.currentExpression:
+            last_char = self.currentExpression[-1] if self.currentExpression else ''
+
+            # Replace the last operator if the current expression ends with an operator
+            if last_char in self.operations.values():
+                self.currentExpression = self.currentExpression[:-1] + self.operations[operator]
+            # Append the operator if the last character is a digit, closing bracket, or percentage
+            elif last_char.isdigit() or last_char in [')']:
+                self.currentExpression += self.operations[operator]
+            # If the expression is empty or ends with an opening bracket, only allow minus
+            elif not self.currentExpression or last_char == '(':
+                if operator == '-':
+                    self.currentExpression += operator
+
+        self.update_current_input()
         self.currentInput.setText(self.currentExpression)
 
     def update_current_input(self):
@@ -461,17 +464,18 @@ class PhotomathMode(QWidget):
             self.currentInput.setFont(QFont("Arial", 32))
             self.currentInput.setAlignment(Qt.AlignRight)
 
-        if not self.currentExpression or self.currentExpression == "0":
-            self.currentInput.setText("0")
-            self.currentExpression = '0'
+        if not self.currentExpression:
+            self.currentInput.setText("")
         else:
-            self.currentInput.setText(self.currentExpression)
+            if len(self.currentExpression) > 30:
+                self.currentExpression = self.currentExpression[:30]
+                self.currentInput.setText(self.currentExpression)
 
     def handle_clear(self):
         """
         @brief Clears the current expression, resetting the calculator.
         """
-        self.currentExpression = "0"
+        self.currentExpression = ""
         self.update_current_input()
 
     def handle_delete(self):
@@ -482,10 +486,12 @@ class PhotomathMode(QWidget):
             if self.currentExpression:
                 self.currentExpression = self.currentExpression[:-1]
                 self.update_current_input()
+                self.currentInput.setText(self.currentExpression)
 
         if len(self.currentExpression) == 0:
-            self.currentExpression = "0"
+            self.currentExpression = ""
             self.update_current_input()
+            self.currentInput.setText(self.currentExpression)
 
     def handle_decimal_point(self):
         """
@@ -507,8 +513,11 @@ class PhotomathMode(QWidget):
         open_brackets = self.currentExpression.count('(')
         close_brackets = self.currentExpression.count(')')
 
-        if bracket == ')' and open_brackets <= close_brackets:
-            return
+        if bracket == '(':
+            self.currentExpression += bracket
+        elif bracket == ')' and open_brackets > close_brackets:
+            self.currentExpression += bracket
 
-        self.currentExpression += bracket
         self.update_current_input()
+        self.currentInput.setText(self.currentExpression)
+
