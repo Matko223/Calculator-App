@@ -266,6 +266,7 @@ class PhotomathMode(QWidget):
             }}
         """)
         button.setFixedSize(79, 55)
+        button.clicked.connect(self.handle_exponentiation)
         self.buttonLayout.addWidget(button, pos[0], pos[1])
 
     def create_clear_button(self, pos):
@@ -513,7 +514,15 @@ class PhotomathMode(QWidget):
         self.update_current_input()
 
     def handle_exponentiation(self):
-        pass
+        """
+        @brief Appends the exponentiation operator to the current expression.
+        """
+        if 'Error' not in self.currentExpression and 'inf' not in self.currentExpression:
+            if self.currentExpression and (self.currentExpression[-1].isdigit()
+                                           or self.currentExpression[-1] == ')' or self.currentExpression[-1] == '!'):
+                self.currentExpression += '^'
+        self.update_current_input()
+        self.currentInput.setText(self.currentExpression)
 
     def handle_root(self):
         pass
