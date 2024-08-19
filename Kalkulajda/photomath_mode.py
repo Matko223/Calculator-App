@@ -117,10 +117,6 @@ class PhotomathMode(QWidget):
         self.currentInput.setAlignment(Qt.AlignRight)
         self.currentInput.textChanged.connect(self.on_input_changed)
 
-        allowed_characters = QRegularExpression(r"[0-9\+\-\*/\^\(\)\.\!\|\%\√]*")
-        validator = QRegularExpressionValidator(allowed_characters, self.currentInput)
-        self.currentInput.setValidator(validator)
-
         non_essential_layout.addWidget(self.currentInput)
         layout.addWidget(self.non_essential_widget, alignment=Qt.AlignRight | Qt.AlignBottom)
         displayFrame.setLayout(layout)
@@ -145,6 +141,7 @@ class PhotomathMode(QWidget):
         return buttonFrame
 
     def on_input_changed(self, text):
+        # TODO: Implement the logic for the input change(typing)
         self.currentExpression = text
         self.update_current_input()
 
@@ -431,10 +428,13 @@ class PhotomathMode(QWidget):
         @brief Updates the current expression when a digit is pressed.
         @param digit: The digit to add to the current expression.
         """
+        last_char = self.currentExpression[-1] if self.currentExpression else ''
         if self.currentExpression == "0":
             self.currentExpression = str(digit)
         elif 'Error' in self.currentExpression or 'inf' in self.currentExpression:
             self.currentExpression = str(digit)
+        elif last_char == ')' or last_char == '|':
+            return
         else:
             self.currentExpression += str(digit)
         self.update_current_input()
@@ -452,7 +452,7 @@ class PhotomathMode(QWidget):
             if last_char in self.operations.values():
                 self.currentExpression = self.currentExpression[:-1] + self.operations[operator]
             # Append the operator if the last character is a digit, closing bracket, or percentage
-            elif last_char.isdigit() or last_char in [')']:
+            elif last_char.isdigit() or last_char in [')'] or last_char == '|':
                 self.currentExpression += self.operations[operator]
             # If the expression is empty or ends with an opening bracket, only allow minus
             elif not self.currentExpression or last_char == '(':
@@ -515,6 +515,7 @@ class PhotomathMode(QWidget):
                 elif '.' not in self.currentExpression:
                     self.currentExpression += '.'
         self.update_current_input()
+        self.currentInput.setText(self.currentExpression)
 
     def handle_exponentiation(self):
         """
@@ -542,7 +543,7 @@ class PhotomathMode(QWidget):
     def handle_absolute_value(self):
         if ('Error' not in self.currentExpression and 'inf' not in self.currentExpression and
                 (not self.currentExpression or self.currentExpression[-1]
-                 in ['+', '-', '*', '/', '(', '^', '√', '!','|'])):
+                 in ['+', '-', "\u00D7", "\u00F7", '(', '^', '√', '!'])):
             self.currentExpression += '|0|'
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
