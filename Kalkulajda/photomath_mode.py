@@ -10,6 +10,7 @@ from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, Q
     QLineEdit, QStackedLayout, QLineEdit
 from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon, QRegularExpressionValidator
 from PySide6.QtCore import Qt, QSize, QRegularExpression
+import math
 
 # TODO: Add the following features:
 #  exponentiation, square root, factorial, absolute value, modulo, decimal point, equals
@@ -153,8 +154,8 @@ class PhotomathMode(QWidget):
         @param message The error message to display.
         """
         self.currentExpression = "Error: " + message
-        self.currentLabel.setText(self.currentExpression)
         self.update_current_input()
+        self.currentInput.setText(self.currentExpression)
 
     def create_digit_buttons(self):
         """
@@ -364,6 +365,7 @@ class PhotomathMode(QWidget):
             }}
         """)
         button.setFixedSize(79, 55)
+        button.clicked.connect(self.handle_absolute_value)
         self.buttonLayout.addWidget(button, pos[0], pos[1])
 
     def create_modulo_button(self, pos):
@@ -421,6 +423,7 @@ class PhotomathMode(QWidget):
             }}
         """)
         button.setFixedSize(79, 55)
+        button.clicked.connect(self.calculate)
         self.buttonLayout.addWidget(button, pos[0], pos[1])
 
     def show_numbers(self, digit):
@@ -529,9 +532,7 @@ class PhotomathMode(QWidget):
         @brief Appends the root operator to the current expression.
         """
         if 'Error' not in self.currentExpression and 'inf' not in self.currentExpression:
-            if self.currentExpression and (self.currentExpression[-1].isdigit()
-                                           or self.currentExpression[-1] == ')' or self.currentExpression[-1] == '!'):
-                self.currentExpression += '√'
+            self.currentExpression += '√('
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
 
@@ -539,10 +540,87 @@ class PhotomathMode(QWidget):
         pass
 
     def handle_absolute_value(self):
-        pass
+        if 'Error' not in self.currentExpression and 'inf' not in self.currentExpression:
+            open_abs = self.currentExpression.count('|') - self.currentExpression.count('||')
+
+            if open_abs % 2 == 0:
+                if not self.currentExpression or self.currentExpression[-1] in ['+', '-', '*', '/', '(', '^', '√']:
+                    self.currentExpression += '|'
+                else:
+                    self.currentExpression += '*|'
+            else:
+                self.currentExpression += '|'
+
+        self.update_current_input()
+        self.currentInput.setText(self.currentExpression)
 
     def calculate(self):
-        pass
+        try:
+            # Replace custom operators with Python-compatible operators
+            expression = self.currentExpression.replace("\u00F7", "/").replace("\u00D7", "*").replace("^", "**")
+
+            # Custom handling for root operations
+            while '√' in expression:
+                root_index = expression.index('√')
+
+                # Find the start of the root degree (if any)
+                degree_start = root_index - 1
+                while degree_start >= 0 and (expression[degree_start].isdigit() or expression[degree_start] == '.'):
+                    degree_start -= 1
+                degree_start += 1
+
+                # Extract the root degree (default to 2 if not specified)
+                if degree_start < root_index:
+                    root_degree = expression[degree_start:root_index]
+                    expression = expression[:degree_start] + expression[root_index:]
+                    root_index -= (root_index - degree_start)
+                else:
+                    root_degree = "2"
+
+                # Find the expression under the root
+                if expression[root_index + 1] == '(':
+                    # If parentheses are used
+                    paren_count = 1
+                    end = root_index + 2
+                    while paren_count > 0:
+                        if expression[end] == '(':
+                            paren_count += 1
+                        elif expression[end] == ')':
+                            paren_count -= 1
+                        end += 1
+                    root_expr = expression[root_index + 2:end - 1]
+                    expression = (expression[:root_index] +
+                                  f"math.pow({root_expr}, 1/{root_degree})" +
+                                  expression[end:])
+                else:
+                    # If no parentheses, assume it's just the next term
+                    end = root_index + 1
+                    while end < len(expression) and (expression[end].isdigit() or expression[end] == '.'):
+                        end += 1
+                    root_expr = expression[root_index + 1:end]
+                    expression = (expression[:root_index] +
+                                  f"math.pow({root_expr}, 1/{root_degree})" +
+                                  expression[end:])
+
+            # Replace other custom functions
+            expression = expression.replace("!", "math.factorial").replace("|x|", "abs").replace("mod", "%")
+
+            # Safe built-in functions that can be used in eval
+            safe_dict = {
+                "math": math,
+                "abs": abs,
+            }
+
+            # Evaluate the expression
+            result = eval(expression, {"__builtins__": None}, safe_dict)
+            self.currentExpression = str(result)
+
+        except ZeroDivisionError:
+            self.error("Cannot divide by zero")
+        except (SyntaxError, NameError):
+            self.error("Invalid input")
+        except Exception as e:
+            self.error(str(e))
 
     def show_brackets(self, bracket):
         """
