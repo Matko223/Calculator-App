@@ -540,17 +540,10 @@ class PhotomathMode(QWidget):
         pass
 
     def handle_absolute_value(self):
-        if 'Error' not in self.currentExpression and 'inf' not in self.currentExpression:
-            open_abs = self.currentExpression.count('|') - self.currentExpression.count('||')
-
-            if open_abs % 2 == 0:
-                if not self.currentExpression or self.currentExpression[-1] in ['+', '-', '*', '/', '(', '^', '√']:
-                    self.currentExpression += '|'
-                else:
-                    self.currentExpression += '*|'
-            else:
-                self.currentExpression += '|'
-
+        if ('Error' not in self.currentExpression and 'inf' not in self.currentExpression and
+                (not self.currentExpression or self.currentExpression[-1]
+                 in ['+', '-', '*', '/', '(', '^', '√', '!','|'])):
+            self.currentExpression += '|0|'
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
 
@@ -602,8 +595,15 @@ class PhotomathMode(QWidget):
                                   f"math.pow({root_expr}, 1/{root_degree})" +
                                   expression[end:])
 
+            # Handle absolute value
+            while '|' in expression:
+                start = expression.index('|')
+                end = expression.index('|', start + 1)
+                abs_expr = expression[start + 1:end]
+                expression = expression[:start] + f"abs({abs_expr})" + expression[end + 1:]
+
             # Replace other custom functions
-            expression = expression.replace("!", "math.factorial").replace("|x|", "abs").replace("mod", "%")
+            expression = expression.replace("!", "math.factorial").replace("mod", "%")
 
             # Safe built-in functions that can be used in eval
             safe_dict = {
@@ -621,6 +621,9 @@ class PhotomathMode(QWidget):
             self.error("Invalid input")
         except Exception as e:
             self.error(str(e))
+
+        self.update_current_input()
+        self.currentInput.setText(self.currentExpression)
 
     def show_brackets(self, bracket):
         """
