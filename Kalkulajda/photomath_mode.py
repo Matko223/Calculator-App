@@ -637,7 +637,7 @@ class PhotomathMode(QWidget):
         # Handle opening bracket
         if bracket == '(':
             if (not self.currentExpression or self.currentExpression[-1] in self.operations.values() or
-                    self.currentExpression[-1] in '(['):
+                    self.currentExpression[-1] in '('):
                 self.currentExpression += bracket
 
         # Handle closing bracket

@@ -16,7 +16,13 @@ HOVER_OPERATOR = "#FF8409"
 
 
 class BMICalculator(QWidget):
+    """
+    @brief A class that represents a Body Mass Index (BMI) calculator.
+    """
     def __init__(self):
+        """
+        @brief Initializes the BMICalculator class.
+        """
         super().__init__()
         self.mode_menu_button = None
         self.help_menu_button = None
@@ -57,6 +63,9 @@ class BMICalculator(QWidget):
         self.init_ui()
 
     def init_ui(self):
+        """
+        @brief Initializes the user interface of the calculator.
+        """
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
@@ -72,14 +81,17 @@ class BMICalculator(QWidget):
         self.setContentsMargins(0, 0, 0, 0)
 
     def display_frame(self):
+        """
+        @brief Creates the display frame for the calculator.
+        """
         self.displayFrame = QFrame(self)
         self.displayFrame.setStyleSheet(f"background-color: {DARK_GRAY};")
 
         # Use QGridLayout for the main layout
         layout = QGridLayout(self.displayFrame)
         layout.setContentsMargins(20, 10, 10, 10)
-        layout.setHorizontalSpacing(5)  # Reduced spacing between columns
-        layout.setVerticalSpacing(8)  # Reduced spacing between rows
+        layout.setHorizontalSpacing(5)
+        layout.setVerticalSpacing(8)
 
         # Add spacer item to push widgets to the right
         spacer = QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -91,7 +103,7 @@ class BMICalculator(QWidget):
         layout.addWidget(height_label, 0, 1, Qt.AlignRight | Qt.AlignVCenter)
 
         height_layout = QHBoxLayout()
-        height_layout.setSpacing(5)  # Set spacing between widgets in height layout
+        height_layout.setSpacing(5)
 
         self.height_input = QLineEdit()
         self.height_input.setReadOnly(True)
@@ -159,7 +171,7 @@ class BMICalculator(QWidget):
         layout.addWidget(weight_label, 1, 1, Qt.AlignRight | Qt.AlignVCenter)
 
         weight_layout = QHBoxLayout()
-        weight_layout.setSpacing(5)  # Set spacing between widgets in weight layout
+        weight_layout.setSpacing(5)
 
         self.weight_input = QLineEdit()
         self.weight_input.setReadOnly(True)
@@ -212,10 +224,12 @@ class BMICalculator(QWidget):
         self.update_height_inputs()
 
         self.current_input = self.height_input
-
         return self.displayFrame
 
     def button_frame(self):
+        """
+        @brief Creates the frame for the buttons of the calculator.
+        """
         self.buttonFrame = QFrame()
         self.buttonFrame.setStyleSheet(f"background-color: {GRAY}; color: white;")
         self.buttonFrameLayout = QVBoxLayout(self.buttonFrame)
@@ -237,6 +251,12 @@ class BMICalculator(QWidget):
         return self.buttonFrame
 
     def create_digit_button(self, digit, row, col):
+        """
+        @brief Creates a button for a digit.
+        @param digit: The digit for the button.
+        @param row: The row in the layout to place the button.
+        @param col: The column in the layout to place the button.
+        """
         button = QPushButton(str(digit))
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
@@ -259,6 +279,9 @@ class BMICalculator(QWidget):
         shortcut.activated.connect(lambda d=digit: self.append_digit(d))
 
     def create_decimal_button(self):
+        """
+        @brief Creates a button for the decimal point.
+        """
         button = QPushButton(".")
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
@@ -274,6 +297,9 @@ class BMICalculator(QWidget):
         self.buttonLayout.addWidget(button, *self.special_operations["."])
 
     def create_clear_button(self):
+        """
+        @brief Creates a button to clear all input fields.
+        """
         button = QPushButton("C")
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
@@ -289,6 +315,9 @@ class BMICalculator(QWidget):
         self.buttonLayout.addWidget(button, *self.special_operations["C"])
 
     def create_switch_button(self):
+        """
+        @brief Creates a button to switch the current input field.
+        """
         button = QPushButton("Switch")
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
@@ -304,6 +333,9 @@ class BMICalculator(QWidget):
         self.buttonLayout.addWidget(button, *self.special_operations["SWITCH"])
 
     def create_delete_button(self):
+        """
+        @brief Creates a delete button that removes the last digit from the current input field.
+        """
         button = QPushButton("⌫")
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
@@ -319,6 +351,9 @@ class BMICalculator(QWidget):
         self.buttonLayout.addWidget(button, *self.special_operations["⌫"])
 
     def create_calculate_button(self):
+        """
+        @brief Creates a button for calculating the Body Mass Index (BMI).
+        """
         button = QPushButton("CAL")
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
@@ -334,6 +369,10 @@ class BMICalculator(QWidget):
         self.buttonLayout.addWidget(button, *self.special_operations["CAL"])
 
     def append_digit(self, digit):
+        """
+        @brief Appends a digit to the current input field.
+        @param digit: The digit to append to the current input field.
+        """
         if self.current_input:
             current_text = self.current_input.text()
 
@@ -359,6 +398,9 @@ class BMICalculator(QWidget):
                     self.current_input.setText(current_text + digit)
 
     def clear_input(self):
+        """
+        @brief Clears all input fields, resets their styles, and sets the focus to the current input field.
+        """
         self.height_input.clear()
         self.weight_input.clear()
         self.result_input.clear()
@@ -391,11 +433,17 @@ class BMICalculator(QWidget):
         self.current_input.setFocus()
 
     def delete_digit(self):
+        """
+        @brief Deletes the last digit from the current input field.
+        """
         if self.current_input:
             current_text = self.current_input.text()
             self.current_input.setText(current_text[:-1])
 
     def switch_input(self):
+        """
+        @brief Switches the current input field based on the selected height unit and the current input field.
+        """
         for input_field in [self.height_input, self.height_feet_input, self.height_inches_input, self.weight_input]:
             input_field.setStyleSheet(f"background-color: {LIGHT_GRAY}; border: none; border-radius: 5px; "
                                       f"color: white; font-size: 18px;")
@@ -419,10 +467,17 @@ class BMICalculator(QWidget):
         self.current_input.setFocus()
 
     def switch_input_event(self, event):
+        """
+        @brief Handles the event of switching input fields.
+        @param event: The event that triggers the switch.
+        """
         self.switch_input()
         event.accept()
 
     def update_height_inputs(self):
+        """
+        @brief Updates the height inputs based on the selected height unit.
+        """
         if self.height_unit_combo.currentText() == "ft":
             self.height_input.hide()
             self.height_feet_input.show()
@@ -466,6 +521,9 @@ class BMICalculator(QWidget):
         """)
 
     def calculate_bmi(self):
+        """
+        @brief Calculates the Body Mass Index (BMI).
+        """
         try:
             height_unit = self.height_unit_combo.currentText()
             weight_unit = self.weight_unit_combo.currentText()

@@ -19,7 +19,6 @@ from bmi_calculator import BMICalculator
 from photomath_mode import PhotomathMode
 import ctypes
 
-# TODO: 2*root2 not working...
 
 # Color definitions
 LIGHT_GRAY = "#979797"
