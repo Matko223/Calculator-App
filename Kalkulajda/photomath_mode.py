@@ -12,12 +12,7 @@ from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon, QRegularExpress
 from PySide6.QtCore import Qt, QSize, QRegularExpression
 import math
 
-# TODO: Add the following features:
-#  exponentiation, square root, factorial, absolute value, modulo, decimal point, equals
-#  Add shortcuts for all buttons
-#  Add calculation logic
-#  FIX: Switching the operators, bracket logic
-
+# TODO: Add shortcuts for all buttons
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -72,7 +67,7 @@ class PhotomathMode(QWidget):
             "√": (1, 0),
             "!": (2, 0),
             "|x|": (3, 0),
-            "%": (4, 0),
+            "π": (4, 0),
             ".": (4, 1),
             "=": (4, 3)
         }
@@ -222,8 +217,8 @@ class PhotomathMode(QWidget):
                 self.create_factorial_button(pos)
             elif operation == "|x|":
                 self.create_absolute_value_button(pos)
-            elif operation == "%":
-                self.create_modulo_button(pos)
+            elif operation == "π":
+                self.create_pi_button(pos)
             elif operation == ".":
                 self.create_decimal_button(pos)
             elif operation == "=":
@@ -365,12 +360,12 @@ class PhotomathMode(QWidget):
         button.clicked.connect(self.handle_absolute_value)
         self.buttonLayout.addWidget(button, pos[0], pos[1])
 
-    def create_modulo_button(self, pos):
+    def create_pi_button(self, pos):
         """
-        @brief Creates and configures the button for modulo operation (mod).
+        @brief Creates and configures the button for pi operation (π).
         @param pos: Position of the button in the grid layout as a tuple (row, column).
         """
-        button = QPushButton("mod")
+        button = QPushButton("π")
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
             QPushButton {{
@@ -381,6 +376,7 @@ class PhotomathMode(QWidget):
             }}
         """)
         button.setFixedSize(79, 55)
+        button.clicked.connect(self.handle_pi)
         self.buttonLayout.addWidget(button, pos[0], pos[1])
 
     def create_decimal_button(self, pos):
@@ -433,7 +429,7 @@ class PhotomathMode(QWidget):
             self.currentExpression = str(digit)
         elif 'Error' in self.currentExpression or 'inf' in self.currentExpression:
             self.currentExpression = str(digit)
-        elif last_char == ')' or last_char == '|':
+        elif last_char == ')' or last_char == '|' or last_char == 'π':
             return
         else:
             self.currentExpression += str(digit)
@@ -452,7 +448,7 @@ class PhotomathMode(QWidget):
             if last_char in self.operations.values():
                 self.currentExpression = self.currentExpression[:-1] + self.operations[operator]
             # Append the operator if the last character is a digit, closing bracket, or percentage
-            elif last_char.isdigit() or last_char in [')'] or last_char == '|':
+            elif last_char.isdigit() or last_char in [')'] or last_char == '|' or last_char == 'π':
                 self.currentExpression += self.operations[operator]
             # If the expression is empty or ends with an opening bracket, only allow minus
             elif not self.currentExpression or last_char == '(':
@@ -508,12 +504,24 @@ class PhotomathMode(QWidget):
         """
         @brief Appends a decimal point to the current expression if valid.
         """
-        if 'Error' not in self.currentExpression and 'inf' not in self.currentExpression:
-            if not self.currentExpression or self.currentExpression[-1] != '-':
-                if not self.currentExpression:
-                    self.currentExpression += '0.'
-                elif '.' not in self.currentExpression:
-                    self.currentExpression += '.'
+        if 'Error' in self.currentExpression or 'inf' in self.currentExpression:
+            return
+
+        # If the expression is empty or ends with an operator, do not allow a decimal point
+        if not self.currentExpression or self.currentExpression[-1] in ['+', '-', '×', '÷', '(', '^', '√', 'π']:
+            return
+        else:
+            # Find the last number in the expression
+            last_number = ''
+            for char in reversed(self.currentExpression):
+                if char.isdigit() or char == '.':
+                    last_number = char + last_number
+                else:
+                    break
+
+            # If the last number doesn't contain a decimal point, add one
+            if '.' not in last_number:
+                self.currentExpression += '.'
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
 
@@ -523,7 +531,9 @@ class PhotomathMode(QWidget):
         """
         if 'Error' not in self.currentExpression and 'inf' not in self.currentExpression:
             if self.currentExpression and (self.currentExpression[-1].isdigit()
-                                           or self.currentExpression[-1] == ')' or self.currentExpression[-1] == '!'):
+                                           or self.currentExpression[-1] == ')'
+                                           or self.currentExpression[-1] == '!'
+                                           or self.currentExpression[-1] == 'π'):
                 self.currentExpression += '^'
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
@@ -532,13 +542,26 @@ class PhotomathMode(QWidget):
         """
         @brief Appends the root operator to the current expression.
         """
-        if 'Error' not in self.currentExpression and 'inf' not in self.currentExpression:
-            self.currentExpression += '√('
+        if ('Error' in self.currentExpression or 'inf' in self.currentExpression or
+                (self.currentExpression and (self.currentExpression[-1] == 'π' or self.currentExpression[-1] == '.'))):
+            return
+        self.currentExpression += '√('
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
 
     def handle_factorial(self):
+        # TODO: Implement the logic for the factorial
         pass
+
+    def handle_pi(self):
+        if (not self.currentExpression or
+                self.currentExpression[-1].isdigit() or
+                self.currentExpression[-1] in self.operations.values()):
+            self.currentExpression += 'π'
+        else:
+            return
+        self.update_current_input()
+        self.currentInput.setText(self.currentExpression)
 
     def handle_absolute_value(self):
         if ('Error' not in self.currentExpression and 'inf' not in self.currentExpression and
