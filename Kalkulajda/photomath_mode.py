@@ -682,7 +682,7 @@ class PhotomathMode(QWidget):
             }
 
             # Evaluate the expression
-            result = eval(expression, {"__builtins__": None}, safe_dict)
+            result = eval(expression, safe_dict)
             self.currentExpression = str(result)
 
         except ZeroDivisionError:
@@ -692,6 +692,15 @@ class PhotomathMode(QWidget):
         except Exception as e:
             self.error(str(e))
 
+        if isinstance(self.currentExpression, str) and self.currentExpression.endswith('0'):
+            try:
+                value = float(self.currentExpression)
+                if value.is_integer():
+                    self.currentExpression = str(int(value))
+                else:
+                    self.currentExpression = str(value)
+            except ValueError:
+                self.error("Invalid expression for conversion")
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
 
