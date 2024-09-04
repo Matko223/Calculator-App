@@ -5,6 +5,7 @@
 @author Martin Valapka (xvalapm00)
 @date 14.08. 2024
 """
+import re
 
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel, QPushButton, QHBoxLayout, \
     QLineEdit, QStackedLayout, QLineEdit
@@ -12,7 +13,7 @@ from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon, QRegularExpress
 from PySide6.QtCore import Qt, QSize, QRegularExpression
 import math
 
-# TODO: Add shortcuts for all buttons
+# TODO: Add shortcuts for all buttons, fix the result, calculation with pi, add factorial, fix the typing, bug fix
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -572,21 +573,24 @@ class PhotomathMode(QWidget):
         self.currentInput.setText(self.currentExpression)
 
     def calculate(self):
+        pi_value = math.pi
+
         try:
-            # Replace custom operators with Python-compatible operators
-            expression = self.currentExpression.replace("\u00F7", "/").replace("\u00D7", "*").replace("^", "**")
+            # Replace π with its numeric value and ensure multiplication where necessary
+            expression = self.currentExpression.replace("π", f"*{pi_value}")
+            expression = re.sub(r'(\d)\*', r'\1*', expression)
+
+            # Replace other custom operators with Python-compatible operators
+            expression = expression.replace("\u00F7", "/").replace("\u00D7", "*").replace("^", "**")
 
             # Custom handling for root operations
             while '√' in expression:
                 root_index = expression.index('√')
-
-                # Find the start of the root degree (if any)
                 degree_start = root_index - 1
                 while degree_start >= 0 and (expression[degree_start].isdigit() or expression[degree_start] == '.'):
                     degree_start -= 1
                 degree_start += 1
 
-                # Extract the root degree (default to 2 if not specified)
                 if degree_start < root_index:
                     root_degree = expression[degree_start:root_index]
                     expression = expression[:degree_start] + expression[root_index:]
@@ -594,9 +598,7 @@ class PhotomathMode(QWidget):
                 else:
                     root_degree = "2"
 
-                # Find the expression under the root
                 if expression[root_index + 1] == '(':
-                    # If parentheses are used
                     paren_count = 1
                     end = root_index + 2
                     while paren_count > 0:
@@ -610,7 +612,6 @@ class PhotomathMode(QWidget):
                                   f"math.pow({root_expr}, 1/{root_degree})" +
                                   expression[end:])
                 else:
-                    # If no parentheses, assume it's just the next term
                     end = root_index + 1
                     while end < len(expression) and (expression[end].isdigit() or expression[end] == '.'):
                         end += 1
@@ -672,5 +673,3 @@ class PhotomathMode(QWidget):
         # Update display
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
-
-
