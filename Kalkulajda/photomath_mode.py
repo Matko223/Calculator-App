@@ -596,6 +596,9 @@ class PhotomathMode(QWidget):
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
 
+    import math
+    import re
+
     def calculate(self):
         pi_value = math.pi
 
@@ -607,6 +610,22 @@ class PhotomathMode(QWidget):
 
             # Replace other custom operators with Python-compatible operators
             expression = expression.replace("\u00F7", "/").replace("\u00D7", "*").replace("^", "**")
+
+            # Handle factorial
+            while '!' in expression:
+                factorial_index = expression.index('!')
+
+                # Find the start of the number or expression before the factorial
+                start = factorial_index - 1
+                while start >= 0 and (expression[start].isdigit() or expression[start] == '.'):
+                    start -= 1
+                start += 1
+
+                # Extract the number or expression
+                factorial_expr = expression[start:factorial_index]
+
+                # Replace the factorial with math.factorial
+                expression = expression[:start] + f"math.factorial({factorial_expr})" + expression[factorial_index + 1:]
 
             # Custom handling for root operations
             while '√' in expression:
@@ -653,12 +672,13 @@ class PhotomathMode(QWidget):
                 expression = expression[:start] + f"abs({abs_expr})" + expression[end + 1:]
 
             # Replace other custom functions
-            expression = expression.replace("!", "math.factorial").replace("mod", "%")
+            expression = expression.replace("mod", "%")
 
             # Safe built-in functions that can be used in eval
             safe_dict = {
                 "math": math,
                 "abs": abs,
+                "factorial": math.factorial,
             }
 
             # Evaluate the expression
