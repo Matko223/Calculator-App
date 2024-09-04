@@ -6,7 +6,6 @@
 @date 14.08. 2024
 """
 import re
-
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel, QPushButton, QHBoxLayout, \
     QLineEdit, QStackedLayout, QLineEdit
 from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon, QRegularExpressionValidator
@@ -40,6 +39,7 @@ class PhotomathMode(QWidget):
         self.currentLabel = None
         self.currentExpression = ""
         self.currentInput = None
+        self.evaluated = False
 
         self.digits = {
             7: (1, 1),
@@ -429,8 +429,9 @@ class PhotomathMode(QWidget):
         last_char = self.currentExpression[-1] if self.currentExpression else ''
         if self.currentExpression == "0":
             self.currentExpression = str(digit)
-        elif 'Error' in self.currentExpression or 'inf' in self.currentExpression:
+        elif 'Error' in self.currentExpression or 'inf' in self.currentExpression or self.evaluated:
             self.currentExpression = str(digit)
+            self.evaluated = False
         elif last_char == ')' or last_char == '|' or last_char == 'π' or last_char == '!':
             return
         else:
@@ -446,8 +447,12 @@ class PhotomathMode(QWidget):
         if 'Error' not in self.currentExpression and 'inf' not in self.currentExpression:
             last_char = self.currentExpression[-1] if self.currentExpression else ''
 
+            # Replace the current expression with the new operator
+            if self.evaluated and operator == '-':
+                self.currentExpression = self.operations[operator]
+                self.evaluated = False
             # Replace the last operator if the current expression ends with an operator
-            if last_char in self.operations.values():
+            elif last_char in self.operations.values():
                 self.currentExpression = self.currentExpression[:-1] + self.operations[operator]
             # Append the operator if the last character is a digit, closing bracket, or percentage
             elif last_char.isdigit() or last_char in [')'] or last_char == '|' or last_char == 'π' or last_char == '!':
@@ -456,7 +461,6 @@ class PhotomathMode(QWidget):
             elif not self.currentExpression or last_char == '(':
                 if operator == '-':
                     self.currentExpression += operator
-
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
 
@@ -703,6 +707,7 @@ class PhotomathMode(QWidget):
                 self.error("Invalid expression for conversion")
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
+        self.evaluated = True
 
     def show_brackets(self, bracket):
         """
