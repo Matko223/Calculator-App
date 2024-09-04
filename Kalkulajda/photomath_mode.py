@@ -26,8 +26,15 @@ HOVER_OPERATOR = "#FF8409"
 
 
 class PhotomathMode(QWidget):
+    """
+    @brief This class represents the Photomath mode of the calculator.
+    """
     def __init__(self):
+        """
+        @brief Initializes the PhotomathMode with necessary attributes and calls the init_ui method.
+        """
         super().__init__()
+        # Initialize layout and widget attributes
         self.layout = None
         self.mainLayout = None
         self.non_essential_widget = None
@@ -41,6 +48,7 @@ class PhotomathMode(QWidget):
         self.currentInput = None
         self.evaluated = False
 
+        # Initialize dictionaries for digits, operations, special operations, and brackets
         self.digits = {
             7: (1, 1),
             8: (1, 2),
@@ -78,9 +86,13 @@ class PhotomathMode(QWidget):
             ")": (0, 2)
         }
 
+        # Initialize the user interface
         self.init_ui()
 
     def init_ui(self):
+        """
+        @brief Initializes the user interface of the calculator.
+        """
         self.mainLayout = QVBoxLayout(self)
         self.mainLayout.setContentsMargins(0, 0, 0, 0)
         self.mainLayout.setSpacing(0)
@@ -93,6 +105,10 @@ class PhotomathMode(QWidget):
         self.setLayout(self.mainLayout)
 
     def display_frame(self):
+        """
+        @brief Creates and configures the display frame for the calculator.
+        @return QWidget: The configured display frame.
+        """
         displayFrame = QWidget(self)
         displayFrame.setFixedHeight(125)
         displayFrame.setStyleSheet(f"background-color: {DARK_GRAY};")
@@ -119,6 +135,10 @@ class PhotomathMode(QWidget):
         return displayFrame
 
     def button_frame(self):
+        """
+        @brief Creates and configures the button frame for the calculator.
+        @return QWidget: The configured button frame.
+        """
         buttonFrame = QWidget(self)
         buttonFrame.setFixedHeight(280)
         buttonFrame.setStyleSheet(f"background-color: {GRAY}; color: white;")
@@ -137,6 +157,10 @@ class PhotomathMode(QWidget):
         return buttonFrame
 
     def on_input_changed(self, text):
+        """
+        @brief Handles the event when the text in the input field changes.
+        @param text: The new text in the input field.
+        """
         # TODO: Implement the logic for the input change(typing)
         self.currentExpression = text
         self.update_current_input()
@@ -574,6 +598,9 @@ class PhotomathMode(QWidget):
         self.currentInput.setText(self.currentExpression)
 
     def handle_pi(self):
+        """
+        @brief Handles the event when the pi button is pressed.
+        """
         if (not self.currentExpression or
                 self.currentExpression[-1].isdigit() or
                 self.currentExpression[-1] in self.operations.values()):
@@ -600,10 +627,10 @@ class PhotomathMode(QWidget):
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
 
-    import math
-    import re
-
     def calculate(self):
+        """
+        @brief Evaluates the current mathematical expression and updates the display.
+        """
         pi_value = math.pi
 
         try:
@@ -698,13 +725,17 @@ class PhotomathMode(QWidget):
 
         if isinstance(self.currentExpression, str) and self.currentExpression.endswith('0'):
             try:
+                # Convert the result to an integer if it's a whole number
                 value = float(self.currentExpression)
                 if value.is_integer():
                     self.currentExpression = str(int(value))
                 else:
                     self.currentExpression = str(value)
             except ValueError:
+                # Handle value errors
                 self.error("Invalid expression for conversion")
+
+        # Update the display
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
         self.evaluated = True
