@@ -340,6 +340,7 @@ class PhotomathMode(QWidget):
             }}
         """)
         button.setFixedSize(79, 55)
+        button.clicked.connect(self.handle_factorial)
         self.buttonLayout.addWidget(button, pos[0], pos[1])
 
     def create_absolute_value_button(self, pos):
@@ -430,7 +431,7 @@ class PhotomathMode(QWidget):
             self.currentExpression = str(digit)
         elif 'Error' in self.currentExpression or 'inf' in self.currentExpression:
             self.currentExpression = str(digit)
-        elif last_char == ')' or last_char == '|' or last_char == 'π':
+        elif last_char == ')' or last_char == '|' or last_char == 'π' or last_char == '!':
             return
         else:
             self.currentExpression += str(digit)
@@ -449,7 +450,7 @@ class PhotomathMode(QWidget):
             if last_char in self.operations.values():
                 self.currentExpression = self.currentExpression[:-1] + self.operations[operator]
             # Append the operator if the last character is a digit, closing bracket, or percentage
-            elif last_char.isdigit() or last_char in [')'] or last_char == '|' or last_char == 'π':
+            elif last_char.isdigit() or last_char in [')'] or last_char == '|' or last_char == 'π' or last_char == '!':
                 self.currentExpression += self.operations[operator]
             # If the expression is empty or ends with an opening bracket, only allow minus
             elif not self.currentExpression or last_char == '(':
@@ -509,7 +510,7 @@ class PhotomathMode(QWidget):
             return
 
         # If the expression is empty or ends with an operator, do not allow a decimal point
-        if not self.currentExpression or self.currentExpression[-1] in ['+', '-', '×', '÷', '(', '^', '√', 'π']:
+        if not self.currentExpression or self.currentExpression[-1] in ['+', '-', '×', '÷', '(', '^', '√', 'π', '!']:
             return
         else:
             # Find the last number in the expression
@@ -530,12 +531,16 @@ class PhotomathMode(QWidget):
         """
         @brief Appends the exponentiation operator to the current expression.
         """
-        if 'Error' not in self.currentExpression and 'inf' not in self.currentExpression:
-            if self.currentExpression and (self.currentExpression[-1].isdigit()
-                                           or self.currentExpression[-1] == ')'
-                                           or self.currentExpression[-1] == '!'
-                                           or self.currentExpression[-1] == 'π'):
-                self.currentExpression += '^'
+        if ('Error' in self.currentExpression or 'inf' in self.currentExpression or
+                (self.currentExpression and
+                 (self.currentExpression[-1] == 'π'
+                  or self.currentExpression[-1] == '.'
+                  or self.currentExpression[-1] == '!'
+                  or self.currentExpression[-1] == '('
+                  or self.currentExpression[-1] in self.operations.values()
+                  or self.currentExpression[-1] == '|'))):
+            return
+        self.currentExpression += '^'
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
 
@@ -544,15 +549,25 @@ class PhotomathMode(QWidget):
         @brief Appends the root operator to the current expression.
         """
         if ('Error' in self.currentExpression or 'inf' in self.currentExpression or
-                (self.currentExpression and (self.currentExpression[-1] == 'π' or self.currentExpression[-1] == '.'))):
+                (self.currentExpression and
+                 (self.currentExpression[-1] == 'π'
+                  or self.currentExpression[-1] == '.'
+                  or self.currentExpression[-1] == '!'))):
             return
         self.currentExpression += '√('
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
 
     def handle_factorial(self):
-        # TODO: Implement the logic for the factorial
-        pass
+        """
+        @brief Appends the factorial operator to the current expression.
+        """
+        if ('Error' not in self.currentExpression and 'inf' not in self.currentExpression and
+                self.currentExpression and
+                self.currentExpression[-1] not in ['+', '-', '*', '/', '^', '√', '(', 'π', '!']):
+            self.currentExpression += '!'
+        self.update_current_input()
+        self.currentInput.setText(self.currentExpression)
 
     def handle_pi(self):
         if (not self.currentExpression or
@@ -565,10 +580,19 @@ class PhotomathMode(QWidget):
         self.currentInput.setText(self.currentExpression)
 
     def handle_absolute_value(self):
-        if ('Error' not in self.currentExpression and 'inf' not in self.currentExpression and
-                (not self.currentExpression or self.currentExpression[-1]
-                 in ['+', '-', "\u00D7", "\u00F7", '(', '^', '√', '!'])):
-            self.currentExpression += '|0|'
+        """
+        @brief Appends the absolute value placeholder to the current expression.
+        """
+        if ('Error' in self.currentExpression or 'inf' in self.currentExpression or
+                (self.currentExpression and
+                 (self.currentExpression[-1] == 'π'
+                  or self.currentExpression[-1] == '.'
+                  or self.currentExpression[-1] == '!'
+                  or self.currentExpression[-1] == '('
+                  or self.currentExpression[-1] in self.operations.values()
+                  or self.currentExpression[-1] == '|'))):
+            return
+        self.currentExpression += '|0|'
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
 
@@ -576,9 +600,10 @@ class PhotomathMode(QWidget):
         pi_value = math.pi
 
         try:
-            # Replace π with its numeric value and ensure multiplication where necessary
-            expression = self.currentExpression.replace("π", f"*{pi_value}")
-            expression = re.sub(r'(\d)\*', r'\1*', expression)
+            # Replace π with its numeric value, ensuring multiplication where necessary
+            expression = self.currentExpression.replace("π", f"({pi_value})")
+            expression = re.sub(r'(\d)\(', r'\1*(', expression)
+            expression = re.sub(r'\)(\d)', r')*\1', expression)
 
             # Replace other custom operators with Python-compatible operators
             expression = expression.replace("\u00F7", "/").replace("\u00D7", "*").replace("^", "**")
