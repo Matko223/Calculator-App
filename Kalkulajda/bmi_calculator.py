@@ -454,12 +454,17 @@ class BMICalculator(QWidget):
 
     def switch_input(self):
         """
-        @brief Switches the current input field based on the selected height unit and the current input field.
+        @brief Switches the current input field based on the selected height unit and resets the result label.
         """
+        # Reset the style for all input fields
         for input_field in [self.height_input, self.height_feet_input, self.height_inches_input, self.weight_input]:
             input_field.setStyleSheet(f"background-color: {LIGHT_GRAY}; border: none; border-radius: 5px; "
                                       f"color: white; font-size: 18px;")
 
+        # Reset the result label when switching units
+        self.result_input.setText("")
+
+        # Switch the current input based on the selected height unit
         if self.height_unit_combo.currentText() == "ft":
             if self.current_input == self.height_feet_input:
                 self.current_input = self.height_inches_input
@@ -473,6 +478,7 @@ class BMICalculator(QWidget):
             else:
                 self.current_input = self.height_input
 
+        # Highlight the current input field and set focus
         self.current_input.setStyleSheet(
             f"background-color: {LIGHT_GRAY}; border: 2px solid orange; border-radius: 5px; "
             f"color: white; font-size: 18px;")
