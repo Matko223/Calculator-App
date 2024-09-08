@@ -1,5 +1,6 @@
-from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QFont, QIcon, Qt, QShortcut, QKeySequence
+from PyQt5.QtGui import QRegExpValidator, QRegularExpressionValidator
+from PySide6.QtCore import QSize, Qt, QRegularExpression
+from PySide6.QtGui import QFont, QIcon, Qt, QShortcut, QKeySequence, QRegularExpressionValidator
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout,
     QSpacerItem, QSizePolicy)
@@ -19,6 +20,7 @@ class BMICalculator(QWidget):
     """
     @brief A class that represents a Body Mass Index (BMI) calculator.
     """
+
     def __init__(self):
         """
         @brief Initializes the BMICalculator class.
@@ -80,6 +82,11 @@ class BMICalculator(QWidget):
         self.setLayout(layout)
         self.setContentsMargins(0, 0, 0, 0)
 
+        self.setup_input_validation(self.height_input)
+        self.setup_input_validation(self.weight_input)
+        self.setup_input_validation(self.height_feet_input)
+        self.setup_input_validation(self.height_inches_input)
+
     def display_frame(self):
         """
         @brief Creates the display frame for the calculator.
@@ -106,7 +113,6 @@ class BMICalculator(QWidget):
         height_layout.setSpacing(5)
 
         self.height_input = QLineEdit()
-        self.height_input.setReadOnly(True)
         self.height_input.setStyleSheet(f"""
             background-color: {LIGHT_GRAY};
             border: 2px solid orange;
@@ -119,7 +125,6 @@ class BMICalculator(QWidget):
         self.height_input.mousePressEvent = self.switch_input_event
 
         self.height_feet_input = QLineEdit()
-        self.height_feet_input.setReadOnly(True)
         self.height_feet_input.setStyleSheet(f"""
             background-color: {LIGHT_GRAY};
             border: 2px solid orange;
@@ -133,7 +138,6 @@ class BMICalculator(QWidget):
         self.height_feet_input.mousePressEvent = self.switch_input_event
 
         self.height_inches_input = QLineEdit()
-        self.height_inches_input.setReadOnly(True)
         self.height_inches_input.setStyleSheet(f"""
             background-color: {LIGHT_GRAY};
             border: none;
@@ -174,7 +178,6 @@ class BMICalculator(QWidget):
         weight_layout.setSpacing(5)
 
         self.weight_input = QLineEdit()
-        self.weight_input.setReadOnly(True)
         self.weight_input.mousePressEvent = self.switch_input_event
         self.weight_input.setStyleSheet(f"""
             background-color: {LIGHT_GRAY};
@@ -386,7 +389,7 @@ class BMICalculator(QWidget):
                         return
                     self.current_input.setText(current_text + digit)
             else:
-                if len(current_text) < 3:
+                if len(current_text) < 5:
                     if current_text == "" and digit == "0":
                         return
                     if digit == ".":
@@ -396,6 +399,15 @@ class BMICalculator(QWidget):
                             self.current_input.setText("0.")
                             return
                     self.current_input.setText(current_text + digit)
+
+    def setup_input_validation(self, input_widget):
+        """
+        @brief Sets up input validation for the given QLineEdit widget.
+        @param input_widget: The QLineEdit widget to set up validation for.
+        """
+        regex = QRegularExpression(r'^(?=.{0,5}$)\d*(\.?\d*)?$')
+        validator = QRegularExpressionValidator(regex)
+        input_widget.setValidator(validator)
 
     def clear_input(self):
         """
