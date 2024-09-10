@@ -1,3 +1,11 @@
+"""
+@file date_calculation.py
+@brief File containing Date calculation mode for the calculator application.
+
+@author Martin Valapka (xvalapm00)
+@date 10.09. 2024
+"""
+
 from PySide6.QtCore import QSize, Qt, QRegularExpression
 from PySide6.QtGui import QFont, QIcon, Qt, QShortcut, QKeySequence, QRegularExpressionValidator
 from PySide6.QtWidgets import (
@@ -5,6 +13,7 @@ from PySide6.QtWidgets import (
     QSpacerItem, QSizePolicy)
 from datetime import datetime, date
 
+# Color definitions
 LIGHT_GRAY = "#979797"
 DARK_GRAY = "#3D3D3D"
 ORANGE = "#FFA500"
@@ -13,10 +22,19 @@ COLOR_REST = "#4F4F4F"
 LABEL_COLOR = "#25265E"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
+# TODO: Custom errors, make the result label bigger, combobox selected option
 
 
 class DateCalculation(QWidget):
+    """
+    @brief A class that represents a Date Calculation widget.
+    """
+
     def __init__(self, date):
+        """
+        @brief Initializes the DateCalculation class.
+        @param date: The initial date to use for calculations.
+        """
         super().__init__()
         self.calculateButton = None
         self.resultLabel = None
@@ -35,6 +53,9 @@ class DateCalculation(QWidget):
         self.set_current_date()
 
     def setup_ui(self):
+        """
+        @brief Sets up the user interface of the widget.
+        """
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
@@ -42,6 +63,9 @@ class DateCalculation(QWidget):
         layout.addWidget(self.displayFrame)
 
     def frame_layout(self):
+        """
+        @brief Creates and sets up the main frame layout of the widget.
+        """
         self.displayFrame = QFrame(self)
         self.displayFrame.setStyleSheet(f"background-color: {DARK_GRAY};")
         self.displayFrame.setFixedHeight(405)
@@ -50,7 +74,7 @@ class DateCalculation(QWidget):
         frame_layout.setContentsMargins(0, 0, 0, 0)
         frame_layout.setSpacing(0)
 
-        # Adjust the startDate label
+        # Set up start date section
         self.startDate = QLabel("Start date", self.displayFrame)
         self.startDate.setStyleSheet(f"color: white; font-size: 25px; font-weight: bold; margin-top: 3px;")
         self.startDate.setAlignment(Qt.AlignCenter)
@@ -58,11 +82,10 @@ class DateCalculation(QWidget):
 
         frame_layout.addItem(QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Fixed), 1, 1)
 
-        # Add comboboxes for day and month, and text field for year
         start_date_input_layout, self.start_day_combobox, self.start_month_combobox, self.start_year_input = self.create_date_input_layout()
         frame_layout.addLayout(start_date_input_layout, 2, 1, Qt.AlignCenter)
 
-        # Adjust the endDate label
+        # Set up end date section
         self.endDate = QLabel("End date", self.displayFrame)
         self.endDate.setStyleSheet(f"color: white; font-size: 25px; font-weight: bold; margin-top: 40px;")
         self.endDate.setAlignment(Qt.AlignCenter)
@@ -70,11 +93,10 @@ class DateCalculation(QWidget):
 
         frame_layout.addItem(QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Fixed), 4, 1)
 
-        # Add comboboxes for end date
         end_date_input_layout, self.end_day_combobox, self.end_month_combobox, self.end_year_input = self.create_date_input_layout()
         frame_layout.addLayout(end_date_input_layout, 5, 1, Qt.AlignCenter)
 
-        # Add the calculateButton, slightly above the resultLabel
+        # Set up calculate button
         self.calculateButton = QPushButton("Calculate", self.displayFrame)
         self.calculateButton.setStyleSheet(
             "QPushButton {"
@@ -89,16 +111,20 @@ class DateCalculation(QWidget):
         self.calculateButton.clicked.connect(self.calculate)
         frame_layout.addWidget(self.calculateButton, 6, 1, Qt.AlignCenter)
 
-        # Add the resultLabel
+        # Set up result label
         self.resultLabel = QLabel("", self.displayFrame)
         self.resultLabel.setStyleSheet(f"color: white; font-size: 15px; font-weight: bold; margin-top: 20px;")
         self.resultLabel.setAlignment(Qt.AlignCenter)
         frame_layout.addWidget(self.resultLabel, 7, 1, Qt.AlignCenter)
 
-        # Add a vertical spacer to ensure there is no extra space on the sides
+        # Add a vertical spacer
         frame_layout.addItem(QSpacerItem(0, 40, QSizePolicy.Minimum, QSizePolicy.Expanding), 8, 1)
 
     def create_date_input_layout(self):
+        """
+        @brief Creates the layout for date input fields (day, month, year).
+        @return: A tuple containing the layout and individual input widgets.
+        """
         date_input_layout = QHBoxLayout()
         date_input_layout.setSpacing(10)
 
@@ -145,17 +171,20 @@ class DateCalculation(QWidget):
         }
         """
 
+        # Create day combobox
         day_combobox = QComboBox(self.displayFrame)
         day_combobox.addItems([str(i) for i in range(1, 32)])
         day_combobox.setStyleSheet(combobox_style)
         day_combobox.setFixedSize(120, 40)
 
+        # Create month combobox
         month_combobox = QComboBox(self.displayFrame)
         month_combobox.addItems(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
                                  'September', 'October', 'November', 'December'])
         month_combobox.setStyleSheet(combobox_style)
         month_combobox.setFixedSize(120, 40)
 
+        # Create year input
         year_input = QLineEdit(self.displayFrame)
         year_input.setStyleSheet("color: white; background-color: #4F4F4F; font-size: 16px; border-radius: 10px; "
                                  "font-weight: bold; padding: 5px;")
@@ -173,6 +202,9 @@ class DateCalculation(QWidget):
         return date_input_layout, day_combobox, month_combobox, year_input
 
     def set_current_date(self):
+        """
+        @brief Sets the current date in the input fields.
+        """
         current_date = datetime.now()
 
         self.start_day_combobox.setCurrentText(str(current_date.day))
@@ -184,6 +216,9 @@ class DateCalculation(QWidget):
         self.end_year_input.setText(str(current_date.year))
 
     def calculate(self):
+        """
+        @brief Calculates the difference between two dates and displays the result.
+        """
         try:
             # Get values from input widgets
             startDay = int(self.start_day_combobox.currentText())
@@ -193,14 +228,18 @@ class DateCalculation(QWidget):
             endMonth = self.end_month_combobox.currentIndex() + 1
             endYear = int(self.end_year_input.text())
 
+            # Create date objects
             date1 = date(startYear, startMonth, startDay)
             date2 = date(endYear, endMonth, endDay)
+
+            # Calculate the difference in days
             result = abs((date2 - date1).days)
 
             # Format the dates with three-letter month abbreviations
             date1_str = f"{date1.day} {date1.strftime('%b')}, {date1.year}"
             date2_str = f"{date2.day} {date2.strftime('%b')}, {date2.year}"
 
+            # Display the result
             self.resultLabel.setText(f"Difference between {date1_str} and {date2_str} is:\n{result} days")
         except ValueError as e:
             self.resultLabel.setText(f"Error: {str(e)}. \nPlease enter valid dates.")
