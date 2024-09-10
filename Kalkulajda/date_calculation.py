@@ -32,6 +32,7 @@ class DateCalculation(QWidget):
         self.end_year_input = None
 
         self.setup_ui()
+        self.set_current_date()
 
     def setup_ui(self):
         layout = QHBoxLayout(self)
@@ -112,7 +113,6 @@ class DateCalculation(QWidget):
             border-bottom-right-radius: 10px;
             font-weight: bold;
             padding: 5px;
-            padding-right: 20px;
         }
         QComboBox:on {
             border-bottom-left-radius: 0px;
@@ -171,6 +171,17 @@ class DateCalculation(QWidget):
         date_input_layout.addWidget(month_combobox)
         date_input_layout.addWidget(year_input)
         return date_input_layout, day_combobox, month_combobox, year_input
+
+    def set_current_date(self):
+        current_date = datetime.now()
+
+        self.start_day_combobox.setCurrentText(str(current_date.day))
+        self.start_month_combobox.setCurrentIndex(current_date.month - 1)
+        self.start_year_input.setText(str(current_date.year))
+
+        self.end_day_combobox.setCurrentText(str(current_date.day))
+        self.end_month_combobox.setCurrentIndex(current_date.month - 1)
+        self.end_year_input.setText(str(current_date.year))
 
     def calculate(self):
         try:
