@@ -37,7 +37,6 @@ class DateCalculation(QWidget):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
-
         self.frame_layout()
         layout.addWidget(self.displayFrame)
 
@@ -163,6 +162,11 @@ class DateCalculation(QWidget):
         year_input.setFixedSize(120, 40)
         year_input.setPlaceholderText("Year")
 
+        # Add regex validator to year input
+        regex = QRegularExpression("^[0-9]{1,4}$")
+        validator = QRegularExpressionValidator(regex, year_input)
+        year_input.setValidator(validator)
+
         date_input_layout.addWidget(day_combobox)
         date_input_layout.addWidget(month_combobox)
         date_input_layout.addWidget(year_input)
@@ -189,4 +193,3 @@ class DateCalculation(QWidget):
             self.resultLabel.setText(f"Difference between {date1_str} and {date2_str} is:\n{result} days")
         except ValueError as e:
             self.resultLabel.setText(f"Error: {str(e)}. \nPlease enter valid dates.")
-
