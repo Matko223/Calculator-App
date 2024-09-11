@@ -22,8 +22,6 @@ COLOR_REST = "#4F4F4F"
 LABEL_COLOR = "#25265E"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
-# TODO: Custom errors, make the result label bigger, combobox selected option
-
 
 class DateCalculation(QWidget):
     """
@@ -36,6 +34,7 @@ class DateCalculation(QWidget):
         @param date: The initial date to use for calculations.
         """
         super().__init__()
+        self.daysLabel = None
         self.calculateButton = None
         self.resultLabel = None
         self.endDate = None
@@ -117,6 +116,11 @@ class DateCalculation(QWidget):
         self.resultLabel.setAlignment(Qt.AlignCenter)
         frame_layout.addWidget(self.resultLabel, 7, 1, Qt.AlignCenter)
 
+        self.daysLabel = QLabel("", self.displayFrame)
+        self.daysLabel.setStyleSheet(f"color: white; font-size: 25px; font-weight: bold;")
+        self.daysLabel.setAlignment(Qt.AlignCenter)
+        frame_layout.addWidget(self.daysLabel, 8, 1, Qt.AlignCenter)
+
         # Add a vertical spacer
         frame_layout.addItem(QSpacerItem(0, 40, QSizePolicy.Minimum, QSizePolicy.Expanding), 8, 1)
 
@@ -145,8 +149,6 @@ class DateCalculation(QWidget):
             border-bottom-right-radius: 0px;
         }
         QComboBox::drop-down {
-            subcontrol-origin: padding;
-            subcontrol-position: top right;
             width: 20px;
             border-left-width: 0px;
             border-top-right-radius: 10px;
@@ -159,15 +161,18 @@ class DateCalculation(QWidget):
         QComboBox QAbstractItemView {
             color: white;
             background-color: #4F4F4F;
-            selection-background-color: #666666;
             border-bottom-left-radius: 10px;
             border-bottom-right-radius: 10px;
+            outline: none;
         }
-        QComboBox::item {
-            padding: 4px;
+        QComboBox QAbstractItemView::item {
+            padding: 3px;
+            background-color: transparent;
+            border-left: 2px solid transparent;
         }
-        QComboBox::item:selected {
-            background-color: #666666;
+        QComboBox QAbstractItemView::item:hover {
+            background-color: transparent;
+            border-left: 2px solid #FFA500;
         }
         """
 
@@ -250,7 +255,8 @@ class DateCalculation(QWidget):
             date1_str = f"{date1.day} {date1.strftime('%b')}, {date1.year}"
             date2_str = f"{date2.day} {date2.strftime('%b')}, {date2.year}"
 
-            self.resultLabel.setText(f"Difference between {date1_str} and {date2_str} is:\n{result} days")
+            self.resultLabel.setText(f"Difference between {date1_str} and {date2_str} is:")
+            self.daysLabel.setText(f"{result} days")
 
         except ValueError as e:
             self.resultLabel.setText(f"Error: {str(e)}. \nPlease enter valid dates.")
