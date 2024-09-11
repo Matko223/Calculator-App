@@ -228,18 +228,38 @@ class DateCalculation(QWidget):
             endMonth = self.end_month_combobox.currentIndex() + 1
             endYear = int(self.end_year_input.text())
 
-            # Create date objects
+            # Check if the start date is February 29 and not a leap year
+            if startMonth == 2 and startDay == 29 and not self.is_leap_year(startYear):
+                self.resultLabel.setText(f"Invalid Start date: {startYear} is not a leap year.")
+                return
+
+            # Check if the end date is February 29 and not a leap year
+            if endMonth == 2 and endDay == 29 and not self.is_leap_year(endYear):
+                self.resultLabel.setText(f"Invalid End date: {endYear} is not a leap year.")
+                return
+
+            # Check if the year is greater than 0
+            if startYear < 1 or endYear < 1:
+                raise ValueError("Year must be greater than 0.")
+
             date1 = date(startYear, startMonth, startDay)
             date2 = date(endYear, endMonth, endDay)
-
-            # Calculate the difference in days
             result = abs((date2 - date1).days)
 
             # Format the dates with three-letter month abbreviations
             date1_str = f"{date1.day} {date1.strftime('%b')}, {date1.year}"
             date2_str = f"{date2.day} {date2.strftime('%b')}, {date2.year}"
 
-            # Display the result
             self.resultLabel.setText(f"Difference between {date1_str} and {date2_str} is:\n{result} days")
+
         except ValueError as e:
             self.resultLabel.setText(f"Error: {str(e)}. \nPlease enter valid dates.")
+
+    def is_leap_year(self, year):
+        """
+        @brief Determines if a given year is a leap year.
+        @param year: The year to check.
+        @return: True if the year is a leap year, False otherwise.
+        """
+        return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+
