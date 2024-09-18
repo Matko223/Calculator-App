@@ -27,6 +27,7 @@ HOVER_OPERATOR = "#FF8409"
 class CurrencyConverter(QWidget):
     def __init__(self):
         super().__init__()
+        self.mainLayout = None
         self.buttonLayout = None
         self.buttonFrameLayout = None
         self.buttonFrame = None
@@ -48,19 +49,31 @@ class CurrencyConverter(QWidget):
         }
 
         self.special_operations = {
-            "C": (1, 0, 1, 2),
+            "C": (1, 3, 1, 2),
             "⌫": (2, 3, 1, 2),
             "CONVERT": (3, 3, 4, 5),
             ".": (4, 0),
         }
 
+        self.setup_ui()
+
     def setup_ui(self):
-        pass
+        self.setStyleSheet(f"background-color: {DARK_GRAY}; color: white;")
+
+        self.mainLayout = QVBoxLayout(self)
+        self.mainLayout.setContentsMargins(0, 0, 0, 0)
+        self.mainLayout.setSpacing(0)
+
+        self.display_frame()
+        self.mainLayout.addWidget(self.displayFrame)
+
+        self.button_frame()
+        self.mainLayout.addWidget(self.buttonFrame)
 
     def display_frame(self):
         self.displayFrame = QFrame(self)
         self.displayFrame.setStyleSheet(f"background-color: {DARK_GRAY};")
-        self.displayFrame.setFixedHeight(200)
+        self.displayFrame.setFixedHeight(180)
 
         frame_layout = QGridLayout(self.displayFrame)
         frame_layout.setContentsMargins(0, 0, 0, 0)
@@ -71,7 +84,9 @@ class CurrencyConverter(QWidget):
         @brief Creates the frame for the buttons of the calculator.
         """
         self.buttonFrame = QFrame()
-        self.buttonFrame.setStyleSheet(f"background-color: {GRAY}; color: white;")
+        self.buttonFrame.setStyleSheet(f"background-color: {DARK_GRAY}; color: white;")
+        self.buttonFrame.setFixedHeight(225)
+
         self.buttonFrameLayout = QVBoxLayout(self.buttonFrame)
         self.buttonFrameLayout.setContentsMargins(0, 0, 0, 0)
         self.buttonLayout = QGridLayout()
@@ -90,18 +105,95 @@ class CurrencyConverter(QWidget):
         return self.buttonFrame
 
     def create_clear_button(self):
-        pass
+        button = QPushButton("C")
+        button.setFont(QFont("Arial", 20))
+        button.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {COLOR_REST};
+            }}
+            QPushButton:hover {{
+                background-color: {HOVER_COLOR};
+            }}
+        """)
+        button.setFixedSize(79 * 2, 55)
+        button.clicked.connect(self.clear_input)
+        self.buttonLayout.addWidget(button, *self.special_operations["C"])
 
     def create_delete_button(self):
-        pass
+        button = QPushButton("⌫")
+        button.setFont(QFont("Arial", 20))
+        button.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {COLOR_REST};
+            }}
+            QPushButton:hover {{
+                background-color: {HOVER_COLOR};
+            }}
+        """)
+        button.setFixedSize(79 * 2, 55)
+        button.clicked.connect(self.delete_digit)
+        self.buttonLayout.addWidget(button, *self.special_operations["⌫"])
 
     def create_digit_button(self, digit, row, col):
-        pass
+        button = QPushButton(str(digit))
+        button.setFont(QFont("Arial", 20))
+        button.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {LIGHT_GRAY};
+            }}
+            QPushButton:hover {{
+                background-color: {GRAY};
+            }}
+        """)
+
+        if digit == 0:
+            button.setFixedSize(79 * 2, 55)
+        else:
+            button.setFixedSize(79, 55)
+        button.clicked.connect(lambda _, d=digit: self.append_digit(str(d)))
+        self.buttonLayout.addWidget(button, row, col)
+
+        shortcut = QShortcut(QKeySequence(str(digit)), self)
+        shortcut.activated.connect(lambda d=digit: self.append_digit(d))
 
     def create_decimal_button(self):
-        pass
+        button = QPushButton(".")
+        button.setFont(QFont("Arial", 20))
+        button.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {DARK_GRAY};
+            }}
+            QPushButton:hover {{
+                background-color: {HOVER_COLOR};
+            }}
+        """)
+        button.setFixedSize(79, 55)
+        button.clicked.connect(lambda: self.append_digit("."))
+        self.buttonLayout.addWidget(button, *self.special_operations["."])
 
     def create_convert_button(self):
+        button = QPushButton("CONVERT")
+        button.setFont(QFont("Arial", 20))
+        button.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {ORANGE};
+                font-weight: bold;
+            }}
+            QPushButton:hover {{
+                background-color: {HOVER_OPERATOR};
+            }}
+        """)
+        button.setFixedSize(79 * 2, 55 * 2)
+        button.clicked.connect(self.convert_currency)
+        self.buttonLayout.addWidget(button, *self.special_operations["CONVERT"])
+
+    def clear_input(self):
+        pass
+
+    def delete_digit(self):
+        pass
+
+    def append_digit(self, param):
         pass
 
     def convert_currency(self):
