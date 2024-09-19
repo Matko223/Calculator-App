@@ -179,6 +179,10 @@ class CurrencyConverter(QWidget):
         input_layout.addWidget(currency2, 1, 0)
         input_layout.addWidget(amount2, 1, 1)
 
+        regex = QRegularExpression(r"^\d{1,15}(\.\d*)?$")
+        validator = QRegularExpressionValidator(regex, amount1)
+        amount1.setValidator(validator)
+
         return input_layout, currency1, currency2, amount1, amount2
 
     def button_frame(self):
