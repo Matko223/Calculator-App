@@ -27,6 +27,9 @@ HOVER_OPERATOR = "#FF8409"
 class CurrencyConverter(QWidget):
     def __init__(self):
         super().__init__()
+        self.input_layout = None
+        self.currency2 = None
+        self.currency1 = None
         self.mainLayout = None
         self.buttonLayout = None
         self.buttonFrameLayout = None
@@ -34,6 +37,8 @@ class CurrencyConverter(QWidget):
         self.displayFrame = None
         self.amount = None
         self.currency = None
+        self.amount1 = None
+        self.amount2 = None
 
         self.digits = {
             7: (1, 0),
@@ -79,12 +84,109 @@ class CurrencyConverter(QWidget):
         frame_layout.setContentsMargins(0, 0, 0, 0)
         frame_layout.setSpacing(0)
 
+        input_widget = QWidget()
+        self.input_layout, self.currency1, self.currency2, self.amount1, self.amount2 = self.create_input_layout()
+        input_widget.setLayout(self.input_layout)
+        frame_layout.addWidget(input_widget, 0, 0, Qt.AlignLeft)
+
+    def create_input_layout(self):
+        input_layout = QGridLayout()
+        input_layout.setSpacing(5)
+        input_layout.setAlignment(Qt.AlignTop)
+        input_layout.setContentsMargins(10, 40, 10, 10)
+
+        combobox_style = """
+        QComboBox {
+            color: white;
+            background-color: #4F4F4F;
+            font-size: 16px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            font-weight: bold;
+            padding: 5px;
+        }
+        QComboBox:on {
+            border-bottom-left-radius: 0px;
+            border-bottom-right-radius: 0px;
+        }
+        QComboBox::drop-down {
+            width: 20px;
+            border-left-width: 0px;
+            border-top-right-radius: 10px;
+        }
+        QComboBox::down-arrow {
+            image: url(./Pictures/60995.png);
+            width: 12px;
+            height: 12px;
+        }
+        QComboBox QAbstractItemView {
+            color: white;
+            background-color: #4F4F4F;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            outline: none;
+        }
+        QComboBox QAbstractItemView::item {
+            padding: 3px;
+            background-color: transparent;
+            border-left: 2px solid transparent;
+        }
+        QComboBox QAbstractItemView::item:hover {
+            background-color: transparent;
+            border-left: 2px solid #FFA500;
+        }
+        """
+
+        amount_style = """
+        QLineEdit {
+            color: white;
+            background-color: #4F4F4F;
+            font-size: 16px;
+            border-radius: 10px;
+            font-weight: bold;
+            padding: 5px;
+        }
+        """
+
+        # First row: first currency and amount
+        currency1 = QComboBox()
+        currency1.setStyleSheet(combobox_style)
+        currency1.setFixedSize(120, 40)
+        currency1.addItems(["USD", "EUR", "GBP", "JPY"])
+
+        amount1 = QLineEdit()
+        amount1.setStyleSheet(amount_style)
+        amount1.setFixedSize(180, 40)
+        amount1.setPlaceholderText("Amount")
+
+        # Second row: second currency and amount
+        currency2 = QComboBox()
+        currency2.setStyleSheet(combobox_style)
+        currency2.setFixedSize(120, 40)
+        currency2.addItems(["USD", "EUR", "GBP", "JPY"])
+
+        amount2 = QLineEdit()
+        amount2.setStyleSheet(amount_style)
+        amount2.setFixedSize(180, 40)
+        amount2.setPlaceholderText("Converted Amount")
+        amount2.setReadOnly(True)
+
+        # Add widgets to the grid layout
+        input_layout.addWidget(currency1, 0, 0)
+        input_layout.addWidget(amount1, 0, 1)
+        input_layout.addWidget(currency2, 1, 0)
+        input_layout.addWidget(amount2, 1, 1)
+
+        return input_layout, currency1, currency2, amount1, amount2
+
     def button_frame(self):
         """
         @brief Creates the frame for the buttons of the calculator.
         """
         self.buttonFrame = QFrame()
-        self.buttonFrame.setStyleSheet(f"background-color: {DARK_GRAY}; color: white;")
+        self.buttonFrame.setStyleSheet(f"background-color: {GRAY}; color: white;")
         self.buttonFrame.setFixedHeight(225)
 
         self.buttonFrameLayout = QVBoxLayout(self.buttonFrame)
