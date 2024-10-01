@@ -1,3 +1,11 @@
+"""
+@file bmi_calculator.py
+@brief File containing BMI calculation mode for the calculator application.
+
+@author Martin Valapka (xvalapm00)
+@date 10.09. 2024
+"""
+
 from PyQt5.QtGui import QRegExpValidator, QRegularExpressionValidator
 from PySide6.QtCore import QSize, Qt, QRegularExpression
 from PySide6.QtGui import QFont, QIcon, Qt, QShortcut, QKeySequence, QRegularExpressionValidator
@@ -15,6 +23,7 @@ LABEL_COLOR = "#25265E"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
 
+# TODO: Visble cursor, switching with clicking
 
 class BMICalculator(QWidget):
     """

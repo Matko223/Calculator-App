@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout,
     QSpacerItem, QSizePolicy)
 from datetime import datetime, date
+import flag
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -27,6 +28,8 @@ HOVER_OPERATOR = "#FF8409"
 class CurrencyConverter(QWidget):
     def __init__(self):
         super().__init__()
+        self.flag2_label = None
+        self.flag1_label = None
         self.input_layout = None
         self.currency2 = None
         self.currency1 = None
@@ -114,7 +117,7 @@ class CurrencyConverter(QWidget):
         QComboBox::drop-down {
             width: 20px;
             border-left-width: 0px;
-            border-top-right-radius: 10px;
+            border-top-right-radius: 10px;        
         }
         QComboBox::down-arrow {
             image: url(./Pictures/60995.png);
@@ -161,6 +164,9 @@ class CurrencyConverter(QWidget):
         amount1.setFixedSize(180, 40)
         amount1.setPlaceholderText("Amount")
 
+        self.flag1_label = QLabel()
+        self.flag1_label.setFixedSize(30, 30)
+
         # Second row: second currency and amount
         currency2 = QComboBox()
         currency2.setStyleSheet(combobox_style)
@@ -173,17 +179,39 @@ class CurrencyConverter(QWidget):
         amount2.setPlaceholderText("Converted Amount")
         amount2.setReadOnly(True)
 
+        self.flag2_label = QLabel()
+        self.flag2_label.setFixedSize(30, 30)
+
         # Add widgets to the grid layout
         input_layout.addWidget(currency1, 0, 0)
-        input_layout.addWidget(amount1, 0, 1)
+        input_layout.addWidget(self.flag1_label, 0, 1)
+        input_layout.addWidget(amount1, 0, 2)
         input_layout.addWidget(currency2, 1, 0)
-        input_layout.addWidget(amount2, 1, 1)
+        input_layout.addWidget(self.flag2_label, 1, 1)
+        input_layout.addWidget(amount2, 1, 2)
 
         regex = QRegularExpression(r"^\d{1,15}(\.\d*)?$")
         validator = QRegularExpressionValidator(regex, amount1)
         amount1.setValidator(validator)
 
+        currency1.currentTextChanged.connect(lambda: self.update_flag(currency1, self.flag1_label))
+        currency2.currentTextChanged.connect(lambda: self.update_flag(currency2, self.flag2_label))
+        self.update_flag(currency1, self.flag1_label)
+        self.update_flag(currency2, self.flag2_label)
         return input_layout, currency1, currency2, amount1, amount2
+
+    def update_flag(self, currency_combo, flag_label):
+        currency = currency_combo.currentText()
+        flag_map = {
+            "USD": "US",
+            "EUR": "EU",
+            "GBP": "GB",
+            "JPY": "JP"
+        }
+        country_code = flag_map.get(currency, "")
+        flag_emoji = flag.flag(country_code)
+        flag_label.setText(flag_emoji)
+        flag_label.setFont(QFont("Segoe UI Emoji", 16))
 
     def button_frame(self):
         """

@@ -23,6 +23,7 @@ LABEL_COLOR = "#25265E"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
 
+
 class DateCalculation(QWidget):
     """
     @brief A class that represents a Date Calculation widget.
@@ -268,4 +269,3 @@ class DateCalculation(QWidget):
         @return: True if the year is a leap year, False otherwise.
         """
         return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
-

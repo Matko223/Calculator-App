@@ -13,6 +13,8 @@ from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, Q
 from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon
 from PySide6.QtCore import Qt, QSize
 import mathlib
+from Calculator.Kalkulajda.currency_converter import CurrencyConverter
+from Calculator.Kalkulajda.date_calculation import DateCalculation
 from Calculator.Kalkulajda.help_menu import HelpWindow
 from Calculator.Kalkulajda.mode_menu import Sidebar
 from bmi_calculator import BMICalculator
@@ -57,9 +59,6 @@ class App(QWidget):
         self.help_menu_button = None
         self.mode_menu_button = None
         self.non_essential_widget = None
-        self.height_input = None
-        self.result_label = None
-        self.weight_input = None
         self.equals_pressed = False
         self.help_window = None
         self.buttonFrameLayout = None
@@ -128,11 +127,15 @@ class App(QWidget):
         self.default_widget = self.create_default_widget()
         self.bmi_widget = BMICalculator()
         self.photomath_widget = PhotomathMode()
+        self.date_widget = DateCalculation(self)
+        self.currency_widget = CurrencyConverter()
 
         # Add widgets to calculator layout
         self.calculator_layout.addWidget(self.default_widget)
         self.calculator_layout.addWidget(self.bmi_widget)
         self.calculator_layout.addWidget(self.photomath_widget)
+        self.calculator_layout.addWidget(self.date_widget)
+        self.calculator_layout.addWidget(self.currency_widget)
 
         # Add layouts to the main layout
         self.main_layout.addWidget(self.sidebar)
@@ -160,7 +163,9 @@ class App(QWidget):
         mode_widgets = {
             "BMI": self.bmi_widget,
             "Expression": self.photomath_widget,
-            "Standard": self.default_widget
+            "Standard": self.default_widget,
+            "Date Calculation": self.date_widget,
+            "Currency": self.currency_widget,
         }
 
         # Hide all widgets first

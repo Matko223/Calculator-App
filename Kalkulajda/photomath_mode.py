@@ -12,7 +12,7 @@ from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon, QRegularExpress
 from PySide6.QtCore import Qt, QSize, QRegularExpression
 import math
 
-# TODO: Add shortcuts for all buttons, fix the result, calculation with pi, add factorial, fix the typing, bug fix
+# TODO: Add shortcuts for all buttons, fix the typing, bug fix, center the result
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -86,8 +86,12 @@ class PhotomathMode(QWidget):
             ")": (0, 2)
         }
 
-        # Initialize the user interface
         self.init_ui()
+
+        regex = QRegularExpression("^[0-9+\-*/]*$")
+        validator = QRegularExpressionValidator(regex, self)
+        self.currentInput.setValidator(validator)
+        self.currentInput.textChanged.connect(self.on_input_changed)
 
     def init_ui(self):
         """
@@ -127,7 +131,6 @@ class PhotomathMode(QWidget):
         self.currentInput.setFont(QFont("Arial bold", 32))
         self.currentInput.setStyleSheet("color: WHITE; background-color: transparent; border: none;")
         self.currentInput.setAlignment(Qt.AlignRight)
-        self.currentInput.textChanged.connect(self.on_input_changed)
 
         non_essential_layout.addWidget(self.currentInput)
         layout.addWidget(self.non_essential_widget, alignment=Qt.AlignRight | Qt.AlignBottom)
@@ -155,15 +158,6 @@ class PhotomathMode(QWidget):
         self.create_special_buttons()
         self.create_bracket_buttons()
         return buttonFrame
-
-    def on_input_changed(self, text):
-        """
-        @brief Handles the event when the text in the input field changes.
-        @param text: The new text in the input field.
-        """
-        # TODO: Implement the logic for the input change(typing)
-        self.currentExpression = text
-        self.update_current_input()
 
     def error(self, message):
         """
@@ -445,6 +439,19 @@ class PhotomathMode(QWidget):
         button.clicked.connect(self.calculate)
         self.buttonLayout.addWidget(button, pos[0], pos[1])
 
+    def on_input_changed(self, text):
+        """
+        @brief Handles the event when the text in the input field changes.
+        @param text: The new text in the input field.
+        """
+        if text != self.currentExpression:
+            for i, char in enumerate(text):
+                if i >= len(self.currentExpression) or char != self.currentExpression[i]:
+                    if char.isdigit():
+                        self.show_numbers(char)
+                    elif char in "+-*/":
+                        self.show_operators(char)
+
     def show_numbers(self, digit):
         """
         @brief Updates the current expression when a digit is pressed.
@@ -456,7 +463,7 @@ class PhotomathMode(QWidget):
         elif 'Error' in self.currentExpression or 'inf' in self.currentExpression or self.evaluated:
             self.currentExpression = str(digit)
             self.evaluated = False
-        elif last_char == ')' or last_char == '|' or last_char == 'π' or last_char == '!':
+        elif last_char in [')', '|', 'π', '!']:
             return
         else:
             self.currentExpression += str(digit)
@@ -487,6 +494,7 @@ class PhotomathMode(QWidget):
                     self.currentExpression += operator
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
+        self.evaluated = False
 
     def update_current_input(self):
         """
@@ -524,6 +532,7 @@ class PhotomathMode(QWidget):
                 self.currentExpression = self.currentExpression[:-1]
                 self.update_current_input()
                 self.currentInput.setText(self.currentExpression)
+                self.evaluated = False
 
         if len(self.currentExpression) == 0:
             self.currentExpression = ""
@@ -559,15 +568,13 @@ class PhotomathMode(QWidget):
         """
         @brief Appends the exponentiation operator to the current expression.
         """
-        if ('Error' in self.currentExpression or 'inf' in self.currentExpression or
-                (self.currentExpression and
-                 (self.currentExpression[-1] == 'π'
-                  or self.currentExpression[-1] == '.'
-                  or self.currentExpression[-1] == '!'
-                  or self.currentExpression[-1] == '('
-                  or self.currentExpression[-1] in self.operations.values()
-                  or self.currentExpression[-1] == '|'))):
+        if (not self.currentExpression or
+                'Error' in self.currentExpression or
+                'inf' in self.currentExpression or
+                self.currentExpression[-1] in {'π', '.', '!', '(', '^', '|'} or
+                self.currentExpression[-1] in self.operations.values()):
             return
+
         self.currentExpression += '^'
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
