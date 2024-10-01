@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
     QSpacerItem, QSizePolicy)
 from datetime import datetime, date
 import flag
+from currency_api import get_exchange_rate
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -331,4 +332,14 @@ class CurrencyConverter(QWidget):
         pass
 
     def convert_currency(self):
-        pass
+        base_currency = self.currency1.currentText()
+        target_currency = self.currency2.currentText()
+        amount = float(self.amount1.text())
+
+        exchange_rate = get_exchange_rate(base_currency, target_currency)
+
+        if exchange_rate is not None:
+            converted_amount = amount * exchange_rate
+            self.amount2.setText(f"{converted_amount:.2f}")
+        else:
+            self.amount2.setText("Error")
