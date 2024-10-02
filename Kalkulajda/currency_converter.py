@@ -13,7 +13,11 @@ from PySide6.QtWidgets import (
     QSpacerItem, QSizePolicy)
 from datetime import datetime, date
 import flag
-from currency_api import get_exchange_rate
+
+from Calculator.Kalkulajda.mode_menu import Sidebar
+from currency_api import get_exchange_rate, get_supported_currencies, get_currency_name
+
+# TODO: DIFFERENT LAYOUT
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -43,6 +47,8 @@ class CurrencyConverter(QWidget):
         self.currency = None
         self.amount1 = None
         self.amount2 = None
+        self.currency_list = get_supported_currencies()
+        self.currency_names = get_currency_name()
 
         self.digits = {
             7: (1, 0),
@@ -82,7 +88,7 @@ class CurrencyConverter(QWidget):
     def display_frame(self):
         self.displayFrame = QFrame(self)
         self.displayFrame.setStyleSheet(f"background-color: {DARK_GRAY};")
-        self.displayFrame.setFixedHeight(180)
+        self.displayFrame.setFixedHeight(225)
 
         frame_layout = QGridLayout(self.displayFrame)
         frame_layout.setContentsMargins(0, 0, 0, 0)
@@ -97,7 +103,6 @@ class CurrencyConverter(QWidget):
         input_layout = QGridLayout()
         input_layout.setSpacing(5)
         input_layout.setAlignment(Qt.AlignTop)
-        input_layout.setContentsMargins(10, 40, 10, 10)
 
         combobox_style = """
         QComboBox {
@@ -157,62 +162,45 @@ class CurrencyConverter(QWidget):
         # First row: first currency and amount
         currency1 = QComboBox()
         currency1.setStyleSheet(combobox_style)
-        currency1.setFixedSize(120, 40)
-        currency1.addItems(["USD", "EUR", "GBP", "JPY"])
+        currency1.setFixedSize(320, 40)
+        currency1.addItems([f"{code} | {name}" for code, name in self.currency_names])
 
         amount1 = QLineEdit()
         amount1.setStyleSheet(amount_style)
-        amount1.setFixedSize(180, 40)
+        amount1.setFixedSize(250, 40)
         amount1.setPlaceholderText("Amount")
 
-        self.flag1_label = QLabel()
-        self.flag1_label.setFixedSize(30, 30)
+        # self.flag1_label = QLabel()
+        # self.flag1_label.setFixedSize(45, 30)
 
         # Second row: second currency and amount
         currency2 = QComboBox()
         currency2.setStyleSheet(combobox_style)
-        currency2.setFixedSize(120, 40)
-        currency2.addItems(["USD", "EUR", "GBP", "JPY"])
+        currency2.setFixedSize(320, 40)
+        currency2.addItems([f"{code} | {name}" for code, name in self.currency_names])
 
         amount2 = QLineEdit()
         amount2.setStyleSheet(amount_style)
-        amount2.setFixedSize(180, 40)
+        amount2.setFixedSize(250, 40)
         amount2.setPlaceholderText("Converted Amount")
         amount2.setReadOnly(True)
 
-        self.flag2_label = QLabel()
-        self.flag2_label.setFixedSize(30, 30)
+        # self.flag2_label = QLabel()
+        # self.flag2_label.setFixedSize(45, 30)
 
         # Add widgets to the grid layout
         input_layout.addWidget(currency1, 0, 0)
-        input_layout.addWidget(self.flag1_label, 0, 1)
-        input_layout.addWidget(amount1, 0, 2)
-        input_layout.addWidget(currency2, 1, 0)
-        input_layout.addWidget(self.flag2_label, 1, 1)
-        input_layout.addWidget(amount2, 1, 2)
+        # input_layout.addWidget(self.flag1_label, 0, 1)
+        input_layout.addWidget(amount1, 1, 0)
+        input_layout.addWidget(currency2, 2, 0)
+        # input_layout.addWidget(self.flag2_label, 1, 1)
+        input_layout.addWidget(amount2, 3, 0)
 
         regex = QRegularExpression(r"^\d{1,15}(\.\d*)?$")
         validator = QRegularExpressionValidator(regex, amount1)
         amount1.setValidator(validator)
 
-        currency1.currentTextChanged.connect(lambda: self.update_flag(currency1, self.flag1_label))
-        currency2.currentTextChanged.connect(lambda: self.update_flag(currency2, self.flag2_label))
-        self.update_flag(currency1, self.flag1_label)
-        self.update_flag(currency2, self.flag2_label)
         return input_layout, currency1, currency2, amount1, amount2
-
-    def update_flag(self, currency_combo, flag_label):
-        currency = currency_combo.currentText()
-        flag_map = {
-            "USD": "US",
-            "EUR": "EU",
-            "GBP": "GB",
-            "JPY": "JP"
-        }
-        country_code = flag_map.get(currency, "")
-        flag_emoji = flag.flag(country_code)
-        flag_label.setText(flag_emoji)
-        flag_label.setFont(QFont("Segoe UI Emoji", 16))
 
     def button_frame(self):
         """
@@ -220,7 +208,7 @@ class CurrencyConverter(QWidget):
         """
         self.buttonFrame = QFrame()
         self.buttonFrame.setStyleSheet(f"background-color: {GRAY}; color: white;")
-        self.buttonFrame.setFixedHeight(225)
+        self.buttonFrame.setFixedHeight(180)
 
         self.buttonFrameLayout = QVBoxLayout(self.buttonFrame)
         self.buttonFrameLayout.setContentsMargins(0, 0, 0, 0)
@@ -250,7 +238,7 @@ class CurrencyConverter(QWidget):
                 background-color: {HOVER_COLOR};
             }}
         """)
-        button.setFixedSize(79 * 2, 55)
+        button.setFixedSize(79 * 2, 45)
         button.clicked.connect(self.clear_input)
         self.buttonLayout.addWidget(button, *self.special_operations["C"])
 
@@ -265,7 +253,7 @@ class CurrencyConverter(QWidget):
                 background-color: {HOVER_COLOR};
             }}
         """)
-        button.setFixedSize(79 * 2, 55)
+        button.setFixedSize(79 * 2, 45)
         button.clicked.connect(self.delete_digit)
         self.buttonLayout.addWidget(button, *self.special_operations["⌫"])
 
@@ -282,9 +270,9 @@ class CurrencyConverter(QWidget):
         """)
 
         if digit == 0:
-            button.setFixedSize(79 * 2, 55)
+            button.setFixedSize(79 * 2, 45)
         else:
-            button.setFixedSize(79, 55)
+            button.setFixedSize(79, 45)
         button.clicked.connect(lambda _, d=digit: self.append_digit(str(d)))
         self.buttonLayout.addWidget(button, row, col)
 
@@ -302,7 +290,7 @@ class CurrencyConverter(QWidget):
                 background-color: {HOVER_COLOR};
             }}
         """)
-        button.setFixedSize(79, 55)
+        button.setFixedSize(79, 45)
         button.clicked.connect(lambda: self.append_digit("."))
         self.buttonLayout.addWidget(button, *self.special_operations["."])
 
@@ -318,7 +306,7 @@ class CurrencyConverter(QWidget):
                 background-color: {HOVER_OPERATOR};
             }}
         """)
-        button.setFixedSize(79 * 2, 55 * 2)
+        button.setFixedSize(79 * 2, 45 * 2)
         button.clicked.connect(self.convert_currency)
         self.buttonLayout.addWidget(button, *self.special_operations["CONVERT"])
 
