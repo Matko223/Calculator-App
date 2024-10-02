@@ -101,8 +101,9 @@ class CurrencyConverter(QWidget):
 
     def create_input_layout(self):
         input_layout = QGridLayout()
-        input_layout.setSpacing(5)
+        input_layout.setSpacing(3)
         input_layout.setAlignment(Qt.AlignTop)
+        input_layout.setContentsMargins(5, 35, 5, 7)
 
         combobox_style = """
         QComboBox {
@@ -114,7 +115,7 @@ class CurrencyConverter(QWidget):
             border-bottom-left-radius: 10px;
             border-bottom-right-radius: 10px;
             font-weight: bold;
-            padding: 5px;
+            font-family: 'Consolas';
         }
         QComboBox:on {
             border-bottom-left-radius: 0px;
@@ -162,12 +163,12 @@ class CurrencyConverter(QWidget):
         # First row: first currency and amount
         currency1 = QComboBox()
         currency1.setStyleSheet(combobox_style)
-        currency1.setFixedSize(320, 40)
+        currency1.setFixedSize(350, 40)
         currency1.addItems([f"{code} | {name}" for code, name in self.currency_names])
 
         amount1 = QLineEdit()
         amount1.setStyleSheet(amount_style)
-        amount1.setFixedSize(250, 40)
+        amount1.setFixedSize(320, 40)
         amount1.setPlaceholderText("Amount")
 
         # self.flag1_label = QLabel()
@@ -176,12 +177,12 @@ class CurrencyConverter(QWidget):
         # Second row: second currency and amount
         currency2 = QComboBox()
         currency2.setStyleSheet(combobox_style)
-        currency2.setFixedSize(320, 40)
+        currency2.setFixedSize(350, 40)
         currency2.addItems([f"{code} | {name}" for code, name in self.currency_names])
 
         amount2 = QLineEdit()
         amount2.setStyleSheet(amount_style)
-        amount2.setFixedSize(250, 40)
+        amount2.setFixedSize(320, 40)
         amount2.setPlaceholderText("Converted Amount")
         amount2.setReadOnly(True)
 
@@ -190,11 +191,14 @@ class CurrencyConverter(QWidget):
 
         # Add widgets to the grid layout
         input_layout.addWidget(currency1, 0, 0)
-        # input_layout.addWidget(self.flag1_label, 0, 1)
         input_layout.addWidget(amount1, 1, 0)
-        input_layout.addWidget(currency2, 2, 0)
-        # input_layout.addWidget(self.flag2_label, 1, 1)
-        input_layout.addWidget(amount2, 3, 0)
+
+        # Add a vertical spacer
+        spacer = QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        input_layout.addItem(spacer, 2, 0)
+
+        input_layout.addWidget(currency2, 3, 0)
+        input_layout.addWidget(amount2, 4, 0)
 
         regex = QRegularExpression(r"^\d{1,15}(\.\d*)?$")
         validator = QRegularExpressionValidator(regex, amount1)
