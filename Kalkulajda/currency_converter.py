@@ -7,15 +7,13 @@
 """
 
 from PySide6.QtCore import QSize, Qt, QRegularExpression
-from PySide6.QtGui import QFont, QIcon, Qt, QShortcut, QKeySequence, QRegularExpressionValidator
+from PySide6.QtGui import QFont, QIcon, Qt, QShortcut, QKeySequence, QRegularExpressionValidator, QPixmap
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout,
     QSpacerItem, QSizePolicy)
-from datetime import datetime, date
-import flag
 
 from Calculator.Kalkulajda.mode_menu import Sidebar
-from currency_api import get_exchange_rate, get_supported_currencies, get_currency_name
+from currency_api import get_exchange_rate, get_supported_currencies, get_currency_name, get_flag_image
 
 # TODO: DIFFERENT LAYOUT
 
@@ -33,8 +31,8 @@ HOVER_OPERATOR = "#FF8409"
 class CurrencyConverter(QWidget):
     def __init__(self):
         super().__init__()
-        self.flag2_label = None
         self.flag1_label = None
+        self.flag2_label = None
         self.input_layout = None
         self.currency2 = None
         self.currency1 = None
@@ -163,7 +161,7 @@ class CurrencyConverter(QWidget):
         # First row: first currency and amount
         currency1 = QComboBox()
         currency1.setStyleSheet(combobox_style)
-        currency1.setFixedSize(350, 40)
+        currency1.setFixedSize(320, 40)
         currency1.addItems([f"{code} | {name}" for code, name in self.currency_names])
 
         amount1 = QLineEdit()
@@ -171,13 +169,10 @@ class CurrencyConverter(QWidget):
         amount1.setFixedSize(320, 40)
         amount1.setPlaceholderText("Amount")
 
-        # self.flag1_label = QLabel()
-        # self.flag1_label.setFixedSize(45, 30)
-
         # Second row: second currency and amount
         currency2 = QComboBox()
         currency2.setStyleSheet(combobox_style)
-        currency2.setFixedSize(350, 40)
+        currency2.setFixedSize(320, 40)
         currency2.addItems([f"{code} | {name}" for code, name in self.currency_names])
 
         amount2 = QLineEdit()
@@ -186,25 +181,57 @@ class CurrencyConverter(QWidget):
         amount2.setPlaceholderText("Converted Amount")
         amount2.setReadOnly(True)
 
-        # self.flag2_label = QLabel()
-        # self.flag2_label.setFixedSize(45, 30)
+        # Create flag labels
+        self.flag1_label = QLabel()
+        self.flag1_label.setFixedSize(50, 35)
+        self.flag2_label = QLabel()
+        self.flag2_label.setFixedSize(50, 35)
+
+        # Create horizontal layouts for currency+flag combinations
+        currency1_layout = QHBoxLayout()
+        currency1_layout.addWidget(self.flag1_label)
+        currency1_layout.addSpacing(5)
+        currency1_layout.addWidget(currency1)
+        currency1_layout.setAlignment(Qt.AlignLeft)
+
+        currency2_layout = QHBoxLayout()
+        currency2_layout.addWidget(self.flag2_label)
+        currency2_layout.addSpacing(5)
+        currency2_layout.addWidget(currency2)
+        currency2_layout.setAlignment(Qt.AlignLeft)
 
         # Add widgets to the grid layout
-        input_layout.addWidget(currency1, 0, 0)
+        input_layout.addLayout(currency1_layout, 0, 0)
         input_layout.addWidget(amount1, 1, 0)
 
         # Add a vertical spacer
         spacer = QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Expanding)
         input_layout.addItem(spacer, 2, 0)
 
-        input_layout.addWidget(currency2, 3, 0)
+        input_layout.addLayout(currency2_layout, 3, 0)
         input_layout.addWidget(amount2, 4, 0)
+
+        currency1.currentIndexChanged.connect(lambda: self.update_flag(currency1, self.flag1_label))
+        currency2.currentIndexChanged.connect(lambda: self.update_flag(currency2, self.flag2_label))
+
+        self.update_flag(currency1, self.flag1_label)
+        self.update_flag(currency2, self.flag2_label)
 
         regex = QRegularExpression(r"^\d{1,15}(\.\d*)?$")
         validator = QRegularExpressionValidator(regex, amount1)
         amount1.setValidator(validator)
 
         return input_layout, currency1, currency2, amount1, amount2
+
+    def update_flag(self, combo_box, flag_label):
+        currency_code = combo_box.currentText().split(' | ')[0]
+        flag_data = get_flag_image(currency_code[:2])
+        if flag_data:
+            pixmap = QPixmap()
+            pixmap.loadFromData(flag_data)
+            flag_label.setPixmap(pixmap.scaled(80, 60, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        else:
+            flag_label.clear()
 
     def button_frame(self):
         """
