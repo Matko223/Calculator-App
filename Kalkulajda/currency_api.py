@@ -9,6 +9,7 @@
 import requests
 
 API_URL = "https://api.exchangerate-api.com/v4/latest/euro"
+FLAG_API_URL = "https://flagsapi.com"
 
 
 def get_supported_currencies():
@@ -36,7 +37,7 @@ def get_currency_name():
         "AUD": "Australian Dollar",
         "AWG": "Aruban Florin",
         "AZN": "Azerbaijani Manat",
-        "BAM": "Bosnia-Herzegovina Convertible Mark",
+        "BAM": "Bosnian Convertible Mark",
         "BBD": "Barbadian Dollar",
         "BDT": "Bangladeshi Taka",
         "BGN": "Bulgarian Lev",
@@ -189,6 +190,16 @@ def get_currency_name():
         "ZWL": "Zimbabwean Dollar"
     }
     return names.items()
+
+
+def get_flag_image(country_code, style="flat", size=64):
+    url = f"{FLAG_API_URL}/{country_code}/{style}/{size}.png"
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.content
+    else:
+        print(f"Error fetching flag for {country_code}: {response.status_code}")
+        return None
 
 
 def get_exchange_rate(base_currency, target_currency):
