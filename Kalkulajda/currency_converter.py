@@ -33,6 +33,7 @@ class CurrencyConverter(QWidget):
         super().__init__()
         self.flag1_label = None
         self.flag2_label = None
+        self.eu_flag_path = r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\european-union.png"
         self.input_layout = None
         self.currency2 = None
         self.currency1 = None
@@ -225,13 +226,25 @@ class CurrencyConverter(QWidget):
 
     def update_flag(self, combo_box, flag_label):
         currency_code = combo_box.currentText().split(' | ')[0]
-        flag_data = get_flag_image(currency_code[:2])
-        if flag_data:
-            pixmap = QPixmap()
-            pixmap.loadFromData(flag_data)
-            flag_label.setPixmap(pixmap.scaled(80, 60, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        flag_width = 70
+        flag_height = 45
+        eu_flag_width = 50
+        eu_flag_height = 35
+
+        if currency_code == "EUR":
+            pixmap = QPixmap(self.eu_flag_path)
+            if not pixmap.isNull():
+                flag_label.setPixmap(
+                    pixmap.scaled(eu_flag_width, eu_flag_height, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         else:
-            flag_label.clear()
+            flag_data = get_flag_image(currency_code[:2])
+            if flag_data:
+                pixmap = QPixmap()
+                pixmap.loadFromData(flag_data)
+                flag_label.setPixmap(
+                    pixmap.scaled(flag_width, flag_height, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            else:
+                flag_label.clear()
 
     def button_frame(self):
         """
