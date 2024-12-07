@@ -365,9 +365,13 @@ class CurrencyConverter(QWidget):
 
     def convert_currency(self):
         base_currency = self.currency1.currentText()
+        base_currency = base_currency.split(' | ')[0]
         target_currency = self.currency2.currentText()
+        target_currency = target_currency.split(' | ')[0]
         amount = float(self.amount1.text())
 
+        print("Base currency: ", base_currency)
+        print("Target currency: ", target_currency)
         exchange_rate = get_exchange_rate(base_currency, target_currency)
 
         if exchange_rate is not None:

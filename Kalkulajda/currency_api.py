@@ -203,13 +203,14 @@ def get_flag_image(country_code, style="flat", size=64):
 
 
 def get_exchange_rate(base_currency, target_currency):
-    url = f"{API_URL}{base_currency.upper()}"
-    response = requests.get(url)
+    response = requests.get(API_URL)
 
     if response.status_code == 200:
         data = response.json()
         rates = data.get('rates', {})
-        return rates.get(target_currency.upper(), None)
+        print(f"Rates: {rates}")
+        base_rate = rates.get(base_currency.upper(), None)
+        target_rate = rates.get(target_currency.upper(), None)
+        print(f"Base rate: {base_rate}, Target rate: {target_rate}")
     else:
-        print(f"Error fetching data: {response.status_code}")
         return None
