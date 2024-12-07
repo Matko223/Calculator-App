@@ -357,7 +357,10 @@ class CurrencyConverter(QWidget):
         self.amount2.clear()
 
     def delete_digit(self):
-        pass
+        current_text = self.amount1.text()
+        if current_text:
+            new_text = current_text[:-1]
+            self.amount1.setText(new_text)
 
     def append_digit(self, param):
         pass
