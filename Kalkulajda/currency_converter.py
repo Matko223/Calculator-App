@@ -353,7 +353,8 @@ class CurrencyConverter(QWidget):
         self.buttonLayout.addWidget(button, *self.special_operations["CONVERT"])
 
     def clear_input(self):
-        pass
+        self.amount1.clear()
+        self.amount2.clear()
 
     def delete_digit(self):
         pass
