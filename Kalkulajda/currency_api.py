@@ -208,9 +208,8 @@ def get_exchange_rate(base_currency, target_currency):
     if response.status_code == 200:
         data = response.json()
         rates = data.get('rates', {})
-        print(f"Rates: {rates}")
         base_rate = rates.get(base_currency.upper(), None)
         target_rate = rates.get(target_currency.upper(), None)
-        print(f"Base rate: {base_rate}, Target rate: {target_rate}")
+        return base_rate, target_rate
     else:
         return None

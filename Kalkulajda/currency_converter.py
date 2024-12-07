@@ -11,8 +11,6 @@ from PySide6.QtGui import QFont, QIcon, Qt, QShortcut, QKeySequence, QRegularExp
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout,
     QSpacerItem, QSizePolicy)
-
-from Calculator.Kalkulajda.mode_menu import Sidebar
 from currency_api import get_exchange_rate, get_supported_currencies, get_currency_name, get_flag_image
 
 # TODO: DIFFERENT LAYOUT
@@ -369,13 +367,10 @@ class CurrencyConverter(QWidget):
         target_currency = self.currency2.currentText()
         target_currency = target_currency.split(' | ')[0]
         amount = float(self.amount1.text())
-
-        print("Base currency: ", base_currency)
-        print("Target currency: ", target_currency)
         exchange_rate = get_exchange_rate(base_currency, target_currency)
 
         if exchange_rate is not None:
-            converted_amount = amount * exchange_rate
+            converted_amount = amount * exchange_rate[1] / exchange_rate[0]
             self.amount2.setText(f"{converted_amount:.2f}")
         else:
             self.amount2.setText("Error")
