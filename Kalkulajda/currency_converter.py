@@ -363,7 +363,9 @@ class CurrencyConverter(QWidget):
             self.amount1.setText(new_text)
 
     def append_digit(self, param):
-        pass
+        current_text = self.amount1.text()
+        new_text = current_text + param
+        self.amount1.setText(new_text)
 
     def convert_currency(self):
         base_currency = self.currency1.currentText()
