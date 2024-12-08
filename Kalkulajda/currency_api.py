@@ -13,6 +13,10 @@ FLAG_API_URL = "https://flagsapi.com"
 
 
 def get_supported_currencies():
+    """
+    @brief Function returns list of supported currencies
+    @return List of supported currencies
+    """
     url = f"{API_URL}"
     response = requests.get(url)
 
@@ -25,6 +29,10 @@ def get_supported_currencies():
 
 
 def get_currency_name():
+    """
+    @brief Function returns dictionary of currency names.
+    @return Dictionary of currency names
+    """
     names = {
         "EUR": "Euro",
         "AED": "United Arab Emirates Dirham",
@@ -193,6 +201,13 @@ def get_currency_name():
 
 
 def get_flag_image(country_code, style="flat", size=64):
+    """
+    @brief Function returns flag image for given country code
+    @param country_code Country code
+    @param style Flag style
+    @param size Flag size
+    @return Flag image
+    """
     url = f"{FLAG_API_URL}/{country_code}/{style}/{size}.png"
     response = requests.get(url)
     if response.status_code == 200:
@@ -203,6 +218,12 @@ def get_flag_image(country_code, style="flat", size=64):
 
 
 def get_exchange_rate(base_currency, target_currency):
+    """
+    @brief Function returns exchange rate for given currencies
+    @param base_currency Base currency
+    @param target_currency Target currency
+    @return Exchange rate
+    """
     response = requests.get(API_URL)
 
     if response.status_code == 200:
