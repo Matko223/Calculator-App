@@ -27,11 +27,19 @@ HOVER_OPERATOR = "#FF8409"
 
 
 class CurrencyConverter(QWidget):
+    """
+    @brief Class representing the currency converter mode of the calculator
+    """
+
     def __init__(self):
+        """
+        @brief Initializes the currency converter class
+        """
         super().__init__()
         self.flag1_label = None
         self.flag2_label = None
-        self.eu_flag_path = r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\european-union.png"
+        self.eu_flag_path = (r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\european"
+                             r"-union.png")
         self.input_layout = None
         self.currency2 = None
         self.currency1 = None
@@ -70,6 +78,9 @@ class CurrencyConverter(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
+        """
+        @brief Sets up the UI of the currency converter
+        """
         self.setStyleSheet(f"background-color: {DARK_GRAY}; color: white;")
 
         self.mainLayout = QVBoxLayout(self)
@@ -83,6 +94,9 @@ class CurrencyConverter(QWidget):
         self.mainLayout.addWidget(self.buttonFrame)
 
     def display_frame(self):
+        """
+        @brief Creates the frame for the display of the calculator.
+        """
         self.displayFrame = QFrame(self)
         self.displayFrame.setStyleSheet(f"background-color: {DARK_GRAY};")
         self.displayFrame.setFixedHeight(225)
@@ -97,6 +111,9 @@ class CurrencyConverter(QWidget):
         frame_layout.addWidget(input_widget, 0, 0, Qt.AlignLeft)
 
     def create_input_layout(self):
+        """
+        @brief Creates the layout for the input fields
+        """
         input_layout = QGridLayout()
         input_layout.setSpacing(3)
         input_layout.setAlignment(Qt.AlignTop)
@@ -223,6 +240,11 @@ class CurrencyConverter(QWidget):
         return input_layout, currency1, currency2, amount1, amount2
 
     def update_flag(self, combo_box, flag_label):
+        """
+        @brief Updates the flag image based on the selected currency
+        @param combo_box: The QComboBox containing the currency selection
+        @param flag_label: The QLabel where the flag image will be displayed
+        """
         currency_code = combo_box.currentText().split(' | ')[0]
         flag_width = 70
         flag_height = 45
@@ -270,6 +292,9 @@ class CurrencyConverter(QWidget):
         return self.buttonFrame
 
     def create_clear_button(self):
+        """
+        @brief Creates the clear button
+        """
         button = QPushButton("C")
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
@@ -285,6 +310,9 @@ class CurrencyConverter(QWidget):
         self.buttonLayout.addWidget(button, *self.special_operations["C"])
 
     def create_delete_button(self):
+        """
+        @brief Creates the delete button
+        """
         button = QPushButton("⌫")
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
@@ -300,6 +328,12 @@ class CurrencyConverter(QWidget):
         self.buttonLayout.addWidget(button, *self.special_operations["⌫"])
 
     def create_digit_button(self, digit, row, col):
+        """
+        @brief Creates a button for a digit
+        @param digit: Current digit
+        @param row: Row
+        @param col: Column
+        """
         button = QPushButton(str(digit))
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
@@ -322,6 +356,9 @@ class CurrencyConverter(QWidget):
         shortcut.activated.connect(lambda d=digit: self.append_digit(d))
 
     def create_decimal_button(self):
+        """
+        @brief Creates the decimal button
+        """
         button = QPushButton(".")
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
@@ -337,6 +374,9 @@ class CurrencyConverter(QWidget):
         self.buttonLayout.addWidget(button, *self.special_operations["."])
 
     def create_convert_button(self):
+        """
+        @brief Creates the convert button
+        """
         button = QPushButton("CONVERT")
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
@@ -353,21 +393,34 @@ class CurrencyConverter(QWidget):
         self.buttonLayout.addWidget(button, *self.special_operations["CONVERT"])
 
     def clear_input(self):
+        """
+        @brief Clears the input fields
+        """
         self.amount1.clear()
         self.amount2.clear()
 
     def delete_digit(self):
+        """
+        @brief Deletes the last digit from the current amount
+        """
         current_text = self.amount1.text()
         if current_text:
             new_text = current_text[:-1]
             self.amount1.setText(new_text)
 
     def append_digit(self, param):
+        """
+        @brief Appends a digit to the current amount
+        @param param: digit to append
+        """
         current_text = self.amount1.text()
         new_text = current_text + param
         self.amount1.setText(new_text)
 
     def convert_currency(self):
+        """
+        @brief Converts the amount from one currency to another
+        """
         base_currency = self.currency1.currentText()
         base_currency = base_currency.split(' | ')[0]
         target_currency = self.currency2.currentText()
