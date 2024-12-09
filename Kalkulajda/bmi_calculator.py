@@ -7,7 +7,7 @@
 """
 
 from PyQt5.QtGui import QRegExpValidator, QRegularExpressionValidator
-from PySide6.QtCore import QSize, Qt, QRegularExpression
+from PySide6.QtCore import QSize, Qt, QRegularExpression, QEvent
 from PySide6.QtGui import QFont, QIcon, Qt, QShortcut, QKeySequence, QRegularExpressionValidator
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout,
@@ -44,10 +44,19 @@ class BMICalculator(QWidget):
         self.buttonLayout = None
         self.buttonFrame = None
         self.buttonFrameLayout = None
+
         self.weight_input = QLineEdit()
+        self.weight_input.setReadOnly(True)
+
         self.height_input = QLineEdit()
+        self.height_input.setReadOnly(True)
+
         self.height_feet_input = QLineEdit()
+        self.height_feet_input.setReadOnly(True)
+
         self.height_inches_input = QLineEdit()
+        self.height_inches_input.setReadOnly(True)
+
         self.height_unit_combo = QComboBox()
         self.weight_unit_combo = QComboBox()
         self.current_input = None
@@ -96,6 +105,25 @@ class BMICalculator(QWidget):
         self.setup_input_validation(self.weight_input)
         self.setup_input_validation(self.height_feet_input)
         self.setup_input_validation(self.height_inches_input)
+
+        for input_field in [self.height_input, self.weight_input,
+                            self.height_feet_input, self.height_inches_input,
+                            self.result_input]:
+            input_field.installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        """
+        @brief Only block direct mouse interaction with text fields
+        """
+        if obj in [self.height_input, self.weight_input,
+                   self.height_feet_input, self.height_inches_input,
+                   self.result_input]:
+            if event.type() in [QEvent.MouseButtonPress,
+                                QEvent.MouseButtonDblClick]:
+                if self.current_input:
+                    self.current_input.setFocus()
+                return True
+        return super().eventFilter(obj, event)
 
     def display_frame(self):
         """
@@ -410,6 +438,8 @@ class BMICalculator(QWidget):
                             return
                     self.current_input.setText(current_text + digit)
 
+            self.current_input.setFocus()
+
     def setup_input_validation(self, input_widget):
         """
         @brief Sets up input validation for the given QLineEdit widget.
@@ -464,17 +494,23 @@ class BMICalculator(QWidget):
 
     def switch_input(self):
         """
-        @brief Switches the current input field based on the selected height unit and resets the result label.
+        @brief Switches input focus with proper styling
         """
-        # Reset the style for all input fields
-        for input_field in [self.height_input, self.height_feet_input, self.height_inches_input, self.weight_input]:
-            input_field.setStyleSheet(f"background-color: {LIGHT_GRAY}; border: none; border-radius: 5px; "
-                                      f"color: white; font-size: 18px;")
+        # Reset all input field styles
+        for input_field in [self.height_input, self.height_feet_input,
+                            self.height_inches_input, self.weight_input]:
+            input_field.setStyleSheet(f"""
+                background-color: {LIGHT_GRAY}; 
+                border: none; 
+                border-radius: 5px; 
+                color: white; 
+                font-size: 18px;
+            """)
 
-        # Reset the result label when switching units
+        # Clear result
         self.result_input.setText("")
 
-        # Switch the current input based on the selected height unit
+        # Update current input based on mode
         if self.height_unit_combo.currentText() == "ft":
             if self.current_input == self.height_feet_input:
                 self.current_input = self.height_inches_input
@@ -488,11 +524,15 @@ class BMICalculator(QWidget):
             else:
                 self.current_input = self.height_input
 
-        # Highlight the current input field and set focus
-        self.current_input.setStyleSheet(
-            f"background-color: {LIGHT_GRAY}; border: 2px solid orange; border-radius: 5px; "
-            f"color: white; font-size: 18px;")
-        self.current_input.setFocus()
+        # Highlight current input
+        self.current_input.setStyleSheet(f"""
+            background-color: {LIGHT_GRAY}; 
+            border: 2px solid orange; 
+            border-radius: 5px; 
+            color: white; 
+            font-size: 18px;
+        """)
+        self.current_input.setFocus(Qt.MouseFocusReason)
 
     def switch_input_event(self, event):
         """
