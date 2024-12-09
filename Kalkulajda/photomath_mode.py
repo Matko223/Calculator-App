@@ -12,7 +12,7 @@ from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon, QRegularExpress
 from PySide6.QtCore import Qt, QSize, QRegularExpression
 import math
 
-# TODO: Add shortcuts for all buttons, fix the typing, bug fix, center the result
+# TODO: Add shortcuts for all buttons, fix the typing, bug fix
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -745,6 +745,7 @@ class PhotomathMode(QWidget):
         # Update the display
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
+        self.currentInput.setCursorPosition(0)
         self.evaluated = True
 
     def show_brackets(self, bracket):
