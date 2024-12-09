@@ -24,7 +24,7 @@ HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
 
 
-# TODO: Visble cursor, switching with clicking
+# TODO: BETTER DESIGN
 
 class BMICalculator(QWidget):
     """
