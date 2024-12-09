@@ -138,7 +138,7 @@ class CurrencyConverter(QWidget):
         QComboBox::drop-down {
             width: 20px;
             border-left-width: 0px;
-            border-top-right-radius: 10px;        
+            border-top-right-radius: 10px;
         }
         QComboBox::down-arrow {
             image: url(./Pictures/60995.png);
@@ -254,6 +254,9 @@ class CurrencyConverter(QWidget):
 
         currency1.currentIndexChanged.connect(lambda: self.update_flag(currency1, self.flag1_label))
         currency2.currentIndexChanged.connect(lambda: self.update_flag(currency2, self.flag2_label))
+
+        # Connect currency2 index change to clear amounts
+        currency2.currentIndexChanged.connect(self.clear_input)
 
         self.update_flag(currency1, self.flag1_label)
         self.update_flag(currency2, self.flag2_label)
