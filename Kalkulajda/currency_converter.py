@@ -201,7 +201,7 @@ class CurrencyConverter(QWidget):
         shuffle_button.setIcon(icon)
         shuffle_button.setIconSize(QSize(30, 30))
         shuffle_button.setFixedSize(40, 40)
-        # shuffle_button.clicked.connect(self.shuffle_currencies)
+        shuffle_button.clicked.connect(self.shuffle_currencies)
 
         # Second row: second currency and amount
         currency2 = QComboBox()
@@ -458,3 +458,16 @@ class CurrencyConverter(QWidget):
             self.amount2.setText(f"{converted_amount:.2f}")
         else:
             self.amount2.setText("Error")
+
+    def shuffle_currencies(self):
+        """
+        @brief Swaps the selected currencies
+        """
+        base_currency = self.currency1.currentIndex()
+        target_currency = self.currency2.currentIndex()
+        self.currency1.setCurrentIndex(target_currency)
+        self.currency2.setCurrentIndex(base_currency)
+        self.update_flag(self.currency1, self.flag1_label)
+        self.update_flag(self.currency2, self.flag2_label)
+        self.amount1.clear()
+        self.amount2.clear()
