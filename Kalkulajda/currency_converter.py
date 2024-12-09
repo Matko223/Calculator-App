@@ -185,6 +185,24 @@ class CurrencyConverter(QWidget):
         amount1.setFixedSize(320, 40)
         amount1.setPlaceholderText("Amount")
 
+        shuffle_button = QPushButton()
+        shuffle_button.setFont(QFont("Arial", 20))
+        shuffle_button.setStyleSheet(f"""
+            QPushButton {{
+                background-color: #4F4F4F;
+                border-radius: 15px;
+                font-weight: bold;
+            }}
+            QPushButton:hover {{
+                background-color: {DARK_GRAY};
+            }}
+        """)
+        icon = QIcon("./Pictures/shuffle.png")
+        shuffle_button.setIcon(icon)
+        shuffle_button.setIconSize(QSize(30, 30))
+        shuffle_button.setFixedSize(40, 40)
+        # shuffle_button.clicked.connect(self.shuffle_currencies)
+
         # Second row: second currency and amount
         currency2 = QComboBox()
         currency2.setStyleSheet(combobox_style)
@@ -210,17 +228,24 @@ class CurrencyConverter(QWidget):
         currency1_layout.addWidget(currency1)
         currency1_layout.setAlignment(Qt.AlignLeft)
 
+        # Create horizontal layout for amount1 and shuffle button
+        amount1_layout = QHBoxLayout()
+        amount1_layout.addWidget(amount1)
+        amount1_layout.addWidget(shuffle_button)
+        amount1_layout.setSpacing(5)
+        amount1_layout.setAlignment(Qt.AlignLeft)
+
         currency2_layout = QHBoxLayout()
         currency2_layout.addWidget(self.flag2_label)
         currency2_layout.addSpacing(5)
         currency2_layout.addWidget(currency2)
         currency2_layout.setAlignment(Qt.AlignLeft)
 
-        # Add widgets to the grid layout
+        # Add layouts to the grid
         input_layout.addLayout(currency1_layout, 0, 0)
-        input_layout.addWidget(amount1, 1, 0)
+        input_layout.addLayout(amount1_layout, 1, 0)
 
-        # Add a vertical spacer
+        # Add vertical spacer
         spacer = QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Expanding)
         input_layout.addItem(spacer, 2, 0)
 
