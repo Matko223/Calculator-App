@@ -23,6 +23,7 @@ LABEL_COLOR = "#25265E"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
 
+
 # TODO: Visble cursor, switching with clicking
 
 class BMICalculator(QWidget):
@@ -131,7 +132,6 @@ class BMICalculator(QWidget):
         """)
         self.height_input.setFixedWidth(200)
         self.height_input.setFixedHeight(30)
-        self.height_input.mousePressEvent = self.switch_input_event
 
         self.height_feet_input = QLineEdit()
         self.height_feet_input.setStyleSheet(f"""
@@ -141,10 +141,9 @@ class BMICalculator(QWidget):
             color: white;
             font-size: 18px;
         """)
-        self.height_feet_input.setFixedWidth(95)
+        self.height_feet_input.setFixedWidth(97)
         self.height_feet_input.setFixedHeight(30)
         self.height_feet_input.setPlaceholderText("Feet")
-        self.height_feet_input.mousePressEvent = self.switch_input_event
 
         self.height_inches_input = QLineEdit()
         self.height_inches_input.setStyleSheet(f"""
@@ -154,10 +153,9 @@ class BMICalculator(QWidget):
             color: white;
             font-size: 18px;
         """)
-        self.height_inches_input.setFixedWidth(95)
+        self.height_inches_input.setFixedWidth(97)
         self.height_inches_input.setFixedHeight(30)
         self.height_inches_input.setPlaceholderText("Inches")
-        self.height_inches_input.mousePressEvent = self.switch_input_event
 
         self.height_unit_combo = QComboBox()
         self.height_unit_combo.addItems(["cm", "ft"])
@@ -187,7 +185,6 @@ class BMICalculator(QWidget):
         weight_layout.setSpacing(5)
 
         self.weight_input = QLineEdit()
-        self.weight_input.mousePressEvent = self.switch_input_event
         self.weight_input.setStyleSheet(f"""
             background-color: {LIGHT_GRAY};
             border: none;
@@ -235,7 +232,11 @@ class BMICalculator(QWidget):
 
         self.update_height_inputs()
 
-        self.current_input = self.height_input
+        if self.height_unit_combo.currentText() == "cm":
+            self.current_input = self.height_input
+        else:
+            self.current_input = self.height_feet_input
+
         return self.displayFrame
 
     def button_frame(self):
