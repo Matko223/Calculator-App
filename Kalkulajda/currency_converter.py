@@ -442,6 +442,16 @@ class CurrencyConverter(QWidget):
         @param param: digit to append
         """
         current_text = self.amount1.text()
+
+        if len(current_text) > 15:
+            return
+
+        if param == '.' and not current_text:
+            return
+
+        if param == '.' and '.' in current_text:
+            return
+
         new_text = current_text + param
         self.amount1.setText(new_text)
 
