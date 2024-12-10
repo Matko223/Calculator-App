@@ -75,11 +75,11 @@ class BMICalculator(QWidget):
         }
 
         self.special_operations = {
-            "C": (0, 0, 1, 2),
-            "⌫": (0, 3, 1, 2),
+            "⌫": (1, 3, 1, 2),
+            "C": (2, 3, 1, 2),
+            "SWITCH": (3, 3, 1, 2),
             ".": (4, 0),
-            "CAL": (2, 3, 4, 5),
-            "SWITCH": (1, 3, 1, 4)
+            "CAL": (4, 3, 2, 2)
         }
         self.init_ui()
 
@@ -351,7 +351,7 @@ class BMICalculator(QWidget):
                 background-color: {HOVER_COLOR};
             }}
         """)
-        button.setFixedSize(79 * 3, 55)
+        button.setFixedSize(79 * 2, 55)
         button.clicked.connect(self.clear_input)
         self.buttonLayout.addWidget(button, *self.special_operations["C"])
 
@@ -405,7 +405,7 @@ class BMICalculator(QWidget):
                 background-color: {HOVER_OPERATOR};
             }}
         """)
-        button.setFixedSize(79 * 2, 55 * 3)
+        button.setFixedSize(79 * 2, 55)
         button.clicked.connect(self.calculate_bmi)
         self.buttonLayout.addWidget(button, *self.special_operations["CAL"])
 
