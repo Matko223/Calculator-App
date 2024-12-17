@@ -466,6 +466,29 @@ class BMICalculator(QWidget):
         """
         @brief Clears all input fields, resets their styles, and sets the focus to the current input field.
         """
+        amount_style = """
+        QLineEdit {
+            color: white;
+            background-color: #4F4F4F;
+            font-size: 16px;
+            border-radius: 10px;
+            font-weight: bold;
+            padding: 5px;
+        }
+        """
+
+        active_style = """
+        QLineEdit {
+            color: white;
+            background-color: #4F4F4F;
+            font-size: 16px;
+            border-radius: 10px;
+            font-weight: bold;
+            padding: 5px;
+            border: 2px solid orange;
+        }
+        """
+
         self.height_input.clear()
         self.weight_input.clear()
         self.result_input.clear()
@@ -477,24 +500,11 @@ class BMICalculator(QWidget):
         else:
             self.current_input = self.height_feet_input
 
-        # Reset styles for all input fields
-        for input_field in [self.height_input, self.height_feet_input, self.height_inches_input, self.weight_input]:
-            input_field.setStyleSheet(f"""
-                background-color: {LIGHT_GRAY}; 
-                border: none; 
-                border-radius: 5px; 
-                color: white; 
-                font-size: 18px;
-            """)
+        for input_field in [self.height_input, self.height_feet_input,
+                            self.height_inches_input, self.weight_input]:
+            input_field.setStyleSheet(amount_style)
 
-        # Highlight the current input field
-        self.current_input.setStyleSheet(f"""
-            background-color: {LIGHT_GRAY}; 
-            border: 2px solid orange; 
-            border-radius: 5px; 
-            color: white; 
-            font-size: 18px;
-        """)
+        self.current_input.setStyleSheet(active_style)
         self.current_input.setFocus()
 
     def delete_digit(self):
