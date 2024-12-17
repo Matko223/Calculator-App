@@ -101,6 +101,56 @@ class BMICalculator(QWidget):
         self.setLayout(layout)
         self.setContentsMargins(0, 0, 0, 0)
 
+        combobox_style = """
+        QComboBox {
+            color: white;
+            background-color: #4F4F4F;
+            font-size: 16px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            font-weight: bold;
+            padding: 5px;
+        }
+        QComboBox:on {
+            border-bottom-left-radius: 0px;
+            border-bottom-right-radius: 0px;
+        }
+        QComboBox::drop-down {
+            width: 20px;
+            border-left-width: 0px;
+            border-top-right-radius: 10px;
+        }
+        QComboBox::down-arrow {
+            image: url(./Pictures/60995.png);
+            width: 12px;
+            height: 12px;
+        }
+        QComboBox QAbstractItemView {
+            color: white;
+            background-color: #4F4F4F;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            outline: none;
+        }
+        QComboBox QAbstractItemView::item {
+            padding: 3px;
+            background-color: transparent;
+            border-left: 2px solid transparent;
+        }
+        QComboBox QAbstractItemView::item:hover {
+            background-color: transparent;
+            border-left: 2px solid #FFA500;
+        }
+        """
+
+        self.height_unit_combo.setStyleSheet(combobox_style)
+        self.height_unit_combo.setFixedSize(70, 30)
+
+        self.weight_unit_combo.setStyleSheet(combobox_style)
+        self.weight_unit_combo.setFixedSize(70, 30)
+
         self.setup_input_validation(self.height_input)
         self.setup_input_validation(self.weight_input)
         self.setup_input_validation(self.height_feet_input)
@@ -151,49 +201,21 @@ class BMICalculator(QWidget):
         height_layout.setSpacing(5)
 
         self.height_input = QLineEdit()
-        self.height_input.setStyleSheet(f"""
-            background-color: {LIGHT_GRAY};
-            border: 2px solid orange;
-            border-radius: 5px;
-            color: white;
-            font-size: 18px;
-        """)
         self.height_input.setFixedWidth(200)
         self.height_input.setFixedHeight(30)
 
         self.height_feet_input = QLineEdit()
-        self.height_feet_input.setStyleSheet(f"""
-            background-color: {LIGHT_GRAY};
-            border: 2px solid orange;
-            border-radius: 5px;
-            color: white;
-            font-size: 18px;
-        """)
         self.height_feet_input.setFixedWidth(97)
         self.height_feet_input.setFixedHeight(30)
         self.height_feet_input.setPlaceholderText("Feet")
 
         self.height_inches_input = QLineEdit()
-        self.height_inches_input.setStyleSheet(f"""
-            background-color: {LIGHT_GRAY};
-            border: none;
-            border-radius: 5px;
-            color: white;
-            font-size: 18px;
-        """)
         self.height_inches_input.setFixedWidth(97)
         self.height_inches_input.setFixedHeight(30)
         self.height_inches_input.setPlaceholderText("Inches")
 
         self.height_unit_combo = QComboBox()
         self.height_unit_combo.addItems(["cm", "ft"])
-        self.height_unit_combo.setStyleSheet(f"""
-            background-color: {LIGHT_GRAY};
-            border: none;
-            border-radius: 5px;
-            color: white;
-            font-size: 18px;
-        """)
         self.height_unit_combo.setFixedWidth(50)
         self.height_unit_combo.currentIndexChanged.connect(self.update_height_inputs)
 
@@ -213,25 +235,11 @@ class BMICalculator(QWidget):
         weight_layout.setSpacing(5)
 
         self.weight_input = QLineEdit()
-        self.weight_input.setStyleSheet(f"""
-            background-color: {LIGHT_GRAY};
-            border: none;
-            border-radius: 5px;
-            color: white;
-            font-size: 18px;
-        """)
         self.weight_input.setFixedWidth(200)
         self.weight_input.setFixedHeight(30)
 
         self.weight_unit_combo = QComboBox()
         self.weight_unit_combo.addItems(["kg", "lb"])
-        self.weight_unit_combo.setStyleSheet(f"""
-            background-color: {LIGHT_GRAY};
-            border: none;
-            border-radius: 5px;
-            color: white;
-            font-size: 18px;
-        """)
         self.weight_unit_combo.setFixedWidth(50)
 
         weight_layout.addWidget(self.weight_input)
