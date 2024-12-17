@@ -160,6 +160,9 @@ class App(QWidget):
         return widget
 
     def switch_mode(self, mode):
+        """
+        @brief Switches between calculator modes
+        """
         mode_widgets = {
             "BMI": self.bmi_widget,
             "Expression": self.photomath_widget,
@@ -168,18 +171,29 @@ class App(QWidget):
             "Currency": self.currency_widget,
         }
 
+        if mode == "Standard":
+            self.handle_clear()
+        elif mode == "BMI":
+            self.bmi_widget.clear_input()
+        elif mode == "Currency":
+            self.currency_widget.clear_input()
+        elif mode == "Date Calculation":
+            self.date_widget.set_current_date()
+            self.date_widget.resultLabel.setText("")
+            self.date_widget.daysLabel.setText("")
+        elif mode == "Expression":
+            self.photomath_widget.handle_clear()
+
         # Hide all widgets first
         for widget in mode_widgets.values():
             widget.hide()
             self.calculator_layout.removeWidget(widget)
         self.non_essential_widget.hide()
 
-        # Show and add the widget for the selected mode
         selected_widget = mode_widgets.get(mode, self.default_widget)
         selected_widget.show()
         self.calculator_layout.addWidget(selected_widget)
 
-        # Special handling for Standard mode
         if mode == "Standard":
             self.create_mode_and_help_buttons()
             self.non_essential_widget.show()

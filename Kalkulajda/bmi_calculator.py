@@ -24,8 +24,6 @@ HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
 
 
-# TODO: BETTER DESIGN
-
 class BMICalculator(QWidget):
     """
     @brief A class that represents a Body Mass Index (BMI) calculator.
