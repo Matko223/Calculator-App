@@ -192,6 +192,17 @@ class BMICalculator(QWidget):
         spacer = QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         layout.addItem(spacer, 0, 0)
 
+        amount_style = """
+        QLineEdit {
+            color: white;
+            background-color: #4F4F4F;
+            font-size: 16px;
+            border-radius: 10px;
+            font-weight: bold;
+            padding: 5px;
+        }
+        """
+
         # Height input
         height_label = QLabel("Height:")
         height_label.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
@@ -254,13 +265,7 @@ class BMICalculator(QWidget):
 
         self.result_input = QLineEdit()
         self.result_input.setReadOnly(True)
-        self.result_input.setStyleSheet(f"""
-            background-color: {LIGHT_GRAY};
-            border: none;
-            border-radius: 5px;
-            color: white;
-            font-size: 18px;
-        """)
+        self.result_input.setStyleSheet(amount_style)
         self.result_input.setFixedWidth(200)
         self.result_input.setFixedHeight(30)
 
@@ -504,16 +509,33 @@ class BMICalculator(QWidget):
         """
         @brief Switches input focus with proper styling
         """
+        amount_style = """
+        QLineEdit {
+            color: white;
+            background-color: #4F4F4F;
+            font-size: 16px;
+            border-radius: 10px;
+            font-weight: bold;
+            padding: 5px;
+        }
+        """
+
+        active_style = """
+        QLineEdit {
+            color: white;
+            background-color: #4F4F4F;
+            font-size: 16px;
+            border-radius: 10px;
+            font-weight: bold;
+            padding: 5px;
+            border: 2px solid orange;
+        }
+        """
+
         # Reset all input field styles
         for input_field in [self.height_input, self.height_feet_input,
                             self.height_inches_input, self.weight_input]:
-            input_field.setStyleSheet(f"""
-                background-color: {LIGHT_GRAY}; 
-                border: none; 
-                border-radius: 5px; 
-                color: white; 
-                font-size: 18px;
-            """)
+            input_field.setStyleSheet(amount_style)
 
         # Clear result
         self.result_input.setText("")
@@ -533,13 +555,7 @@ class BMICalculator(QWidget):
                 self.current_input = self.height_input
 
         # Highlight current input
-        self.current_input.setStyleSheet(f"""
-            background-color: {LIGHT_GRAY}; 
-            border: 2px solid orange; 
-            border-radius: 5px; 
-            color: white; 
-            font-size: 18px;
-        """)
+        self.current_input.setStyleSheet(active_style)
         self.current_input.setFocus(Qt.MouseFocusReason)
 
     def switch_input_event(self, event):
@@ -554,47 +570,46 @@ class BMICalculator(QWidget):
         """
         @brief Updates the height inputs based on the selected height unit.
         """
+        amount_style = """
+        QLineEdit {
+            color: white;
+            background-color: #4F4F4F;
+            font-size: 16px;
+            border-radius: 10px;
+            font-weight: bold;
+            padding: 5px;
+        }
+        """
+
+        active_style = """
+        QLineEdit {
+            color: white;
+            background-color: #4F4F4F;
+            font-size: 16px;
+            border-radius: 10px;
+            font-weight: bold;
+            padding: 5px;
+            border: 2px solid orange;
+        }
+        """
+
         if self.height_unit_combo.currentText() == "ft":
             self.height_input.hide()
             self.height_feet_input.show()
             self.height_inches_input.show()
             self.current_input = self.height_feet_input
-            self.height_feet_input.setStyleSheet(f"""
-                background-color: {LIGHT_GRAY}; 
-                border: 2px solid orange; 
-                border-radius: 5px; 
-                color: white; 
-                font-size: 18px;
-            """)
-            self.height_inches_input.setStyleSheet(f"""
-                background-color: {LIGHT_GRAY}; 
-                border: none; 
-                border-radius: 5px; 
-                color: white; 
-                font-size: 18px;
-            """)
+            self.height_feet_input.setStyleSheet(active_style)
+            self.height_inches_input.setStyleSheet(amount_style)
             self.height_feet_input.setFocus()
         else:
             self.height_input.show()
             self.height_feet_input.hide()
             self.height_inches_input.hide()
             self.current_input = self.height_input
-            self.height_input.setStyleSheet(f"""
-                background-color: {LIGHT_GRAY}; 
-                border: 2px solid orange; 
-                border-radius: 5px; 
-                color: white; 
-                font-size: 18px;
-            """)
+            self.height_input.setStyleSheet(active_style)
             self.height_input.setFocus()
 
-        self.weight_input.setStyleSheet(f"""
-            background-color: {LIGHT_GRAY}; 
-            border: none; 
-            border-radius: 5px; 
-            color: white; 
-            font-size: 18px;
-        """)
+        self.weight_input.setStyleSheet(amount_style)
 
     def calculate_bmi(self):
         """
