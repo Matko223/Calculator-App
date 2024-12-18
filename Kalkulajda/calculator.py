@@ -19,6 +19,7 @@ from Calculator.Kalkulajda.help_menu import HelpWindow
 from Calculator.Kalkulajda.mode_menu import Sidebar
 from bmi_calculator import BMICalculator
 from photomath_mode import PhotomathMode
+from settings import Settings
 import ctypes
 
 
@@ -129,6 +130,7 @@ class App(QWidget):
         self.photomath_widget = PhotomathMode()
         self.date_widget = DateCalculation(self)
         self.currency_widget = CurrencyConverter()
+        self.settings_widget = Settings(self)
 
         # Add widgets to calculator layout
         self.calculator_layout.addWidget(self.default_widget)
@@ -136,6 +138,7 @@ class App(QWidget):
         self.calculator_layout.addWidget(self.photomath_widget)
         self.calculator_layout.addWidget(self.date_widget)
         self.calculator_layout.addWidget(self.currency_widget)
+        self.calculator_layout.addWidget(self.settings_widget)
 
         # Add layouts to the main layout
         self.main_layout.addWidget(self.sidebar)
@@ -169,6 +172,7 @@ class App(QWidget):
             "Standard": self.default_widget,
             "Date Calculation": self.date_widget,
             "Currency": self.currency_widget,
+            "Settings": self.settings_widget
         }
 
         if mode == "Standard":
