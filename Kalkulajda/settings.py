@@ -30,9 +30,59 @@ class Settings(QWidget):
         self.content_layout = None
         self.content_widget = None
         self.theme_combobox = None
+
+        self.combo_box_style = """
+            QComboBox {
+                color: white;
+                background-color: #4F4F4F;
+                font-size: 16px;
+                border-top-left-radius: 10px;
+                border-top-right-radius: 10px;
+                border-bottom-left-radius: 10px;
+                border-bottom-right-radius: 10px;
+                font-weight: bold;
+                padding: 5px;
+                border: none;
+            }
+            QComboBox:on {
+                border-bottom-left-radius: 0px;
+                border-bottom-right-radius: 0px;
+            }
+            QComboBox::drop-down {
+                width: 20px;
+                border-left-width: 0px;
+                border-top-right-radius: 10px;
+            }
+            QComboBox::down-arrow {
+                image: url(./Pictures/60995.png);
+                width: 12px;
+                height: 12px;
+            }
+            QComboBox QAbstractItemView {
+                color: white;
+                background-color: #4F4F4F;
+                border: none;
+                border-top-left-radius: 0px;
+                border-top-right-radius: 0px;
+                border-bottom-left-radius: 10px;
+                border-bottom-right-radius: 10px;
+                outline: none;
+            }
+            QComboBox QAbstractItemView::item {
+                padding: 3px;
+                background-color: transparent;
+                border-left: 2px solid transparent;
+            }
+            QComboBox QAbstractItemView::item:hover {
+                background-color: transparent;
+                border-left: 2px solid #FFA500;
+            }
+            """
+
         self.setWindowTitle("Settings")
         self.setup_ui()
         self.setup_theme_section()
+        self.setup_font_size()
 
     def setup_ui(self):
         self.setFixedSize(400, 405)
@@ -87,55 +137,48 @@ class Settings(QWidget):
         self.theme_combobox.setCurrentText("Dark Theme")
         self.theme_combobox.setFixedWidth(150)
 
-        self.theme_combobox.setStyleSheet("""
-            QComboBox {
-                color: white;
-                background-color: #4F4F4F;
-                font-size: 16px;
-                border-top-left-radius: 10px;
-                border-top-right-radius: 10px;
-                border-bottom-left-radius: 10px;
-                border-bottom-right-radius: 10px;
-                font-weight: bold;
-                padding: 5px;
-                border: none;
-            }
-            QComboBox:on {
-                border-bottom-left-radius: 0px;
-                border-bottom-right-radius: 0px;
-            }
-            QComboBox::drop-down {
-                width: 20px;
-                border-left-width: 0px;
-                border-top-right-radius: 10px;
-            }
-            QComboBox::down-arrow {
-                image: url(./Pictures/60995.png);
-                width: 12px;
-                height: 12px;
-            }
-            QComboBox QAbstractItemView {
-                color: white;
-                background-color: #4F4F4F;
-                border: none;
-                border-top-left-radius: 0px;
-                border-top-right-radius: 0px;
-                border-bottom-left-radius: 10px;
-                border-bottom-right-radius: 10px;
-                outline: none;
-            }
-            QComboBox QAbstractItemView::item {
-                padding: 3px;
-                background-color: transparent;
-                border-left: 2px solid transparent;
-            }
-            QComboBox QAbstractItemView::item:hover {
-                background-color: transparent;
-                border-left: 2px solid #FFA500;
-            }
-            """)
+        self.theme_combobox.setStyleSheet(self.combo_box_style)
 
         theme_layout.addWidget(self.theme_combobox)
         theme_layout.addStretch()
         self.content_layout.addWidget(theme_container)
         self.content_layout.addStretch()
+
+    def setup_font_size(self):
+        font_option = {
+            "Default": True,
+            "Small": False,
+            "Large": False,
+        }
+
+        font_size_container = QFrame()
+        font_size_container.setStyleSheet(f"""
+            QFrame {{
+                border: 2px solid {ORANGE};
+                border-radius: 10px;
+                background-color: {DARK_GRAY};
+            }}
+        """)
+
+        font_size_layout = QHBoxLayout(font_size_container)
+        font_size_layout.setSpacing(90)
+        font_size_layout.setContentsMargins(15, 10, 15, 10)
+
+        font_size_label = QLabel("Size")
+        font_size_label.setFont(QFont("Arial", 18, QFont.Bold))
+        font_size_label.setStyleSheet("color: white; border: none;")
+        font_size_layout.addWidget(font_size_label)
+
+        font_size_combobox = QComboBox()
+        font_size_combobox.addItems([key for key in font_option.keys()])
+        font_size_combobox.setCurrentText(list(font_option.keys())[0])
+        font_size_combobox.setFixedWidth(150)
+
+        font_size_combobox.setStyleSheet(self.combo_box_style)
+
+        font_size_layout.addWidget(font_size_combobox)
+        font_size_layout.addStretch()
+        self.content_layout.addWidget(font_size_container)
+        self.content_layout.addStretch()
+
+
