@@ -1,9 +1,6 @@
 """
 @file settings.py
 @brief File containing all settings for the calculator application.
-
-@author Martin Valapka (xvalapm00)
-@date 18.12. 2024
 """
 
 from PySide6.QtCore import QSize, Qt, QRegularExpression, Signal
@@ -107,7 +104,7 @@ class Settings(QWidget):
 
         self.content_widget = QWidget()
         self.content_layout = QVBoxLayout(self.content_widget)
-        self.content_layout.setSpacing(20)
+        self.content_layout.setSpacing(90)
         self.content_layout.setContentsMargins(20, 20, 20, 20)
 
         scroll_area.setWidget(self.content_widget)
@@ -124,25 +121,23 @@ class Settings(QWidget):
         """)
 
         theme_layout = QHBoxLayout(theme_container)
-        theme_layout.setSpacing(90)
-        theme_layout.setContentsMargins(15, 10, 15, 10)
+        theme_layout.setSpacing(70)
 
         theme_label = QLabel("Theme")
         theme_label.setFont(QFont("Arial", 18, QFont.Bold))
         theme_label.setStyleSheet("color: white; border: none;")
+        theme_label.setFixedWidth(100)
         theme_layout.addWidget(theme_label)
 
         self.theme_combobox = QComboBox()
         self.theme_combobox.addItems(["Light Theme", "Dark Theme", "High Contrast"])
         self.theme_combobox.setCurrentText("Dark Theme")
         self.theme_combobox.setFixedWidth(150)
-
         self.theme_combobox.setStyleSheet(self.combo_box_style)
 
         theme_layout.addWidget(self.theme_combobox)
         theme_layout.addStretch()
         self.content_layout.addWidget(theme_container)
-        self.content_layout.addStretch()
 
     def setup_font_size(self):
         font_option = {
@@ -161,24 +156,21 @@ class Settings(QWidget):
         """)
 
         font_size_layout = QHBoxLayout(font_size_container)
-        font_size_layout.setSpacing(90)
-        font_size_layout.setContentsMargins(15, 10, 15, 10)
+        font_size_layout.setSpacing(70)
 
         font_size_label = QLabel("Size")
         font_size_label.setFont(QFont("Arial", 18, QFont.Bold))
         font_size_label.setStyleSheet("color: white; border: none;")
+        font_size_label.setFixedWidth(100)
         font_size_layout.addWidget(font_size_label)
 
         font_size_combobox = QComboBox()
         font_size_combobox.addItems([key for key in font_option.keys()])
         font_size_combobox.setCurrentText(list(font_option.keys())[0])
         font_size_combobox.setFixedWidth(150)
-
         font_size_combobox.setStyleSheet(self.combo_box_style)
 
         font_size_layout.addWidget(font_size_combobox)
         font_size_layout.addStretch()
         self.content_layout.addWidget(font_size_container)
         self.content_layout.addStretch()
-
-
