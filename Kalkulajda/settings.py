@@ -13,6 +13,7 @@ LABEL_COLOR = "#25265E"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
 
+
 class Settings(QWidget):
     theme_changed = Signal(str)
 
@@ -180,9 +181,11 @@ class Settings(QWidget):
         if obj in [self.theme_combobox.view(), self.font_size_combobox.view()]:
             if event.type() == QEvent.Type.Show:
                 dropdown_height = obj.sizeHint().height() * 0.5
-                self.content_layout.setSpacing(self.original_spacing + dropdown_height)
+                if obj == self.theme_combobox.view():
+                    self.content_layout.setSpacing(self.original_spacing + dropdown_height)
                 self.dropdown_visible = True
             elif event.type() == QEvent.Type.Hide:
-                self.content_layout.setSpacing(self.original_spacing)
+                if obj == self.theme_combobox.view():
+                    self.content_layout.setSpacing(self.original_spacing)
                 self.dropdown_visible = False
         return super().eventFilter(obj, event)
