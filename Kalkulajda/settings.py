@@ -1,9 +1,4 @@
-"""
-@file settings.py
-@brief File containing all settings for the calculator application.
-"""
-
-from PySide6.QtCore import QSize, Qt, QRegularExpression, Signal
+from PySide6.QtCore import QSize, Qt, QRegularExpression, Signal, QEvent
 from PySide6.QtGui import QFont, QIcon, QRegularExpressionValidator
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout,
@@ -18,7 +13,6 @@ LABEL_COLOR = "#25265E"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
 
-
 class Settings(QWidget):
     theme_changed = Signal(str)
 
@@ -27,6 +21,9 @@ class Settings(QWidget):
         self.content_layout = None
         self.content_widget = None
         self.theme_combobox = None
+        self.font_size_combobox = None
+        self.dropdown_visible = False
+        self.original_spacing = 20
 
         self.combo_box_style = """
             QComboBox {
@@ -80,6 +77,7 @@ class Settings(QWidget):
         self.setup_ui()
         self.setup_theme_section()
         self.setup_font_size()
+        self.setup_event_filters()
 
     def setup_ui(self):
         self.setFixedSize(400, 405)
@@ -91,10 +89,7 @@ class Settings(QWidget):
 
         title_label = QLabel("Settings")
         title_label.setFont(QFont("Arial", 20, QFont.Bold))
-        title_label.setStyleSheet("""
-            color: white;
-            padding: 10px;
-        """)
+        title_label.setStyleSheet("color: white; padding: 10px;")
         title_label.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(title_label)
 
@@ -104,7 +99,7 @@ class Settings(QWidget):
 
         self.content_widget = QWidget()
         self.content_layout = QVBoxLayout(self.content_widget)
-        self.content_layout.setSpacing(90)
+        self.content_layout.setSpacing(self.original_spacing)
         self.content_layout.setContentsMargins(20, 20, 20, 20)
 
         scroll_area.setWidget(self.content_widget)
@@ -164,13 +159,30 @@ class Settings(QWidget):
         font_size_label.setFixedWidth(100)
         font_size_layout.addWidget(font_size_label)
 
-        font_size_combobox = QComboBox()
-        font_size_combobox.addItems([key for key in font_option.keys()])
-        font_size_combobox.setCurrentText(list(font_option.keys())[0])
-        font_size_combobox.setFixedWidth(150)
-        font_size_combobox.setStyleSheet(self.combo_box_style)
+        self.font_size_combobox = QComboBox()
+        self.font_size_combobox.addItems([key for key in font_option.keys()])
+        self.font_size_combobox.setCurrentText(list(font_option.keys())[0])
+        self.font_size_combobox.setFixedWidth(150)
+        self.font_size_combobox.setStyleSheet(self.combo_box_style)
 
-        font_size_layout.addWidget(font_size_combobox)
+        font_size_layout.addWidget(self.font_size_combobox)
         font_size_layout.addStretch()
         self.content_layout.addWidget(font_size_container)
         self.content_layout.addStretch()
+
+    def setup_event_filters(self):
+        self.theme_combobox.view().installEventFilter(self)
+        self.font_size_combobox.view().installEventFilter(self)
+        self.theme_combobox.view().setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.font_size_combobox.view().setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+    def eventFilter(self, obj, event):
+        if obj in [self.theme_combobox.view(), self.font_size_combobox.view()]:
+            if event.type() == QEvent.Type.Show:
+                dropdown_height = obj.sizeHint().height() * 0.5
+                self.content_layout.setSpacing(self.original_spacing + dropdown_height)
+                self.dropdown_visible = True
+            elif event.type() == QEvent.Type.Hide:
+                self.content_layout.setSpacing(self.original_spacing)
+                self.dropdown_visible = False
+        return super().eventFilter(obj, event)
