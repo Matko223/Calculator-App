@@ -16,6 +16,7 @@ class Sidebar(QWidget):
     @brief Sidebar widget for calculator modes and settings.
     """
     mode_selected = Signal(str)
+    visibility_changed = Signal(bool)
 
     def __init__(self, parent=None):
         """
@@ -148,3 +149,10 @@ class Sidebar(QWidget):
                 """)
             else:
                 button.setStyleSheet(self.get_button_style())
+
+    def toggle_visibility(self):
+        """
+        @brief Toggles the visibility of the sidebar.
+        """
+        self.visibility_changed.emit(not self.isVisible())
+        self.setVisible(not self.isVisible())
