@@ -130,6 +130,7 @@ class App(QWidget):
         self.photomath_widget = PhotomathMode()
         self.date_widget = DateCalculation(self)
         self.currency_widget = CurrencyConverter()
+        self.currency_widget.parent_window = self
         self.settings_widget = Settings(self)
 
         # Add widgets to calculator layout
@@ -144,6 +145,7 @@ class App(QWidget):
         self.main_layout.addWidget(self.sidebar)
         self.main_layout.addLayout(self.calculator_layout)
 
+        self.sidebar.visibility_changed.connect(self.currency_widget.handle_sidebar_visibility)
         self.sidebar.hide()
         self.sidebar.select_mode("Standard")
         self.switch_mode("Standard")

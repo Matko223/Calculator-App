@@ -54,6 +54,7 @@ class CurrencyConverter(QWidget):
         self.amount2 = None
         self.currency_list = get_supported_currencies()
         self.currency_names = get_currency_name()
+        self.parent_window = None
 
         self.digits = {
             7: (1, 0),
@@ -76,6 +77,17 @@ class CurrencyConverter(QWidget):
         }
 
         self.setup_ui()
+
+    def handle_sidebar_visibility(self, visible):
+        """
+        @brief Handles the sidebar visibility change
+        @param visible: Boolean indicating if sidebar should be visible
+        """
+        if self.parent_window:
+            if visible:
+                self.parent_window.setFixedWidth(640)
+            else:
+                self.parent_window.setFixedWidth(400)
 
     def setup_ui(self):
         """
