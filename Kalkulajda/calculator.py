@@ -130,8 +130,8 @@ class App(QWidget):
         self.photomath_widget = PhotomathMode()
         self.date_widget = DateCalculation(self)
         self.currency_widget = CurrencyConverter()
-        self.currency_widget.parent_window = self
         self.settings_widget = Settings(self)
+        self.currency_widget.parent_window = self
 
         # Add widgets to calculator layout
         self.calculator_layout.addWidget(self.default_widget)
@@ -141,11 +141,11 @@ class App(QWidget):
         self.calculator_layout.addWidget(self.currency_widget)
         self.calculator_layout.addWidget(self.settings_widget)
 
-        # Add layouts to the main layout
+        self.sidebar.visibility_changed.connect(self.currency_widget.handle_sidebar_visibility)
+
         self.main_layout.addWidget(self.sidebar)
         self.main_layout.addLayout(self.calculator_layout)
 
-        self.sidebar.visibility_changed.connect(self.currency_widget.handle_sidebar_visibility)
         self.sidebar.hide()
         self.sidebar.select_mode("Standard")
         self.switch_mode("Standard")
@@ -310,9 +310,11 @@ class App(QWidget):
         """
         if self.sidebar.isVisible():
             self.sidebar.hide()
+            self.sidebar.visibility_changed.emit(False)
             self.setFixedWidth(400)
         else:
             self.sidebar.show()
+            self.sidebar.visibility_changed.emit(True)
             self.setFixedWidth(640)
 
     def button_frame(self):

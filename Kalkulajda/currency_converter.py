@@ -78,17 +78,6 @@ class CurrencyConverter(QWidget):
 
         self.setup_ui()
 
-    def handle_sidebar_visibility(self, visible):
-        """
-        @brief Handles the sidebar visibility change
-        @param visible: Boolean indicating if sidebar should be visible
-        """
-        if self.parent_window:
-            if visible:
-                self.parent_window.setFixedWidth(640)
-            else:
-                self.parent_window.setFixedWidth(400)
-
     def setup_ui(self):
         """
         @brief Sets up the UI of the currency converter
@@ -496,3 +485,18 @@ class CurrencyConverter(QWidget):
         self.update_flag(self.currency2, self.flag2_label)
         self.amount1.clear()
         self.amount2.clear()
+
+    def handle_sidebar_visibility(self, visible):
+        """
+        @brief Handles the sidebar visibility change
+        @param visible: Boolean indicating if sidebar should be visible
+        """
+        if visible:
+            self.input_layout.setContentsMargins(5, 10, 5, 7)
+        else:
+            self.input_layout.setContentsMargins(5, 35, 5, 7)
+
+        # Force layout updates
+        self.input_layout.invalidate()
+        self.input_layout.activate()
+        self.update()
