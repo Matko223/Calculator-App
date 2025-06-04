@@ -55,6 +55,7 @@ class CurrencyConverter(QWidget):
         self.currency_list = get_supported_currencies()
         self.currency_names = get_currency_name()
         self.parent_window = None
+        self.spacer = None
 
         self.digits = {
             7: (1, 0),
@@ -119,6 +120,12 @@ class CurrencyConverter(QWidget):
         input_layout.setSpacing(3)
         input_layout.setAlignment(Qt.AlignTop)
         input_layout.setContentsMargins(5, 35, 5, 7)
+
+        vertical_spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        input_layout.addItem(vertical_spacer, 2, 0)
+
+        # Create a separate spacer for the sidebar visibility adjustment
+        self.spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
 
         combobox_style = """
         QComboBox {
@@ -236,19 +243,18 @@ class CurrencyConverter(QWidget):
         amount1_layout.setSpacing(5)
         amount1_layout.setAlignment(Qt.AlignLeft)
 
+        # Create horizontal layout for currency2
         currency2_layout = QHBoxLayout()
         currency2_layout.addWidget(self.flag2_label)
         currency2_layout.addSpacing(5)
         currency2_layout.addWidget(currency2)
         currency2_layout.setAlignment(Qt.AlignLeft)
 
-        # Add layouts to the grid
         input_layout.addLayout(currency1_layout, 0, 0)
         input_layout.addLayout(amount1_layout, 1, 0)
 
-        # Add vertical spacer
-        spacer = QSpacerItem(20, 50, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        input_layout.addItem(spacer, 2, 0)
+        vertical_spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        input_layout.addItem(vertical_spacer, 2, 0)
 
         input_layout.addLayout(currency2_layout, 3, 0)
         input_layout.addWidget(amount2, 4, 0)
@@ -256,7 +262,6 @@ class CurrencyConverter(QWidget):
         currency1.currentIndexChanged.connect(lambda: self.update_flag(currency1, self.flag1_label))
         currency2.currentIndexChanged.connect(lambda: self.update_flag(currency2, self.flag2_label))
 
-        # Connect currency2 index change to clear amounts
         currency2.currentIndexChanged.connect(self.clear_input)
 
         self.update_flag(currency1, self.flag1_label)
@@ -493,10 +498,12 @@ class CurrencyConverter(QWidget):
         """
         if visible:
             self.input_layout.setContentsMargins(5, 10, 5, 7)
+            self.spacer.changeSize(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
         else:
             self.input_layout.setContentsMargins(5, 35, 5, 7)
+            self.spacer.changeSize(20, 50, QSizePolicy.Minimum, QSizePolicy.Fixed)
 
-        # Force layout updates
         self.input_layout.invalidate()
         self.input_layout.activate()
+        self.displayFrame.updateGeometry()
         self.update()
