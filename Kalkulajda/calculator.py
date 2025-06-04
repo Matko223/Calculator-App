@@ -75,7 +75,7 @@ class App(QWidget):
         self.currentExpression = "0"
         self.evaluated = False
         my_icon = QIcon()
-        my_icon.addFile(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\icons\real_logo.png')
+        my_icon.addFile(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\icons\real_logo.png')
         self.setWindowIcon(my_icon)
 
         # Digit button positions
