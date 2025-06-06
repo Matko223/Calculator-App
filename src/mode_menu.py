@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLa
 from PySide6.QtGui import QFont, QIcon
 from PySide6.QtCore import Qt, QSize, Signal
 import os
+import sys
 
 BACKGROUND_COLOR = "#2C2C2C"
 DARK_GRAY = "#3D3D3D"
@@ -11,10 +12,19 @@ HOVER_COLOR = "#696969"
 BUTTON_SELECTED_COLOR = "#FFA500"
 BUTTON_TEXT_COLOR = "#FFFFFF"
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_DIR = os.path.dirname(BASE_DIR)
-PICTURES_DIR = os.path.join(PROJECT_DIR, 'Pictures')
-
+def resource_path(relative_path):
+    """
+    @brief Get the absolute path to the resource, works for both development and PyInstaller.
+    @param relative_path: The relative path to the resource.
+    @return: The absolute path to the resource.
+    """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    
+    return os.path.join(base_path, relative_path)
+    
 
 class Sidebar(QWidget):
     """
@@ -64,14 +74,14 @@ class Sidebar(QWidget):
         @brief Creates and adds the mode buttons to the content layout.
         """
         modes = {
-            "Standard": os.path.join(PICTURES_DIR, 'calculator_img.png'),
-            "Expression": os.path.join(PICTURES_DIR, 'expression.png'),
-            "Graphing": os.path.join(PICTURES_DIR, 'function.png'),
-            "Programmer": os.path.join(PICTURES_DIR, 'programmer.png'),
-            "Date Calculation": os.path.join(PICTURES_DIR, 'calendar.png'),
-            "BMI": os.path.join(PICTURES_DIR, 'weights.png'),
-            "Currency": os.path.join(PICTURES_DIR, 'currency.png'),
-            "Settings": os.path.join(PICTURES_DIR, 'settings.png')
+            "Standard": resource_path(os.path.join('Pictures', 'calculator_img.png')),
+            "Expression": resource_path(os.path.join('Pictures', 'expression.png')),
+            "Graphing": resource_path(os.path.join('Pictures', 'function.png')),
+            "Programmer": resource_path(os.path.join('Pictures', 'programmer.png')),
+            "Date Calculation": resource_path(os.path.join('Pictures', 'calendar.png')),
+            "BMI": resource_path(os.path.join('Pictures', 'weights.png')),
+            "Currency": resource_path(os.path.join('Pictures', 'currency.png')),
+            "Settings": resource_path(os.path.join('Pictures', 'settings.png'))
         }
 
         for mode, icon_path in modes.items():

@@ -12,6 +12,19 @@ from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
 import os
 
+def resource_path(relative_path):
+    """
+    @brief Get the absolute path to the resource, works for both development and PyInstaller.
+    @param relative_path: The relative path to the resource.
+    @return: The absolute path to the resource.
+    """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    
+    return os.path.join(base_path, relative_path)
+
 # Define constants
 LIGHT_GRAY = "#979797"
 DARK_GRAY = "#3D3D3D"
@@ -24,26 +37,22 @@ SMALL = "Arial 15"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_DIR = os.path.dirname(BASE_DIR)
-PICTURES_DIR = os.path.join(PROJECT_DIR, 'Pictures')
-
 # Define help pictures paths
 help_pictures = {
-    "Help": os.path.join(PICTURES_DIR, 'help_icon.png'),
-    "Clear": os.path.join(PICTURES_DIR, 'Clear.ico'),
-    "Del": os.path.join(PICTURES_DIR, 'Del.ico'),
-    "Exponentiation": os.path.join(PICTURES_DIR, '^.ico'),
-    "Root": os.path.join(PICTURES_DIR, 'Root.ico'),
-    "Factorial": os.path.join(PICTURES_DIR, 'Fact.ico'),
-    "Absolute value": os.path.join(PICTURES_DIR, 'Abs.ico'),
-    "Modulo": os.path.join(PICTURES_DIR, 'Mod.ico'),
-    "Addition": os.path.join(PICTURES_DIR, 'add.ico'),
-    "Subtraction": os.path.join(PICTURES_DIR, 'sub.ico'),
-    "Multiplication": os.path.join(PICTURES_DIR, 'mul.ico'),
-    "Division": os.path.join(PICTURES_DIR, 'div.ico'),
-    "Equals": os.path.join(PICTURES_DIR, 'equals.ico'),
-    "Decimal": os.path.join(PICTURES_DIR, 'decimal.ico')
+    "Help": resource_path(os.path.join('Pictures', 'help_icon.png')),
+    "Clear": resource_path(os.path.join('Pictures', 'Clear.ico')),
+    "Del": resource_path(os.path.join('Pictures', 'Del.ico')),
+    "Exponentiation": resource_path(os.path.join('Pictures', '^.ico')),
+    "Root": resource_path(os.path.join('Pictures', 'Root.ico')),
+    "Factorial": resource_path(os.path.join('Pictures', 'Fact.ico')),
+    "Absolute value": resource_path(os.path.join('Pictures', 'Abs.ico')),
+    "Modulo": resource_path(os.path.join('Pictures', 'Mod.ico')),
+    "Addition": resource_path(os.path.join('Pictures', 'add.ico')),
+    "Subtraction": resource_path(os.path.join('Pictures', 'sub.ico')),
+    "Multiplication": resource_path(os.path.join('Pictures', 'mul.ico')),
+    "Division": resource_path(os.path.join('Pictures', 'div.ico')),
+    "Equals": resource_path(os.path.join('Pictures', 'equals.ico')),
+    "Decimal": resource_path(os.path.join('Pictures', 'decimal.ico'))
 }
 
 

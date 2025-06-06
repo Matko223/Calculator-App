@@ -32,10 +32,6 @@ LABEL_COLOR = "#25265E"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_DIR = os.path.dirname(BASE_DIR)
-ICONS_DIR = os.path.join(PROJECT_DIR, 'icons')
-
 
 class App(QWidget):
     """
@@ -65,7 +61,7 @@ class App(QWidget):
         self.totalExpression = ""
         self.currentExpression = "0"
         self.evaluated = False
-        icon_path = os.path.join(ICONS_DIR, 'real_logo.png')
+        icon_path = resource_path(os.path.join('icons', 'real_logo.png'))
         my_icon = QIcon()
         my_icon.addFile(icon_path)
         self.setWindowIcon(my_icon)
@@ -259,7 +255,7 @@ class App(QWidget):
         """
         help_menu_button = QPushButton(self.displayFrame)
         help_menu_button.setFixedSize(20, 20)
-        icon_path = os.path.join(PROJECT_DIR, 'Pictures', 'help_button.png')
+        icon_path = resource_path(os.path.join('Pictures', 'help_button.png'))
         icon = QIcon(icon_path)
         help_menu_button.setIcon(icon)
         help_menu_button.setIconSize(QSize(20, 20))
@@ -290,7 +286,7 @@ class App(QWidget):
         """
         mode_menu_button = QPushButton(self)
         mode_menu_button.setFixedSize(25, 25)
-        icon_path = os.path.join(PROJECT_DIR, 'Pictures', 'menu_icon.png')
+        icon_path = resource_path(os.path.join('Pictures', 'menu_icon.png'))
         icon = QIcon(icon_path)
         mode_menu_button.setIcon(icon)
         mode_menu_button.setIconSize(QSize(25, 25))
@@ -1124,13 +1120,26 @@ class App(QWidget):
             return operatorCount == 2
         return False
 
+def resource_path(relative_path):
+    """
+    @brief Get the absolute path to the resource, works for both development and PyInstaller.
+    @param relative_path: The relative path to the resource.
+    @return: The absolute path to the resource.
+    """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    
+    return os.path.join(base_path, relative_path)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    if os.name == "nt":
-        icon_path = os.path.join(PROJECT_DIR, 'icons', 'real_logo.png')
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(icon_path)
+if os.name == "nt":
+    icon_path = resource_path(os.path.join('icons', 'real_logo.png'))
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(icon_path)
 
     window = App()
     window.show()

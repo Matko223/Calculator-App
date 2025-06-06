@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
     QSpacerItem, QSizePolicy)
 from currency_api import get_exchange_rate, get_supported_currencies, get_currency_name, get_flag_image
 import os
+import sys
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -24,10 +25,18 @@ LABEL_COLOR = "#25265E"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_DIR = os.path.dirname(BASE_DIR)
-PICTURES_DIR = os.path.join(PROJECT_DIR, 'Pictures')
-
+def resource_path(relative_path):
+    """
+    @brief Get the absolute path to the resource, works for both development and PyInstaller.
+    @param relative_path: The relative path to the resource.
+    @return: The absolute path to the resource.
+    """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    
+    return os.path.join(base_path, relative_path)
 
 class CurrencyConverter(QWidget):
     """
@@ -41,7 +50,7 @@ class CurrencyConverter(QWidget):
         super().__init__()
         self.flag1_label = None
         self.flag2_label = None
-        self.eu_flag_path = os.path.join(PICTURES_DIR, 'european-union.png')
+        self.eu_flag_path = resource_path(os.path.join('Pictures', 'european-union.png'))
         self.input_layout = None
         self.currency2 = None
         self.currency1 = None
@@ -207,7 +216,7 @@ class CurrencyConverter(QWidget):
                 background-color: {DARK_GRAY};
             }}
         """)
-        icon = QIcon("../Pictures/shuffle.png")
+        icon = QIcon(resource_path(os.path.join('Pictures', 'shuffle.png')))
         shuffle_button.setIcon(icon)
         shuffle_button.setIconSize(QSize(30, 30))
         shuffle_button.setFixedSize(40, 40)
