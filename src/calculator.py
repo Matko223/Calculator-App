@@ -8,15 +8,14 @@
 
 import sys
 from decimal import getcontext, Decimal
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel, QPushButton, QHBoxLayout, \
-    QLineEdit, QStackedLayout
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel, QPushButton, QHBoxLayout
 from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon
 from PySide6.QtCore import Qt, QSize
 import mathlib
-from Calculator.Kalkulajda.currency_converter import CurrencyConverter
-from Calculator.Kalkulajda.date_calculation import DateCalculation
-from Calculator.Kalkulajda.help_menu import HelpWindow
-from Calculator.Kalkulajda.mode_menu import Sidebar
+from Calculator.src.currency_converter import CurrencyConverter
+from Calculator.src.date_calculation import DateCalculation
+from Calculator.src.help_menu import HelpWindow
+from Calculator.src.mode_menu import Sidebar
 from bmi_calculator import BMICalculator
 from photomath_mode import PhotomathMode
 from settings import Settings
@@ -33,18 +32,10 @@ LABEL_COLOR = "#25265E"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
 
-PRODUCTION = True
 pictures = {
     "logo": r"Pictures/real_logo.png",
     "help": r"Pictures/help_button.png",
 }
-
-if PRODUCTION:
-    pictures = {
-        "logo": "Kalkulajda/Pictures/real_logo.png",
-        "help": "Kalkulajda/Pictures/help_button.png",
-    }
-
 
 class App(QWidget):
     """
@@ -75,7 +66,7 @@ class App(QWidget):
         self.currentExpression = "0"
         self.evaluated = False
         my_icon = QIcon()
-        my_icon.addFile(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\icons\real_logo.png')
+        my_icon.addFile(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\icons\real_logo.png')
         self.setWindowIcon(my_icon)
 
         # Digit button positions
@@ -267,7 +258,7 @@ class App(QWidget):
         """
         help_menu_button = QPushButton(self.displayFrame)
         help_menu_button.setFixedSize(20, 20)
-        icon = QIcon(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\help_button.png')
+        icon = QIcon(r'Pictures/help_button.png')
         help_menu_button.setIcon(icon)
         help_menu_button.setIconSize(QSize(20, 20))
         help_menu_button.setStyleSheet("background-color: transparent; border: none;")
@@ -297,7 +288,7 @@ class App(QWidget):
         """
         mode_menu_button = QPushButton(self)
         mode_menu_button.setFixedSize(25, 25)
-        icon = QIcon(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\menu_icon.png')
+        icon = QIcon(r'Pictures/menu_icon.png')
         mode_menu_button.setIcon(icon)
         mode_menu_button.setIconSize(QSize(25, 25))
         mode_menu_button.setStyleSheet("background-color: transparent; border: none;")

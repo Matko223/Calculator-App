@@ -25,20 +25,20 @@ HOVER_OPERATOR = "#FF8409"
 
 # Define help pictures paths
 help_pictures = {
-    "Help": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\help_icon.png',
-    "Clear": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\Clear.ico',
-    "Del": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\Del.ico',
-    "Exponentiation": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\^.ico',
-    "Root": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\Root.ico',
-    "Factorial": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\Fact.ico',
-    "Absolute value": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\Abs.ico',
-    "Modulo": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\Mod.ico',
-    "Addition": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\add.ico',
-    "Subtraction": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\sub.ico',
-    "Multiplication": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\mul.ico',
-    "Division": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\div.ico',
-    "Equals": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\equals.ico',
-    "Decimal": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\decimal.ico'
+    "Help": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\help_icon.png',
+    "Clear": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\Clear.ico',
+    "Del": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\Del.ico',
+    "Exponentiation": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\^.ico',
+    "Root": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\Root.ico',
+    "Factorial": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\Fact.ico',
+    "Absolute value": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\Abs.ico',
+    "Modulo": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\Mod.ico',
+    "Addition": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\add.ico',
+    "Subtraction": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\sub.ico',
+    "Multiplication": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\mul.ico',
+    "Division": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\div.ico',
+    "Equals": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\equals.ico',
+    "Decimal": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\decimal.ico'
 }
 
 

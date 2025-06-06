@@ -59,14 +59,14 @@ class Sidebar(QWidget):
         @brief Creates and adds the mode buttons to the content layout.
         """
         modes = {
-            "Standard": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\calculator_img.png",
-            "Expression": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\expression.png",
-            "Graphing": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\function.png",
-            "Programmer": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\programmer.png",
-            "Date Calculation": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\calendar.png",
-            "BMI": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\weights.png",
-            "Currency": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\currency.png",
-            "Settings": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\settings.png"
+            "Standard": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\calculator_img.png",
+            "Expression": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\expression.png",
+            "Graphing": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\function.png",
+            "Programmer": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\programmer.png",
+            "Date Calculation": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\calendar.png",
+            "BMI": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\weights.png",
+            "Currency": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\currency.png",
+            "Settings": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\settings.png"
         }
 
         for mode, icon_path in modes.items():

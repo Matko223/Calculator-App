@@ -38,7 +38,7 @@ class CurrencyConverter(QWidget):
         super().__init__()
         self.flag1_label = None
         self.flag2_label = None
-        self.eu_flag_path = (r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Kalkulajda\Pictures\european"
+        self.eu_flag_path = (r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\european"
                              r"-union.png")
         self.input_layout = None
         self.currency2 = None
@@ -205,7 +205,7 @@ class CurrencyConverter(QWidget):
                 background-color: {DARK_GRAY};
             }}
         """)
-        icon = QIcon("./Pictures/shuffle.png")
+        icon = QIcon("../Pictures/shuffle.png")
         shuffle_button.setIcon(icon)
         shuffle_button.setIconSize(QSize(30, 30))
         shuffle_button.setFixedSize(40, 40)
