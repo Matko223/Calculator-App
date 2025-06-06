@@ -10,6 +10,7 @@ import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, QWidget, QScrollArea, QFrame
 from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
+import os
 
 # Define constants
 LIGHT_GRAY = "#979797"
@@ -23,22 +24,26 @@ SMALL = "Arial 15"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_DIR = os.path.dirname(BASE_DIR)
+PICTURES_DIR = os.path.join(PROJECT_DIR, 'Pictures')
+
 # Define help pictures paths
 help_pictures = {
-    "Help": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\help_icon.png',
-    "Clear": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\Clear.ico',
-    "Del": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\Del.ico',
-    "Exponentiation": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\^.ico',
-    "Root": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\Root.ico',
-    "Factorial": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\Fact.ico',
-    "Absolute value": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\Abs.ico',
-    "Modulo": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\Mod.ico',
-    "Addition": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\add.ico',
-    "Subtraction": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\sub.ico',
-    "Multiplication": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\mul.ico',
-    "Division": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\div.ico',
-    "Equals": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\equals.ico',
-    "Decimal": r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\decimal.ico'
+    "Help": os.path.join(PICTURES_DIR, 'help_icon.png'),
+    "Clear": os.path.join(PICTURES_DIR, 'Clear.ico'),
+    "Del": os.path.join(PICTURES_DIR, 'Del.ico'),
+    "Exponentiation": os.path.join(PICTURES_DIR, '^.ico'),
+    "Root": os.path.join(PICTURES_DIR, 'Root.ico'),
+    "Factorial": os.path.join(PICTURES_DIR, 'Fact.ico'),
+    "Absolute value": os.path.join(PICTURES_DIR, 'Abs.ico'),
+    "Modulo": os.path.join(PICTURES_DIR, 'Mod.ico'),
+    "Addition": os.path.join(PICTURES_DIR, 'add.ico'),
+    "Subtraction": os.path.join(PICTURES_DIR, 'sub.ico'),
+    "Multiplication": os.path.join(PICTURES_DIR, 'mul.ico'),
+    "Division": os.path.join(PICTURES_DIR, 'div.ico'),
+    "Equals": os.path.join(PICTURES_DIR, 'equals.ico'),
+    "Decimal": os.path.join(PICTURES_DIR, 'decimal.ico')
 }
 
 

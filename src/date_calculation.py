@@ -155,7 +155,7 @@ class DateCalculation(QWidget):
             border-top-right-radius: 10px;
         }
         QComboBox::down-arrow {
-            image: url(./Pictures/60995.png);
+            image: url(../Pictures/60995.png);
             width: 12px;
             height: 12px;
         }

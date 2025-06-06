@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout
 from PySide6.QtGui import QFont, QIcon
 from PySide6.QtCore import Qt, QSize, Signal
+import os
 
 BACKGROUND_COLOR = "#2C2C2C"
 DARK_GRAY = "#3D3D3D"
@@ -9,6 +10,10 @@ ORANGE = "#FFA500"
 HOVER_COLOR = "#696969"
 BUTTON_SELECTED_COLOR = "#FFA500"
 BUTTON_TEXT_COLOR = "#FFFFFF"
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_DIR = os.path.dirname(BASE_DIR)
+PICTURES_DIR = os.path.join(PROJECT_DIR, 'Pictures')
 
 
 class Sidebar(QWidget):
@@ -59,14 +64,14 @@ class Sidebar(QWidget):
         @brief Creates and adds the mode buttons to the content layout.
         """
         modes = {
-            "Standard": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\calculator_img.png",
-            "Expression": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\expression.png",
-            "Graphing": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\function.png",
-            "Programmer": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\programmer.png",
-            "Date Calculation": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\calendar.png",
-            "BMI": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\weights.png",
-            "Currency": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\currency.png",
-            "Settings": r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\settings.png"
+            "Standard": os.path.join(PICTURES_DIR, 'calculator_img.png'),
+            "Expression": os.path.join(PICTURES_DIR, 'expression.png'),
+            "Graphing": os.path.join(PICTURES_DIR, 'function.png'),
+            "Programmer": os.path.join(PICTURES_DIR, 'programmer.png'),
+            "Date Calculation": os.path.join(PICTURES_DIR, 'calendar.png'),
+            "BMI": os.path.join(PICTURES_DIR, 'weights.png'),
+            "Currency": os.path.join(PICTURES_DIR, 'currency.png'),
+            "Settings": os.path.join(PICTURES_DIR, 'settings.png')
         }
 
         for mode, icon_path in modes.items():

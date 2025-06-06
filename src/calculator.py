@@ -20,7 +20,7 @@ from bmi_calculator import BMICalculator
 from photomath_mode import PhotomathMode
 from settings import Settings
 import ctypes
-
+import os
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -32,10 +32,10 @@ LABEL_COLOR = "#25265E"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
 
-pictures = {
-    "logo": r"Pictures/real_logo.png",
-    "help": r"Pictures/help_button.png",
-}
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_DIR = os.path.dirname(BASE_DIR)
+ICONS_DIR = os.path.join(PROJECT_DIR, 'icons')
+
 
 class App(QWidget):
     """
@@ -65,8 +65,9 @@ class App(QWidget):
         self.totalExpression = ""
         self.currentExpression = "0"
         self.evaluated = False
+        icon_path = os.path.join(ICONS_DIR, 'real_logo.png')
         my_icon = QIcon()
-        my_icon.addFile(r'C:\Users\val24\PycharmProjects\pythonProject1\Calculator\icons\real_logo.png')
+        my_icon.addFile(icon_path)
         self.setWindowIcon(my_icon)
 
         # Digit button positions
@@ -258,7 +259,8 @@ class App(QWidget):
         """
         help_menu_button = QPushButton(self.displayFrame)
         help_menu_button.setFixedSize(20, 20)
-        icon = QIcon(r'Pictures/help_button.png')
+        icon_path = os.path.join(PROJECT_DIR, 'Pictures', 'help_button.png')
+        icon = QIcon(icon_path)
         help_menu_button.setIcon(icon)
         help_menu_button.setIconSize(QSize(20, 20))
         help_menu_button.setStyleSheet("background-color: transparent; border: none;")
@@ -288,7 +290,8 @@ class App(QWidget):
         """
         mode_menu_button = QPushButton(self)
         mode_menu_button.setFixedSize(25, 25)
-        icon = QIcon(r'Pictures/menu_icon.png')
+        icon_path = os.path.join(PROJECT_DIR, 'Pictures', 'menu_icon.png')
+        icon = QIcon(icon_path)
         mode_menu_button.setIcon(icon)
         mode_menu_button.setIconSize(QSize(25, 25))
         mode_menu_button.setStyleSheet("background-color: transparent; border: none;")
@@ -1124,8 +1127,8 @@ class App(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(r'C:\Users\val24\PycharmProjects\pythonProject1'
-                                                                  r'\Calculator\icons\real_logo.png')
+    icon_path = os.path.join(PROJECT_DIR, 'icons', 'real_logo.png')
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(icon_path)
     window = App()
     window.show()
     sys.exit(app.exec())

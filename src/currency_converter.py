@@ -12,8 +12,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout,
     QSpacerItem, QSizePolicy)
 from currency_api import get_exchange_rate, get_supported_currencies, get_currency_name, get_flag_image
-
-# TODO: DIFFERENT LAYOUT
+import os
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -24,6 +23,10 @@ COLOR_REST = "#4F4F4F"
 LABEL_COLOR = "#25265E"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_DIR = os.path.dirname(BASE_DIR)
+PICTURES_DIR = os.path.join(PROJECT_DIR, 'Pictures')
 
 
 class CurrencyConverter(QWidget):
@@ -38,8 +41,7 @@ class CurrencyConverter(QWidget):
         super().__init__()
         self.flag1_label = None
         self.flag2_label = None
-        self.eu_flag_path = (r"C:\Users\val24\PycharmProjects\pythonProject1\Calculator\Pictures\european"
-                             r"-union.png")
+        self.eu_flag_path = os.path.join(PICTURES_DIR, 'european-union.png')
         self.input_layout = None
         self.currency2 = None
         self.currency1 = None
@@ -149,7 +151,7 @@ class CurrencyConverter(QWidget):
             border-top-right-radius: 10px;
         }
         QComboBox::down-arrow {
-            image: url(./Pictures/60995.png);
+            image: url(../Pictures/60995.png);
             width: 12px;
             height: 12px;
         }
