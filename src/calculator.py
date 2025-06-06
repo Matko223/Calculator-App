@@ -12,10 +12,10 @@ from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, Q
 from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon
 from PySide6.QtCore import Qt, QSize
 import mathlib
-from Calculator.src.currency_converter import CurrencyConverter
-from Calculator.src.date_calculation import DateCalculation
-from Calculator.src.help_menu import HelpWindow
-from Calculator.src.mode_menu import Sidebar
+from currency_converter import CurrencyConverter
+from date_calculation import DateCalculation
+from help_menu import HelpWindow
+from mode_menu import Sidebar
 from bmi_calculator import BMICalculator
 from photomath_mode import PhotomathMode
 from settings import Settings
@@ -1127,8 +1127,11 @@ class App(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    icon_path = os.path.join(PROJECT_DIR, 'icons', 'real_logo.png')
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(icon_path)
+
+    if os.name == "nt":
+        icon_path = os.path.join(PROJECT_DIR, 'icons', 'real_logo.png')
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(icon_path)
+
     window = App()
     window.show()
     sys.exit(app.exec())

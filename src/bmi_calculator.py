@@ -6,7 +6,6 @@
 @date 10.09. 2024
 """
 
-from PyQt5.QtGui import QRegExpValidator, QRegularExpressionValidator
 from PySide6.QtCore import QSize, Qt, QRegularExpression, QEvent
 from PySide6.QtGui import QFont, QIcon, Qt, QShortcut, QKeySequence, QRegularExpressionValidator
 from PySide6.QtWidgets import (
