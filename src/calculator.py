@@ -22,6 +22,8 @@ from settings import Settings
 import ctypes
 import os
 
+#TODO: Decomposition
+
 # Color definitions
 LIGHT_GRAY = "#979797"
 DARK_GRAY = "#3D3D3D"
