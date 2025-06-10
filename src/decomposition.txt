@@ -1,0 +1,47 @@
+Calculator-App/
+├── src/
+│   ├── main.py                  # Application entry point
+│   ├── components/              # UI Components
+│   │   ├── __init__.py
+│   │   ├── display.py           # Display components
+│   │   ├── buttons/
+│   │   │   ├── __init__.py
+│   │   │   ├── digit_button.py
+│   │   │   ├── operator_button.py
+│   │   │   └── special_button.py
+│   │   └── sidebar.py
+│   ├── calculators/            # Calculator Modes
+│   │   ├── __init__.py
+│   │   ├── standard/
+│   │   │   ├── __init__.py
+│   │   │   ├── calculator.py    # Main calc logic
+│   │   │   ├── operations.py    # Standard operations
+│   │   │   └── evaluator.py     # Expression evaluation
+│   │   ├── bmi/
+│   │   │   ├── __init__.py
+│   │   │   └── calculator.py
+│   │   ├── currency/
+│   │   │   ├── __init__.py
+│   │   │   ├── converter.py
+│   │   │   └── api_client.py
+│   │   ├── date/
+│   │   │   ├── __init__.py
+│   │   │   └── calculator.py
+│   │   └── expression/
+│   │       ├── __init__.py
+│   │       └── calculator.py
+│   ├── utils/                  # Utilities
+│   │   ├── __init__.py
+│   │   ├── resource_manager.py # Enhanced img_path.py
+│   │   ├── math_lib.py         # Math operations
+│   │   └── config.py           # Colors, fonts, etc.
+│   ├── help/                   # Help System
+│   │   ├── __init__.py
+│   │   ├── help_window.py
+│   │   └── help_content.py
+│   └── settings/               # Settings Module
+│       ├── __init__.py
+│       ├── settings.py
+│       └── themes.py
+├── Pictures/                   # Image resources
+├── icons/                      # Application icons

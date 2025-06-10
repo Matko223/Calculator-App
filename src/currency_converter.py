@@ -123,8 +123,10 @@ class CurrencyConverter(QWidget):
         vertical_spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
         input_layout.addItem(vertical_spacer, 2, 0)
 
-        # Create a separate spacer for the sidebar visibility adjustment
         self.spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+
+        arrow_icon_path = resource_path(os.path.join('Pictures', '60995.png'))
+        arrow_icon_path = arrow_icon_path.replace('\\', '/')
 
         combobox_style = """
         QComboBox {
@@ -148,7 +150,7 @@ class CurrencyConverter(QWidget):
             border-top-right-radius: 10px;
         }
         QComboBox::down-arrow {
-            image: url(../Pictures/60995.png);
+            image: url(""" + arrow_icon_path + """);
             width: 12px;
             height: 12px;
         }

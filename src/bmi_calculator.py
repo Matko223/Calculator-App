@@ -11,6 +11,8 @@ from PySide6.QtGui import QFont, QIcon, Qt, QShortcut, QKeySequence, QRegularExp
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout,
     QSpacerItem, QSizePolicy)
+from img_path import resource_path
+import os
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -98,6 +100,9 @@ class BMICalculator(QWidget):
         self.setLayout(layout)
         self.setContentsMargins(0, 0, 0, 0)
 
+        arrow_icon_path = resource_path(os.path.join('Pictures', '60995.png'))
+        arrow_icon_path = arrow_icon_path.replace('\\', '/')
+
         combobox_style = """
         QComboBox {
             color: white;
@@ -120,7 +125,7 @@ class BMICalculator(QWidget):
             border-top-right-radius: 10px;
         }
         QComboBox::down-arrow {
-            image: url(../Pictures/60995.png);
+            image: url(""" + arrow_icon_path + """);
             width: 12px;
             height: 12px;
         }

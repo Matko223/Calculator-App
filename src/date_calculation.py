@@ -12,6 +12,8 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout,
     QSpacerItem, QSizePolicy)
 from datetime import datetime, date
+import os
+from img_path import resource_path
 
 # Color definitions
 LIGHT_GRAY = "#979797"
@@ -48,6 +50,8 @@ class DateCalculation(QWidget):
         self.end_day_combobox = None
         self.end_month_combobox = None
         self.end_year_input = None
+        self.arrow_icon_path = resource_path(os.path.join('Pictures', '60995.png'))
+        self.arrow_icon_path = self.arrow_icon_path.replace('\\', '/')
 
         self.setup_ui()
         self.set_current_date()
@@ -122,7 +126,6 @@ class DateCalculation(QWidget):
         self.daysLabel.setAlignment(Qt.AlignCenter)
         frame_layout.addWidget(self.daysLabel, 8, 1, Qt.AlignCenter)
 
-        # Add a vertical spacer
         frame_layout.addItem(QSpacerItem(0, 40, QSizePolicy.Minimum, QSizePolicy.Expanding), 8, 1)
 
     def create_date_input_layout(self):
@@ -155,7 +158,7 @@ class DateCalculation(QWidget):
             border-top-right-radius: 10px;
         }
         QComboBox::down-arrow {
-            image: url(../Pictures/60995.png);
+            image: url(""" + self.arrow_icon_path + """);
             width: 12px;
             height: 12px;
         }

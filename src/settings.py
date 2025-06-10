@@ -3,6 +3,8 @@ from PySide6.QtGui import QFont, QIcon, QRegularExpressionValidator
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout,
     QSpacerItem, QSizePolicy, QScrollArea)
+from img_path import resource_path
+import os
 
 LIGHT_GRAY = "#979797"
 DARK_GRAY = "#3D3D3D"
@@ -25,6 +27,9 @@ class Settings(QWidget):
         self.font_size_combobox = None
         self.dropdown_visible = False
         self.original_spacing = 20
+
+        arrow_icon_path = resource_path(os.path.join('Pictures', '60995.png'))
+        arrow_icon_path = arrow_icon_path.replace('\\', '/')
 
         self.combo_box_style = """
             QComboBox {
@@ -49,7 +54,7 @@ class Settings(QWidget):
                 border-top-right-radius: 10px;
             }
             QComboBox::down-arrow {
-                image: url(../Pictures/60995.png);
+                image: url(""" + arrow_icon_path + """);
                 width: 12px;
                 height: 12px;
             }
