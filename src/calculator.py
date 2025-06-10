@@ -19,6 +19,7 @@ from mode_menu import Sidebar
 from bmi_calculator import BMICalculator
 from photomath_mode import PhotomathMode
 from settings import Settings
+from img_path import resource_path
 import ctypes
 import os
 
@@ -180,7 +181,6 @@ class App(QWidget):
         elif mode == "Expression":
             self.photomath_widget.handle_clear()
 
-        # Hide all widgets first
         for widget in mode_widgets.values():
             widget.hide()
             self.calculator_layout.removeWidget(widget)
@@ -224,17 +224,14 @@ class App(QWidget):
         layout.setContentsMargins(5, 5, 5, 5)
         layout.setSpacing(5)
 
-        # Create and add the total label at the top
         self.totalLabel = QLabel(self.totalExpression, self.displayFrame)
         self.totalLabel.setFont(QFont("Arial bold", 16))
         self.totalLabel.setStyleSheet(f"color: WHITE; padding: 5px;")
         self.totalLabel.setAlignment(Qt.AlignRight)
         layout.addWidget(self.totalLabel)
 
-        # Add a spacer to push the non-essential widget to the bottom
         layout.addStretch()
 
-        # Create a widget for the non-essential components
         self.non_essential_widget = QWidget(self.displayFrame)
         non_essential_layout = QVBoxLayout(self.non_essential_widget)
         non_essential_layout.setContentsMargins(0, 0, 0, 0)
@@ -264,7 +261,6 @@ class App(QWidget):
         help_menu_button.setStyleSheet("background-color: transparent; border: none;")
         help_menu_button.clicked.connect(self.show_help_menu)
 
-        # Create a container widget to hold the help button
         container = QWidget(self.displayFrame)
         container.setFixedSize(20, 22)
         container_layout = QVBoxLayout(container)
@@ -324,7 +320,6 @@ class App(QWidget):
         self.buttonFrameLayout.addLayout(self.buttonLayout)
         self.buttonFrame.setLayout(self.buttonFrameLayout)
 
-        # Create and display the buttons
         self.create_digit_buttons()
         self.create_operator_buttons()
         self.create_special_buttons()
@@ -420,7 +415,7 @@ class App(QWidget):
         @brief Creates and configures the button for exponentiation (x²).
         @param pos: Position of the button in the grid layout as a tuple (row, column).
         """
-        button = QPushButton("x\u207F")  # Unicode for superscript
+        button = QPushButton("x\u207F")
         button.setFont(QFont("Arial", 20))
         button.setStyleSheet(f"""
             QPushButton {{
@@ -592,7 +587,6 @@ class App(QWidget):
         button.clicked.connect(lambda: self.evaluate(equals_button=True))
         self.buttonLayout.addWidget(button, pos[0], pos[1])
 
-        # Bind both Return and Enter keys to handle_equals
         shortcut_enter = QShortcut(QKeySequence(Qt.Key_Enter), self)
         shortcut_enter.activated.connect(lambda: self.evaluate(equals_button=True))
         shortcut_return = QShortcut(QKeySequence(Qt.Key_Return), self)
@@ -934,7 +928,6 @@ class App(QWidget):
         lastOperator = self.totalExpression[-1] if self.totalExpression else ""
         expression = self.totalExpression[:-1] if lastOperator in operators else self.totalExpression
 
-        # Find the last valid operator
         for i in range(len(expression) - 1, -1, -1):
             if expression[i] in operators and not (
                     (expression[i] == '-' and (i == 0 or expression[i - 1] in operators)) or
@@ -1045,7 +1038,7 @@ class App(QWidget):
         @param operator str The arithmetic operator.
         @return float The result of the operation, or None if an error occurred.
         """
-        getcontext().prec = 28  # Set the precision high enough
+        getcontext().prec = 28
         left = Decimal(left)
         right = Decimal(right)
 
@@ -1121,19 +1114,6 @@ class App(QWidget):
                     operatorCount += 1
             return operatorCount == 2
         return False
-
-def resource_path(relative_path):
-    """
-    @brief Get the absolute path to the resource, works for both development and PyInstaller.
-    @param relative_path: The relative path to the resource.
-    @return: The absolute path to the resource.
-    """
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-    
-    return os.path.join(base_path, relative_path)
 
 
 if __name__ == "__main__":

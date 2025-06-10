@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout,
     QSpacerItem, QSizePolicy)
 from currency_api import get_exchange_rate, get_supported_currencies, get_currency_name, get_flag_image
+from img_path import resource_path
 import os
 import sys
 
@@ -24,19 +25,6 @@ COLOR_REST = "#4F4F4F"
 LABEL_COLOR = "#25265E"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
-
-def resource_path(relative_path):
-    """
-    @brief Get the absolute path to the resource, works for both development and PyInstaller.
-    @param relative_path: The relative path to the resource.
-    @return: The absolute path to the resource.
-    """
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-    
-    return os.path.join(base_path, relative_path)
 
 class CurrencyConverter(QWidget):
     """

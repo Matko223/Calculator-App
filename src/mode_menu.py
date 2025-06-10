@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout
 from PySide6.QtGui import QFont, QIcon
 from PySide6.QtCore import Qt, QSize, Signal
+from img_path import resource_path
 import os
 import sys
 
@@ -12,19 +13,6 @@ HOVER_COLOR = "#696969"
 BUTTON_SELECTED_COLOR = "#FFA500"
 BUTTON_TEXT_COLOR = "#FFFFFF"
 
-def resource_path(relative_path):
-    """
-    @brief Get the absolute path to the resource, works for both development and PyInstaller.
-    @param relative_path: The relative path to the resource.
-    @return: The absolute path to the resource.
-    """
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-    
-    return os.path.join(base_path, relative_path)
-    
 
 class Sidebar(QWidget):
     """

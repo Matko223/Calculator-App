@@ -10,20 +10,8 @@ import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, QWidget, QScrollArea, QFrame
 from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
+from img_path import resource_path
 import os
-
-def resource_path(relative_path):
-    """
-    @brief Get the absolute path to the resource, works for both development and PyInstaller.
-    @param relative_path: The relative path to the resource.
-    @return: The absolute path to the resource.
-    """
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-    
-    return os.path.join(base_path, relative_path)
 
 # Define constants
 LIGHT_GRAY = "#979797"
