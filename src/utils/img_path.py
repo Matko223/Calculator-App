@@ -19,5 +19,7 @@ def resource_path(relative_path):
     except Exception:
         base_path = os.path.dirname(os.path.abspath(__file__))
         base_path = os.path.dirname(base_path)
+        base_path = os.path.dirname(base_path)
     
-    return os.path.join(base_path, relative_path)
+    absolute_path = os.path.join(base_path, relative_path)
+    return absolute_path
