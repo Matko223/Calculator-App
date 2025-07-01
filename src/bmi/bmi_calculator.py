@@ -11,7 +11,7 @@ from PySide6.QtGui import QFont, QIcon, Qt, QShortcut, QKeySequence, QRegularExp
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QGridLayout, QFormLayout, QComboBox, QHBoxLayout,
     QSpacerItem, QSizePolicy)
-from utils.img_path import resource_path
+from bmi.bmi_display import BmiDisplay, ACTIVE_STYLE, AMOUNT_STYLE
 import os
 
 # Color definitions
@@ -38,27 +38,22 @@ class BMICalculator(QWidget):
         self.mode_menu_button = None
         self.help_menu_button = None
         self.help_window = None
-        self.result_input = None
-        self.displayFrame = None
+        
+        self.displayFrame = BmiDisplay()
+        
+        self.height_input = self.displayFrame.height_input
+        self.weight_input = self.displayFrame.weight_input
+        self.height_feet_input = self.displayFrame.height_feet_input
+        self.height_inches_input = self.displayFrame.height_inches_input
+        self.result_input = self.displayFrame.result_input
+        self.height_unit_combo = self.displayFrame.height_unit_combo
+        self.weight_unit_combo = self.displayFrame.weight_unit_combo
+        
+        self.current_input = self.height_input
+        
         self.buttonLayout = None
         self.buttonFrame = None
         self.buttonFrameLayout = None
-
-        self.weight_input = QLineEdit()
-        self.weight_input.setReadOnly(True)
-
-        self.height_input = QLineEdit()
-        self.height_input.setReadOnly(True)
-
-        self.height_feet_input = QLineEdit()
-        self.height_feet_input.setReadOnly(True)
-
-        self.height_inches_input = QLineEdit()
-        self.height_inches_input.setReadOnly(True)
-
-        self.height_unit_combo = QComboBox()
-        self.weight_unit_combo = QComboBox()
-        self.current_input = None
 
         self.digits = {
             7: (1, 0),
@@ -80,14 +75,15 @@ class BMICalculator(QWidget):
             ".": (4, 0),
             "CAL": (4, 3, 2, 2)
         }
-        self.init_ui()
 
+        self.init_ui()
+        
         for input_field in [
             self.height_input, self.weight_input,
             self.height_feet_input, self.height_inches_input,
             self.result_input
         ]:
-            input_field.installEventFilter(self)
+            input_field.installEventFilter(self.displayFrame)
 
     def init_ui(self):
         """
@@ -96,213 +92,15 @@ class BMICalculator(QWidget):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
-
+        
         input_layout = QVBoxLayout()
-        input_layout.setContentsMargins(0, 0, 0, 0)
         input_layout.setSpacing(0)
-        input_layout.addWidget(self.display_frame())
+        input_layout.addWidget(self.displayFrame, 1)
         input_layout.addWidget(self.button_frame())
         layout.addLayout(input_layout)
-
+        
         self.setLayout(layout)
         self.setContentsMargins(0, 0, 0, 0)
-
-        arrow_icon_path = resource_path(os.path.join('Pictures', '60995.png'))
-        arrow_icon_path = arrow_icon_path.replace('\\', '/')
-
-        combobox_style = """
-        QComboBox {
-            color: white;
-            background-color: #4F4F4F;
-            font-size: 16px;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
-            font-weight: bold;
-            padding: 5px;
-        }
-        QComboBox:on {
-            border-bottom-left-radius: 0px;
-            border-bottom-right-radius: 0px;
-        }
-        QComboBox::drop-down {
-            width: 20px;
-            border-left-width: 0px;
-            border-top-right-radius: 10px;
-        }
-        QComboBox::down-arrow {
-            image: url(""" + arrow_icon_path + """);
-            width: 12px;
-            height: 12px;
-        }
-        QComboBox QAbstractItemView {
-            color: white;
-            background-color: #4F4F4F;
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
-            outline: none;
-        }
-        QComboBox QAbstractItemView::item {
-            padding: 3px;
-            background-color: transparent;
-            border-left: 2px solid transparent;
-        }
-        QComboBox QAbstractItemView::item:hover {
-            background-color: transparent;
-            border-left: 2px solid #FFA500;
-        }
-        """
-
-        self.height_unit_combo.setStyleSheet(combobox_style)
-        self.height_unit_combo.setFixedSize(70, 30)
-
-        self.weight_unit_combo.setStyleSheet(combobox_style)
-        self.weight_unit_combo.setFixedSize(70, 30)
-
-        self.setup_input_validation(self.height_input)
-        self.setup_input_validation(self.weight_input)
-        self.setup_input_validation(self.height_feet_input)
-        self.setup_input_validation(self.height_inches_input)
-
-    def eventFilter(self, obj, event):
-        """
-        @brief Handles focus events for QLineEdit widgets to add an orange outline.
-        @param obj: The object being filtered.
-        @param event: The event being processed.
-        @return: True if the event is handled, False otherwise.
-        """
-        if isinstance(obj, QLineEdit):
-            if event.type() == QEvent.FocusIn:
-                obj.setStyleSheet("""
-                    QLineEdit {
-                        color: white;
-                        background-color: #4F4F4F;
-                        font-size: 16px;
-                        border-radius: 10px;
-                        font-weight: bold;
-                        padding: 5px;
-                        border: 2px solid orange;
-                    }
-                """)
-            elif event.type() == QEvent.FocusOut:
-                obj.setStyleSheet("""
-                    QLineEdit {
-                        color: white;
-                        background-color: #4F4F4F;
-                        font-size: 16px;
-                        border-radius: 10px;
-                        font-weight: bold;
-                        padding: 5px;
-                        border: none;
-                    }
-                """)
-        return super().eventFilter(obj, event)
-
-    def display_frame(self):
-        """
-        @brief Creates the display frame for the calculator.
-        """
-        self.displayFrame = QFrame(self)
-        self.displayFrame.setStyleSheet(f"background-color: {DARK_GRAY};")
-
-        # Use QGridLayout for the main layout
-        layout = QGridLayout(self.displayFrame)
-        layout.setContentsMargins(20, 10, 10, 10)
-        layout.setHorizontalSpacing(5)
-        layout.setVerticalSpacing(8)
-
-        # Add spacer item to push widgets to the right
-        spacer = QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        layout.addItem(spacer, 0, 0)
-
-        amount_style = """
-        QLineEdit {
-            color: white;
-            background-color: #4F4F4F;
-            font-size: 16px;
-            border-radius: 10px;
-            font-weight: bold;
-            padding: 5px;
-        }
-        """
-
-        # Height input
-        height_label = QLabel("Height:")
-        height_label.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
-        layout.addWidget(height_label, 0, 1, Qt.AlignRight | Qt.AlignVCenter)
-
-        height_layout = QHBoxLayout()
-        height_layout.setSpacing(5)
-
-        self.height_input = QLineEdit()
-        self.height_input.setFixedWidth(200)
-        self.height_input.setFixedHeight(30)
-
-        self.height_feet_input = QLineEdit()
-        self.height_feet_input.setFixedWidth(97)
-        self.height_feet_input.setFixedHeight(30)
-        self.height_feet_input.setPlaceholderText("Feet")
-
-        self.height_inches_input = QLineEdit()
-        self.height_inches_input.setFixedWidth(97)
-        self.height_inches_input.setFixedHeight(30)
-        self.height_inches_input.setPlaceholderText("Inches")
-
-        self.height_unit_combo = QComboBox()
-        self.height_unit_combo.addItems(["cm", "ft"])
-        self.height_unit_combo.setFixedWidth(50)
-        self.height_unit_combo.currentIndexChanged.connect(self.update_height_inputs)
-
-        height_layout.addWidget(self.height_input)
-        height_layout.addWidget(self.height_feet_input)
-        height_layout.addWidget(self.height_inches_input)
-        height_layout.addWidget(self.height_unit_combo)
-
-        layout.addLayout(height_layout, 0, 2, Qt.AlignLeft | Qt.AlignVCenter)
-
-        # Weight input
-        weight_label = QLabel("Weight:")
-        weight_label.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
-        layout.addWidget(weight_label, 1, 1, Qt.AlignRight | Qt.AlignVCenter)
-
-        weight_layout = QHBoxLayout()
-        weight_layout.setSpacing(5)
-
-        self.weight_input = QLineEdit()
-        self.weight_input.setFixedWidth(200)
-        self.weight_input.setFixedHeight(30)
-
-        self.weight_unit_combo = QComboBox()
-        self.weight_unit_combo.addItems(["kg", "lb"])
-        self.weight_unit_combo.setFixedWidth(50)
-
-        weight_layout.addWidget(self.weight_input)
-        weight_layout.addWidget(self.weight_unit_combo)
-
-        layout.addLayout(weight_layout, 1, 2, Qt.AlignLeft | Qt.AlignVCenter)
-
-        # Result input
-        result_label = QLabel("BMI:")
-        result_label.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
-        layout.addWidget(result_label, 2, 1, Qt.AlignRight | Qt.AlignVCenter)
-
-        self.result_input = QLineEdit()
-        self.result_input.setReadOnly(True)
-        self.result_input.setStyleSheet(amount_style)
-        self.result_input.setFixedWidth(200)
-        self.result_input.setFixedHeight(30)
-
-        layout.addWidget(self.result_input, 2, 2, Qt.AlignLeft | Qt.AlignVCenter)
-
-        self.update_height_inputs()
-
-        if self.height_unit_combo.currentText() == "cm":
-            self.current_input = self.height_input
-        else:
-            self.current_input = self.height_feet_input
-
-        return self.displayFrame
 
     def button_frame(self):
         """
@@ -477,42 +275,10 @@ class BMICalculator(QWidget):
 
             self.current_input.setFocus()
 
-    def setup_input_validation(self, input_widget):
-        """
-        @brief Sets up input validation for the given QLineEdit widget.
-        @param input_widget: The QLineEdit widget to set up validation for.
-        """
-        regex = QRegularExpression(r'^(?=.{0,5}$)\d*(\.?\d*)?$')
-        validator = QRegularExpressionValidator(regex)
-        input_widget.setValidator(validator)
-
     def clear_input(self):
         """
         @brief Clears all input fields, resets their styles, and sets the focus to the current input field.
         """
-        amount_style = """
-        QLineEdit {
-            color: white;
-            background-color: #4F4F4F;
-            font-size: 16px;
-            border-radius: 10px;
-            font-weight: bold;
-            padding: 5px;
-        }
-        """
-
-        active_style = """
-        QLineEdit {
-            color: white;
-            background-color: #4F4F4F;
-            font-size: 16px;
-            border-radius: 10px;
-            font-weight: bold;
-            padding: 5px;
-            border: 2px solid orange;
-        }
-        """
-
         self.height_input.clear()
         self.weight_input.clear()
         self.result_input.clear()
@@ -526,9 +292,9 @@ class BMICalculator(QWidget):
 
         for input_field in [self.height_input, self.height_feet_input,
                             self.height_inches_input, self.weight_input]:
-            input_field.setStyleSheet(amount_style)
+            input_field.setStyleSheet(AMOUNT_STYLE)
 
-        self.current_input.setStyleSheet(active_style)
+        self.current_input.setStyleSheet(ACTIVE_STYLE)
         self.current_input.setFocus()
 
     def delete_digit(self):
@@ -538,43 +304,18 @@ class BMICalculator(QWidget):
         if self.current_input:
             current_text = self.current_input.text()
             self.current_input.setText(current_text[:-1])
+            self.current_input.setStyleSheet(ACTIVE_STYLE)
 
     def switch_input(self):
         """
         @brief Switches input focus with proper styling
         """
-        amount_style = """
-        QLineEdit {
-            color: white;
-            background-color: #4F4F4F;
-            font-size: 16px;
-            border-radius: 10px;
-            font-weight: bold;
-            padding: 5px;
-        }
-        """
-
-        active_style = """
-        QLineEdit {
-            color: white;
-            background-color: #4F4F4F;
-            font-size: 16px;
-            border-radius: 10px;
-            font-weight: bold;
-            padding: 5px;
-            border: 2px solid orange;
-        }
-        """
-
-        # Reset all input field styles
         for input_field in [self.height_input, self.height_feet_input,
                             self.height_inches_input, self.weight_input]:
-            input_field.setStyleSheet(amount_style)
+            input_field.setStyleSheet(AMOUNT_STYLE)
 
-        # Clear result
         self.result_input.setText("")
 
-        # Update current input based on mode
         if self.height_unit_combo.currentText() == "ft":
             if self.current_input == self.height_feet_input:
                 self.current_input = self.height_inches_input
@@ -588,8 +329,7 @@ class BMICalculator(QWidget):
             else:
                 self.current_input = self.height_input
 
-        # Highlight current input
-        self.current_input.setStyleSheet(active_style)
+        self.current_input.setStyleSheet(ACTIVE_STYLE)
         self.current_input.setFocus(Qt.MouseFocusReason)
 
     def switch_input_event(self, event):
@@ -604,46 +344,23 @@ class BMICalculator(QWidget):
         """
         @brief Updates the height inputs based on the selected height unit.
         """
-        amount_style = """
-        QLineEdit {
-            color: white;
-            background-color: #4F4F4F;
-            font-size: 16px;
-            border-radius: 10px;
-            font-weight: bold;
-            padding: 5px;
-        }
-        """
-
-        active_style = """
-        QLineEdit {
-            color: white;
-            background-color: #4F4F4F;
-            font-size: 16px;
-            border-radius: 10px;
-            font-weight: bold;
-            padding: 5px;
-            border: 2px solid orange;
-        }
-        """
-
         if self.height_unit_combo.currentText() == "ft":
             self.height_input.hide()
             self.height_feet_input.show()
             self.height_inches_input.show()
             self.current_input = self.height_feet_input
-            self.height_feet_input.setStyleSheet(active_style)
-            self.height_inches_input.setStyleSheet(amount_style)
+            self.height_feet_input.setStyleSheet(ACTIVE_STYLE)
+            self.height_inches_input.setStyleSheet(AMOUNT_STYLE)
             self.height_feet_input.setFocus()
         else:
             self.height_input.show()
             self.height_feet_input.hide()
             self.height_inches_input.hide()
             self.current_input = self.height_input
-            self.height_input.setStyleSheet(active_style)
+            self.height_input.setStyleSheet(ACTIVE_STYLE)
             self.height_input.setFocus()
 
-        self.weight_input.setStyleSheet(amount_style)
+        self.weight_input.setStyleSheet(AMOUNT_STYLE)
 
     def calculate_bmi(self):
         """
