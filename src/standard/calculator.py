@@ -15,7 +15,7 @@ from decimal import getcontext, Decimal
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QLabel, QPushButton, QHBoxLayout
 from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon
 from PySide6.QtCore import Qt, QSize
-import mathlib
+from standard import mathlib
 from currency.currency_converter import CurrencyConverter
 from day.date_calculation import DateCalculation
 from help.help_menu import HelpWindow
@@ -1115,15 +1115,3 @@ class App(QWidget):
                     operatorCount += 1
             return operatorCount == 2
         return False
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-if os.name == "nt":
-    icon_path = resource_path(os.path.join('icons', 'real_logo.png'))
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(icon_path)
-
-    window = App()
-    window.show()
-    sys.exit(app.exec())

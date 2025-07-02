@@ -11,8 +11,8 @@ import ctypes
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QIcon
 
-from calculators.standard.calculator import App
-from utils.resource_manager import resource_path
+from standard.calculator import App
+from utils.img_path import resource_path
 
 
 if __name__ == "__main__":
