@@ -134,8 +134,8 @@ class BMICalculator(QWidget):
             input_field.setStyleSheet(AMOUNT_STYLE)
 
         self.current_input.setStyleSheet(ACTIVE_STYLE)
-        self.current_input.setFocus()
-        
+        self.result_input.setStyleSheet(AMOUNT_STYLE)
+        self.current_input.setFocus()        
         self.buttonPanel.current_input = self.current_input
 
     def delete_digit(self):

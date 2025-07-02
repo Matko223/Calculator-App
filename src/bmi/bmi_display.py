@@ -228,29 +228,24 @@ class BmiDisplay(QWidget):
         """
         if isinstance(obj, QLineEdit):
             if event.type() == QEvent.FocusIn:
-                obj.setStyleSheet("""
-                    QLineEdit {
-                        color: white;
-                        background-color: #4F4F4F;
-                        font-size: 16px;
-                        border-radius: 10px;
-                        font-weight: bold;
-                        padding: 5px;
-                        border: 2px solid orange;
-                    }
-                """)
+                obj.setStyleSheet(ACTIVE_STYLE)
+                
+                parent = self.parent()
+                if parent and hasattr(parent, "current_input") and hasattr(parent, "buttonPanel"):
+                    input_fields = [self.height_input, self.weight_input, 
+                                    self.height_feet_input, self.height_inches_input]
+                    for input_field in input_fields:
+                        if input_field != obj:
+                            input_field.setStyleSheet(AMOUNT_STYLE)
+                    
+                    parent.current_input = obj
+                    
+                    if hasattr(parent.buttonPanel, "current_input"):
+                        parent.buttonPanel.current_input = obj
+                        
             elif event.type() == QEvent.FocusOut:
-                obj.setStyleSheet("""
-                    QLineEdit {
-                        color: white;
-                        background-color: #4F4F4F;
-                        font-size: 16px;
-                        border-radius: 10px;
-                        font-weight: bold;
-                        padding: 5px;
-                        border: none;
-                    }
-                """)
+                pass
+            
         return super().eventFilter(obj, event)
     
     def update_height_inputs(self):
