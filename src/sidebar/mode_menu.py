@@ -1,3 +1,10 @@
+"""
+@file mode_menu.py
+@brief Sidebar widget for calculator modes and settings.
+
+@author Martin Valapka
+"""
+
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout
 from PySide6.QtGui import QFont, QIcon
 from PySide6.QtCore import Qt, QSize, Signal
@@ -159,3 +166,4 @@ class Sidebar(QWidget):
         """
         self.visibility_changed.emit(not self.isVisible())
         self.setVisible(not self.isVisible())
+        
