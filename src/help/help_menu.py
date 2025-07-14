@@ -1,5 +1,5 @@
 """
-@file mode_menu.py
+@file help_menu.py
 @brief File containing help menu of the Standard Calculator.
 
 @author Martin Valapka (xvalapm00)
@@ -11,6 +11,8 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QH
 from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
 from utils.img_path import resource_path
+from help.help_content_standard import HELP_PICTURES_STANDARD, ABOUT_TEXT_STANDARD
+from help.help_content_manager import HelpContentManager
 import os
 
 # Define constants
@@ -25,30 +27,11 @@ SMALL = "Arial 15"
 HOVER_COLOR = "#898989"
 HOVER_OPERATOR = "#FF8409"
 
-# Define help pictures paths
-help_pictures = {
-    "Help": resource_path(os.path.join('Pictures', 'help_icon.png')),
-    "Clear": resource_path(os.path.join('Pictures', 'Clear.ico')),
-    "Del": resource_path(os.path.join('Pictures', 'Del.ico')),
-    "Exponentiation": resource_path(os.path.join('Pictures', '^.ico')),
-    "Root": resource_path(os.path.join('Pictures', 'Root.ico')),
-    "Factorial": resource_path(os.path.join('Pictures', 'Fact.ico')),
-    "Absolute value": resource_path(os.path.join('Pictures', 'Abs.ico')),
-    "Modulo": resource_path(os.path.join('Pictures', 'Mod.ico')),
-    "Addition": resource_path(os.path.join('Pictures', 'add.ico')),
-    "Subtraction": resource_path(os.path.join('Pictures', 'sub.ico')),
-    "Multiplication": resource_path(os.path.join('Pictures', 'mul.ico')),
-    "Division": resource_path(os.path.join('Pictures', 'div.ico')),
-    "Equals": resource_path(os.path.join('Pictures', 'equals.ico')),
-    "Decimal": resource_path(os.path.join('Pictures', 'decimal.ico'))
-}
-
 
 class HelpWindow(QMainWindow):
     """
     @brief Help window for the calculator application.
     """
-
     def __init__(self, root, *args, **kwargs):
         """
         @brief Constructor for HelpWindow.
@@ -60,113 +43,36 @@ class HelpWindow(QMainWindow):
         self.root = root
         self.setGeometry(root.geometry().x() + 65, root.geometry().y() + 80, 350, 350)
         self.setWindowTitle("Help")
-        self.setWindowIcon(QPixmap(help_pictures["Help"]))
+        self.setWindowIcon(QPixmap(resource_path(os.path.join('Pictures', 'help_icon.png'))))
         self.setStyleSheet(f"background-color: {DARK_GRAY};")
+
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         self.layout = QVBoxLayout(self.central_widget)
+
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
+
         self.scroll_content = QWidget(self.scroll_area)
         self.scroll_layout = QVBoxLayout(self.scroll_content)
+
         self.scroll_content.setStyleSheet(f"background-color: {DARK_GRAY};")
         self.scroll_area.setWidget(self.scroll_content)
+
         self.layout.addWidget(self.scroll_area)
-        self.create_help_content()
+        
+        self.content_manager = HelpContentManager()
+        
+        current_mode = getattr(root, "current_mode", "Standard") 
+        
+        self.create_help_content(current_mode)
 
-    def create_help_content(self):
+    def create_help_content(self, mode="Standard"):
         """
-        @brief Creates the help content including sections and images.
+        @brief Creates the help content for the specified mode.
+        @param mode: Calculator mode to show help for
         """
-        self.add_section_label("About", 25, ORANGE, Qt.AlignCenter)
-        about_text = """
-        Simple Calculator
-
-        Developed by:
-        - Martin Valapka (xvalapm00)
-
-        Features:
-        - Basic arithmetic operations:
-          - Addition
-          - Subtraction
-          - Multiplication
-          - Division
-        - Advanced operations:
-          - Exponentiation
-          - Root
-          - Factorial
-          - Absolute value
-          - Modulo
-        - Supports:
-          - Decimal numbers
-          - Negative numbers
-
-        Usage:
-        - The Calculator is divided into two main sections:
-          1. Display Frame: Shows the current expression and the result.
-          2. Button Frame: Contains buttons for inputting numbers, operators, and performing various operations.
-
-        Evaluation:
-        - The calculation is performed automatically when you press an operator or the equals button.
-        - You can also type directly on the keyboard, and the calculator will update accordingly.
-
-        Input Handling:
-        - The calculator accepts a maximum of two operands at a time and performs the specified operation between them.
-        - If you make a mistake in choosing the operator, you can directly change it by selecting your desired operator.
-
-        Character Limit:
-        - The current expression is limited to 16 characters.
-        - The total expression can accommodate up to 30 characters.
-
-        Enjoy calculating!
-        """
-        self.add_text_label(about_text.strip(), 10, "white")
-
-        self.add_section_label("Usage", 25, ORANGE, Qt.AlignLeft)
-
-        self.add_image_and_label(self.scroll_layout, help_pictures["Clear"],
-                                 "Clear:\nClears both the current and total expression")
-        self.add_image_and_label(self.scroll_layout, help_pictures["Del"],
-                                 "Eraser:\nErases the last digit/operator in the current expression")
-        self.add_image_and_label(self.scroll_layout, help_pictures["Exponentiation"],
-                                 "Exponentiation:\nBase^Exponent = Product\n5^2 = 25")
-        self.add_image_and_label(self.scroll_layout, help_pictures["Root"],
-                                 "Root:\nⁿ√x = Root\nn - degree, x - radical\n²√25 = 5")
-        self.add_image_and_label(self.scroll_layout, help_pictures["Factorial"],
-                                 "Factorial:\nUNARY OPERATOR\nNumber!\n(Num-1)×(Num-2) × ... × 1\n4! = 4 × 3 × 2 × 1")
-        self.add_image_and_label(self.scroll_layout, help_pictures["Absolute value"],
-                                 "Absolute value:\nUNARY OPERATOR\n|Number|\nReturns the distance from 0\n|5| = 5\n|-5| = 5")
-        self.add_image_and_label(self.scroll_layout, help_pictures["Modulo"],
-                                 "Modulo:\nNum % Num = R\nEvaluates the remainder after division\n7 % 3 = 1")
-        self.add_image_and_label(self.scroll_layout, help_pictures["Addition"],
-                                 "Addition:\nNum + Num = Sum\nReturns the sum after addition\n7 + 3 = 10")
-        self.add_image_and_label(self.scroll_layout, help_pictures["Subtraction"],
-                                 "Subtraction:\nNum - Num = Difference\nReturns the difference after subtraction\n7 - 3 = 4")
-        self.add_image_and_label(self.scroll_layout, help_pictures["Multiplication"],
-                                 "Multiplication:\nNum × Num = Product\nReturns the product after multiplication\n7 × 3 = 21")
-        self.add_image_and_label(self.scroll_layout, help_pictures["Division"],
-                                 "Division:\nNum ÷ Num = Quotient\nReturns the quotient after division\nNum ÷ 0 = Division error\n10 ÷ 2 = 5")
-        self.add_image_and_label(self.scroll_layout, help_pictures["Equals"],
-                                 "Equals:\nEvaluates the expression:\nFrom the total and current expression\nClears the total expression\nPrints the result to the current expression")
-        self.add_image_and_label(self.scroll_layout, help_pictures["Decimal"],
-                                 "Decimal point:\nPlaces decimal point in the current expression\nRounds the number if there are only zeroes behind the decimal point\nRemoves trailing decimal point if no digit follows it")
-
-        self.add_section_label("Specific usage", 25, ORANGE, Qt.AlignLeft)
-        self.add_text_label("More detailed usage of specific buttons\n", 10, "white")
-
-        self.add_image_and_label(self.scroll_layout, help_pictures["Exponentiation"],
-                                 "How to use Exponentiation:\n1. Choose the base\n2. Select the exponentiation "
-                                 "button\n3. Choose the Exponent\n4. Exponent cannot be decimal or negative")
-        self.add_image_and_label(self.scroll_layout, help_pictures["Root"],
-                                 "How to use Root:\n1. Choose the degree\n2. Select the root button\n3. Choose the radical\n4. Radical follows mathematical rules + cannot be decimal")
-        self.add_image_and_label(self.scroll_layout, help_pictures["Factorial"],
-                                 "How to use Factorial:\n1. Choose the number - not negative or decimal\n2. Select "
-                                 "the factorial button '!'")
-        self.add_image_and_label(self.scroll_layout, help_pictures["Absolute value"],
-                                 "How to use Absolute value:\n1. Choose the number\n2. Select the Abs. value button")
-        self.add_image_and_label(self.scroll_layout, help_pictures["Modulo"],
-                                 "How to use Modulo:\n1. Choose the number\n2. Select the Modulo button\n3. Choose "
-                                 "the divisor except 0")
+        self.content_manager.render_help_content(self, mode)
 
     def add_section_label(self, text, font_size, color, alignment):
         """
@@ -243,11 +149,3 @@ class HelpWindow(QMainWindow):
             description_label.setFixedWidth(event.size().width() - image.sizeHint().width() - 40)
 
         container.resizeEvent = resize_wraplength
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    main_window = QMainWindow()
-    help_window = HelpWindow(main_window)
-    help_window.show()
-    sys.exit(app.exec())
