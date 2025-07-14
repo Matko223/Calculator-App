@@ -10,7 +10,8 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QH
 from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtCore import Qt
 from utils.img_path import resource_path
-from help.help_content_standard import HELP_PICTURES_STANDARD, ABOUT_TEXT_STANDARD
+from help.help_content_standard import HELP_CONTENT_STANDARD, HELP_PICTURES_STANDARD, ABOUT_TEXT_STANDARD
+
 
 LIGHT_GRAY = "#979797"
 DARK_GRAY = "#3D3D3D"
@@ -38,13 +39,11 @@ class HelpContentManager(QMainWindow):
         @return: Dictionary containing help content for the specified mode
         """
         if mode == "Standard":
-            from help.help_content_standard import HELP_CONTENT_STANDARD, HELP_PICTURES_STANDARD, ABOUT_TEXT_STANDARD
             return {
                 "content": HELP_CONTENT_STANDARD,
                 "pictures": HELP_PICTURES_STANDARD
             }
         else:
-            from help.help_content_standard import HELP_CONTENT_STANDARD, HELP_PICTURES_STANDARD, ABOUT_TEXT_STANDARD
             return {
                 "content": HELP_CONTENT_STANDARD,
                 "pictures": HELP_PICTURES_STANDARD
@@ -64,7 +63,10 @@ class HelpContentManager(QMainWindow):
         pictures = help_data["pictures"]
         
         for section in content["sections"]:
-            alignment = Qt.AlignCenter if section["align"] == "center" else Qt.AlignLeft
+            if section.get("align") == "center":
+                alignment = Qt.AlignCenter
+            else:
+                alignment = Qt.AlignLeft
             help_window.add_section_label(section["title"], 25, ORANGE, alignment)
             
             for item in section["content"]:
