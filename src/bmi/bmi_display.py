@@ -71,7 +71,6 @@ class BmiDisplay(QWidget):
         layout.setHorizontalSpacing(5)
         layout.setVerticalSpacing(8)
         
-
         spacer = QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         layout.addItem(spacer, 0, 0)
 
