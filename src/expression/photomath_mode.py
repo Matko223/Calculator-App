@@ -12,6 +12,9 @@ from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, Q
 from PySide6.QtGui import QFont, QKeySequence, QShortcut, QIcon, QRegularExpressionValidator
 from PySide6.QtCore import Qt, QSize, QRegularExpression
 import math
+from expression.expression_display import ExpressionDisplay
+from expression.expression_buttons import ExpressionButtons
+
 
 # TODO: Add shortcuts for all buttons, fix the typing, bug fix
 
@@ -30,66 +33,27 @@ class PhotomathMode(QWidget):
     """
     @brief This class represents the Photomath mode of the calculator.
     """
-    def __init__(self):
+    def __init__(self, parent=None):
         """
         @brief Initializes the PhotomathMode with necessary attributes and calls the init_ui method.
         """
-        super().__init__()
-        # Initialize layout and widget attributes
-        self.layout = None
+        super().__init__(parent)
+        self.parent_widget = parent
+    
         self.mainLayout = None
-        self.non_essential_widget = None
-        self.buttonFrameLayout = None
-        self.buttonLayout = None
-        self.buttonFrame = None
-        self.displayLayout = None
-        self.displayFrame = None
-        self.currentLabel = None
-        self.currentExpression = ""
-        self.currentInput = None
+        
+        self.buttonFrame = ExpressionButtons(self)
+
+        self.operations = self.buttonFrame.operations
+
+        self.displayFrame = ExpressionDisplay(self)
+        self.currentInput = self.displayFrame.currentInput
+        self.currentExpression = self.displayFrame.currentExpression
         self.evaluated = False
-
-        # Initialize dictionaries for digits, operations, special operations, and brackets
-        self.digits = {
-            7: (1, 1),
-            8: (1, 2),
-            9: (1, 3),
-            4: (2, 1),
-            5: (2, 2),
-            6: (2, 3),
-            1: (3, 1),
-            2: (3, 2),
-            3: (3, 3),
-            0: (4, 2)
-        }
-
-        self.operations = {
-            "/": "\u00F7",
-            "*": "\u00D7",
-            "-": "-",
-            "+": "+"
-        }
-
-        self.special_operations = {
-            "x²": (0, 0),
-            "C": (0, 3),
-            "⌫": (0, 4),
-            "√": (1, 0),
-            "!": (2, 0),
-            "|x|": (3, 0),
-            "π": (4, 0),
-            ".": (4, 1),
-            "=": (4, 3)
-        }
-
-        self.brackets = {
-            "(": (0, 1),
-            ")": (0, 2)
-        }
 
         self.init_ui()
 
-        regex = QRegularExpression("^[0-9+\-*/]*$")
+        regex = QRegularExpression(r"^[0-9+\-*/]*$")
         validator = QRegularExpressionValidator(regex, self)
         self.currentInput.setValidator(validator)
         self.currentInput.textChanged.connect(self.on_input_changed)
@@ -102,63 +66,9 @@ class PhotomathMode(QWidget):
         self.mainLayout.setContentsMargins(0, 0, 0, 0)
         self.mainLayout.setSpacing(0)
 
-        self.displayFrame = self.display_frame()
-        self.buttonFrame = self.button_frame()
-
-        self.mainLayout.addWidget(self.displayFrame)
-        self.mainLayout.addWidget(self.buttonFrame)
+        self.mainLayout.addWidget(self.displayFrame, 0)
+        self.mainLayout.addWidget(self.buttonFrame, 1)
         self.setLayout(self.mainLayout)
-
-    def display_frame(self):
-        """
-        @brief Creates and configures the display frame for the calculator.
-        @return QWidget: The configured display frame.
-        """
-        displayFrame = QWidget(self)
-        displayFrame.setFixedHeight(125)
-        displayFrame.setStyleSheet(f"background-color: {DARK_GRAY};")
-
-        layout = QVBoxLayout(displayFrame)
-        layout.setContentsMargins(5, 5, 5, 5)
-        layout.setSpacing(5)
-        layout.addStretch()
-
-        self.non_essential_widget = QWidget(displayFrame)
-        non_essential_layout = QVBoxLayout(self.non_essential_widget)
-        non_essential_layout.setContentsMargins(0, 0, 0, 0)
-        non_essential_layout.setSpacing(0)
-
-        self.currentInput = QLineEdit(self.currentExpression, self.non_essential_widget)
-        self.currentInput.setFont(QFont("Arial bold", 32))
-        self.currentInput.setStyleSheet("color: WHITE; background-color: transparent; border: none;")
-        self.currentInput.setAlignment(Qt.AlignRight)
-
-        non_essential_layout.addWidget(self.currentInput)
-        layout.addWidget(self.non_essential_widget, alignment=Qt.AlignRight | Qt.AlignBottom)
-        displayFrame.setLayout(layout)
-        return displayFrame
-
-    def button_frame(self):
-        """
-        @brief Creates and configures the button frame for the calculator.
-        @return QWidget: The configured button frame.
-        """
-        buttonFrame = QWidget(self)
-        buttonFrame.setFixedHeight(280)
-        buttonFrame.setStyleSheet(f"background-color: {GRAY}; color: white;")
-        self.buttonFrameLayout = QVBoxLayout(buttonFrame)
-        self.buttonFrameLayout.setContentsMargins(3, 3, 3, 3)
-
-        self.buttonLayout = QGridLayout()
-        self.buttonLayout.setSpacing(0)
-        self.buttonFrameLayout.addLayout(self.buttonLayout)
-        buttonFrame.setLayout(self.buttonFrameLayout)
-
-        self.create_digit_buttons()
-        self.create_operator_buttons()
-        self.create_special_buttons()
-        self.create_bracket_buttons()
-        return buttonFrame
 
     def error(self, message):
         """
@@ -168,277 +78,6 @@ class PhotomathMode(QWidget):
         self.currentExpression = "Error: " + message
         self.update_current_input()
         self.currentInput.setText(self.currentExpression)
-
-    def create_digit_buttons(self):
-        """
-        @brief Creates and configures buttons for digits 0-9.
-        """
-        for digit, pos in self.digits.items():
-            button = QPushButton(str(digit))
-            button.setFont(QFont("Arial", 20))
-            button.setStyleSheet(f"""
-                QPushButton {{
-                    background-color: {LIGHT_GRAY};
-                }}
-                QPushButton:hover {{
-                    background-color: {GRAY};
-                }}
-            """)
-            button.setFixedSize(79, 55)
-            button.clicked.connect(lambda _, d=digit: self.show_numbers(d))
-            self.buttonLayout.addWidget(button, pos[0], pos[1])
-
-            shortcut = QShortcut(QKeySequence(str(digit)), self)
-            shortcut.activated.connect(lambda d=digit: self.show_numbers(d))
-
-    def create_operator_buttons(self):
-        """
-        @brief Creates and configures buttons for arithmetic operators (+, -, *, /).
-        """
-        operator_positions = {
-            "/": (1, 4),
-            "*": (2, 4),
-            "-": (3, 4),
-            "+": (4, 4),
-        }
-
-        for operator, pos in operator_positions.items():
-            button = QPushButton(self.operations[operator])
-            button.setFont(QFont("Arial", 20))
-            button.setStyleSheet(f"""
-                QPushButton {{
-                    background-color: {ORANGE};
-                }}
-                QPushButton:hover {{
-                    background-color: {HOVER_OPERATOR};
-                }}
-            """)
-            button.setFixedSize(79, 55)
-            button.clicked.connect(lambda _, op=operator: self.show_operators(op))
-            self.buttonLayout.addWidget(button, pos[0], pos[1])
-
-            shortcut = QShortcut(QKeySequence(operator), self)
-            shortcut.activated.connect(lambda op=operator: self.show_operators(op))
-
-    def create_special_buttons(self):
-        """
-        @brief Creates and configures buttons for special operations (e.g., x², C, √, !, |x|, %, ., =).
-        """
-        for operation, pos in self.special_operations.items():
-            if operation == "x²":
-                self.create_exponentiation_button(pos)
-            elif operation == "C":
-                self.create_clear_button(pos)
-            elif operation == "⌫":
-                self.create_delete_button(pos)
-            elif operation == "√":
-                self.create_square_root_button(pos)
-            elif operation == "!":
-                self.create_factorial_button(pos)
-            elif operation == "|x|":
-                self.create_absolute_value_button(pos)
-            elif operation == "π":
-                self.create_pi_button(pos)
-            elif operation == ".":
-                self.create_decimal_button(pos)
-            elif operation == "=":
-                self.create_equals_button(pos)
-
-    def create_bracket_buttons(self):
-        """
-        @brief Creates and configures buttons for brackets
-        """
-        for bracket, pos in self.brackets.items():
-            button = QPushButton(bracket)
-            button.setFont(QFont("Arial", 20))
-            button.setStyleSheet(f"""
-                QPushButton {{
-                    background-color: {DARK_GRAY};
-                }}
-                QPushButton:hover {{
-                    background-color: {HOVER_COLOR};
-                }}
-            """)
-            button.setFixedSize(79, 55)
-            button.clicked.connect(lambda _, b=bracket: self.show_brackets(b))
-            self.buttonLayout.addWidget(button, pos[0], pos[1])
-
-    def create_exponentiation_button(self, pos):
-        """
-        @brief Creates and configures the button for exponentiation (x²).
-        @param pos: Position of the button in the grid layout as a tuple (row, column).
-        """
-        button = QPushButton("x\u207F")  # Unicode for superscript
-        button.setFont(QFont("Arial", 20))
-        button.setStyleSheet(f"""
-            QPushButton {{
-                background-color: {DARK_GRAY};
-            }}
-            QPushButton:hover {{
-                background-color: {HOVER_COLOR};
-            }}
-        """)
-        button.setFixedSize(79, 55)
-        button.clicked.connect(self.handle_exponentiation)
-        self.buttonLayout.addWidget(button, pos[0], pos[1])
-
-    def create_clear_button(self, pos):
-        """
-        @brief Creates and configures the button for clearing the current expression (C).
-        @param pos: Position of the button in the grid layout as a tuple (row, column, rowspan, colspan).
-        """
-        button = QPushButton("C")
-        button.setFont(QFont("Arial", 20))
-        button.setStyleSheet(f"""
-            QPushButton {{
-                background-color: {COLOR_REST};
-            }}
-            QPushButton:hover {{
-                background-color: {HOVER_COLOR};
-            }}
-        """)
-        button.setFixedSize(79, 55)
-        button.clicked.connect(self.handle_clear)
-        self.buttonLayout.addWidget(button, pos[0], pos[1])
-        shortcut_clear = QShortcut(QKeySequence("C"), self)
-        shortcut_clear.activated.connect(self.handle_clear)
-
-    def create_delete_button(self, pos):
-        """
-        @brief Creates and configures the button for deleting the last character (⌫).
-        @param pos: Position of the button in the grid layout as a tuple (row, column, rowspan, colspan).
-        """
-        button = QPushButton("⌫")
-        button.setFont(QFont("Arial", 20))
-        button.setStyleSheet(f"""
-            QPushButton {{
-                background-color: {COLOR_REST};
-            }}
-            QPushButton:hover {{
-                background-color: {HOVER_COLOR};
-            }}
-        """)
-        button.setFixedSize(79, 55)
-        button.clicked.connect(self.handle_delete)
-        self.buttonLayout.addWidget(button, pos[0], pos[1])
-        shortcut = QShortcut(QKeySequence(Qt.Key_Backspace), self)
-        shortcut.activated.connect(self.handle_delete)
-
-    def create_square_root_button(self, pos):
-        """
-        @brief Creates and configures the button for square root operation (ⁿ√x).
-        @param pos: Position of the button in the grid layout as a tuple (row, column).
-        """
-        button = QPushButton("ⁿ√x")
-        button.setFont(QFont("Arial", 20))
-        button.setStyleSheet(f"""
-            QPushButton {{
-                background-color: {DARK_GRAY};
-            }}
-            QPushButton:hover {{
-                background-color: {HOVER_COLOR};
-            }}
-        """)
-        button.setFixedSize(79, 55)
-        button.clicked.connect(self.handle_root)
-        self.buttonLayout.addWidget(button, pos[0], pos[1])
-
-    def create_factorial_button(self, pos):
-        """
-        @brief Creates and configures the button for factorial operation (x!).
-        @param pos: Position of the button in the grid layout as a tuple (row, column).
-        """
-        button = QPushButton("x!")
-        button.setFont(QFont("Arial", 20))
-        button.setStyleSheet(f"""
-            QPushButton {{
-                background-color: {DARK_GRAY};
-            }}
-            QPushButton:hover {{
-                background-color: {HOVER_COLOR};
-            }}
-        """)
-        button.setFixedSize(79, 55)
-        button.clicked.connect(self.handle_factorial)
-        self.buttonLayout.addWidget(button, pos[0], pos[1])
-
-    def create_absolute_value_button(self, pos):
-        """
-        @brief Creates and configures the button for absolute value operation (|x|).
-        @param pos: Position of the button in the grid layout as a tuple (row, column).
-        """
-        button = QPushButton("|x|")
-        button.setFont(QFont("Arial", 20))
-        button.setStyleSheet(f"""
-            QPushButton {{
-                background-color: {DARK_GRAY};
-            }}
-            QPushButton:hover {{
-                background-color: {HOVER_COLOR};
-            }}
-        """)
-        button.setFixedSize(79, 55)
-        button.clicked.connect(self.handle_absolute_value)
-        self.buttonLayout.addWidget(button, pos[0], pos[1])
-
-    def create_pi_button(self, pos):
-        """
-        @brief Creates and configures the button for pi operation (π).
-        @param pos: Position of the button in the grid layout as a tuple (row, column).
-        """
-        button = QPushButton("π")
-        button.setFont(QFont("Arial", 20))
-        button.setStyleSheet(f"""
-            QPushButton {{
-                background-color: {DARK_GRAY};
-            }}
-            QPushButton:hover {{
-                background-color: {HOVER_COLOR};
-            }}
-        """)
-        button.setFixedSize(79, 55)
-        button.clicked.connect(self.handle_pi)
-        self.buttonLayout.addWidget(button, pos[0], pos[1])
-
-    def create_decimal_button(self, pos):
-        """
-        @brief Creates and configures the button for decimal point (.) operation.
-        @param pos: Position of the button in the grid layout as a tuple (row, column).
-        """
-        button = QPushButton(".")
-        button.setFont(QFont("Arial", 20))
-        button.setStyleSheet(f"""
-            QPushButton {{
-                background-color: {DARK_GRAY};
-            }}
-            QPushButton:hover {{
-                background-color: {HOVER_COLOR};
-            }}
-        """)
-        button.setFixedSize(79, 55)
-        button.clicked.connect(self.handle_decimal_point)
-        self.buttonLayout.addWidget(button, pos[0], pos[1])
-        shortcut_decimal = QShortcut(QKeySequence(Qt.Key_Period), self)
-        shortcut_decimal.activated.connect(self.handle_decimal_point)
-
-    def create_equals_button(self, pos):
-        """
-        @brief Creates and configures the button for equals operation (=).
-        @param pos tuple The position of the button in the grid layout as a tuple (row, column).
-        """
-        button = QPushButton("=")
-        button.setFont(QFont("Arial", 20))
-        button.setStyleSheet(f"""
-            QPushButton {{
-                background-color: {ORANGE};
-            }}
-            QPushButton:hover {{
-                background-color: {HOVER_OPERATOR};
-            }}
-        """)
-        button.setFixedSize(79, 55)
-        button.clicked.connect(self.calculate)
-        self.buttonLayout.addWidget(button, pos[0], pos[1])
 
     def on_input_changed(self, text):
         """
