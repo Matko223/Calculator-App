@@ -595,24 +595,6 @@ class App(QWidget):
         shortcut_equals = QShortcut(QKeySequence("="), self)
         shortcut_equals.activated.connect(lambda: self.evaluate(equals_button=True))
 
-    def handle_operator(self, operator):
-        """
-        @brief Handles the input of an operator.
-        @param operator str The operator that was input.
-        """
-        if self.currentExpression:
-            if not self.evaluated:
-                self.evaluate()
-            self.totalExpression = self.currentExpression + operator
-            self.currentExpression = ""
-            self.update_total_label()
-            self.update_current_label()
-        elif self.totalExpression and self.totalExpression[-1] in "+-*/%":
-            self.totalExpression = self.totalExpression[:-1] + operator
-            self.update_total_label()
-        self.equals_pressed = False
-        self.evaluated = False
-
     def show_numbers(self, digit):
         """
         @brief Updates the current expression when a digit is pressed.
