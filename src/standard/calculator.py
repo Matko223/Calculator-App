@@ -25,6 +25,7 @@ from expression.photomath_mode import PhotomathMode
 from settings.settings import Settings
 from utils.img_path import resource_path
 from standard.calculator_init import CalculatorInit
+from standard.standard_display import StandardDisplay
 import ctypes
 
 # Color definitions
@@ -59,14 +60,17 @@ class App(QWidget):
         self.buttonFrame = None
         self.totalLabel = None
         self.displayLayout = None
-        self.displayFrame = None
-        self.currentLabel = None
-
+        self.displayFrame = StandardDisplay(self)
+        
+        self.totalLabel = self.displayFrame.totalLabel
+        self.currentLabel = self.displayFrame.currentLabel
+        self.non_essential_widget = self.displayFrame.non_essential_widget
+        
         self.setWindowTitle("Calcu-lajda")
         self.setFixedSize(400, 405)
 
-        self.totalExpression = ""
-        self.currentExpression = "0"
+        self.totalExpression = self.displayFrame.totalExpression
+        self.currentExpression = self.displayFrame.currentExpression
         self.evaluated = False
 
         icon_path = resource_path(os.path.join('icons', 'real_logo.png'))
@@ -118,41 +122,6 @@ class App(QWidget):
         self.calculator_layout = QVBoxLayout()
 
         self.calculator_init = CalculatorInit(self)
-
-    def display_frame(self):
-        """
-        @brief Creates and configures the display frame where the calculator's input and results are shown.
-        """
-        self.displayFrame = QWidget(self)
-        self.displayFrame.setFixedHeight(125)
-        self.displayFrame.setStyleSheet(f"background-color: {DARK_GRAY};")
-
-        layout = QVBoxLayout(self.displayFrame)
-        layout.setContentsMargins(5, 5, 5, 5)
-        layout.setSpacing(5)
-
-        self.totalLabel = QLabel(self.totalExpression, self.displayFrame)
-        self.totalLabel.setFont(QFont("Arial bold", 16))
-        self.totalLabel.setStyleSheet(f"color: WHITE; padding: 5px;")
-        self.totalLabel.setAlignment(Qt.AlignRight)
-        layout.addWidget(self.totalLabel)
-
-        layout.addStretch()
-
-        self.non_essential_widget = QWidget(self.displayFrame)
-        non_essential_layout = QVBoxLayout(self.non_essential_widget)
-        non_essential_layout.setContentsMargins(0, 0, 0, 0)
-        non_essential_layout.setSpacing(0)
-
-        self.currentLabel = QLabel(self.currentExpression, self.non_essential_widget)
-        self.currentLabel.setFont(QFont("Arial bold", 32))
-        self.currentLabel.setStyleSheet(f"color: WHITE;")
-        self.currentLabel.setAlignment(Qt.AlignRight)
-
-        non_essential_layout.addWidget(self.currentLabel)
-
-        layout.addWidget(self.non_essential_widget, alignment=Qt.AlignRight | Qt.AlignBottom)
-        self.displayFrame.setLayout(layout)
 
     def create_help_menu_button(self):
         """

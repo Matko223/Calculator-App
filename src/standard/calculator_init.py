@@ -115,15 +115,14 @@ class CalculatorInit:
     def create_default_widget(self):
         widget = QWidget()
         layout = QVBoxLayout(widget)
-
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
-
-        self.parent_app.display_frame()
-        layout.addWidget(self.parent_app.displayFrame)
+        
+        layout.addWidget(self.parent_app.displayFrame, 1)
 
         self.parent_app.button_frame()
         layout.addWidget(self.parent_app.buttonFrame)
+        
         return widget
     
     def create_mode_and_help_buttons(self):
