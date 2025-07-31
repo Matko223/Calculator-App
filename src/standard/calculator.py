@@ -24,6 +24,7 @@ from bmi.bmi_calculator import BMICalculator
 from expression.photomath_mode import PhotomathMode
 from settings.settings import Settings
 from utils.img_path import resource_path
+from standard.calculator_init import CalculatorInit
 import ctypes
 
 # Color definitions
@@ -60,12 +61,16 @@ class App(QWidget):
         self.displayLayout = None
         self.displayFrame = None
         self.currentLabel = None
+
         self.setWindowTitle("Calcu-lajda")
         self.setFixedSize(400, 405)
+
         self.totalExpression = ""
         self.currentExpression = "0"
         self.evaluated = False
+
         icon_path = resource_path(os.path.join('icons', 'real_logo.png'))
+
         my_icon = QIcon()
         my_icon.addFile(icon_path)
         self.setWindowIcon(my_icon)
@@ -112,106 +117,7 @@ class App(QWidget):
 
         self.calculator_layout = QVBoxLayout()
 
-        # Create sidebar
-        self.sidebar = Sidebar(self)
-        self.sidebar.mode_selected.connect(self.switch_mode)
-
-        # Create widgets
-        self.default_widget = self.create_default_widget()
-        self.bmi_widget = BMICalculator()
-        self.photomath_widget = PhotomathMode()
-        self.date_widget = DateCalculation(self)
-        self.currency_widget = CurrencyConverter()
-        self.settings_widget = Settings(self)
-        self.currency_widget.parent_window = self
-
-        # Add widgets to calculator layout
-        self.calculator_layout.addWidget(self.default_widget)
-        self.calculator_layout.addWidget(self.bmi_widget)
-        self.calculator_layout.addWidget(self.photomath_widget)
-        self.calculator_layout.addWidget(self.date_widget)
-        self.calculator_layout.addWidget(self.currency_widget)
-        self.calculator_layout.addWidget(self.settings_widget)
-
-        self.sidebar.visibility_changed.connect(self.currency_widget.handle_sidebar_visibility)
-
-        self.main_layout.addWidget(self.sidebar)
-        self.main_layout.addLayout(self.calculator_layout)
-
-        self.sidebar.hide()
-        self.sidebar.select_mode("Standard")
-        self.switch_mode("Standard")
-
-    def create_default_widget(self):
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-
-        layout.setSpacing(0)
-        layout.setContentsMargins(0, 0, 0, 0)
-
-        self.display_frame()
-        layout.addWidget(self.displayFrame)
-
-        self.button_frame()
-        layout.addWidget(self.buttonFrame)
-        return widget
-
-    def switch_mode(self, mode):
-        """
-        @brief Switches between calculator modes
-        """
-        mode_widgets = {
-            "BMI": self.bmi_widget,
-            "Expression": self.photomath_widget,
-            "Standard": self.default_widget,
-            "Date Calculation": self.date_widget,
-            "Currency": self.currency_widget,
-            "Settings": self.settings_widget
-        }
-
-        if mode == "Standard":
-            self.handle_clear()
-        elif mode == "BMI":
-            self.bmi_widget.clear_input()
-        elif mode == "Currency":
-            self.currency_widget.clear_input()
-        elif mode == "Date Calculation":
-            self.date_widget.set_current_date()
-            self.date_widget.resultLabel.setText("")
-            self.date_widget.daysLabel.setText("")
-        elif mode == "Expression":
-            self.photomath_widget.handle_clear()
-
-        for widget in mode_widgets.values():
-            widget.hide()
-            self.calculator_layout.removeWidget(widget)
-        self.non_essential_widget.hide()
-
-        selected_widget = mode_widgets.get(mode, self.default_widget)
-        selected_widget.show()
-        self.calculator_layout.addWidget(selected_widget)
-
-        if mode == "Standard":
-            self.create_mode_and_help_buttons()
-            self.non_essential_widget.show()
-
-    def create_mode_and_help_buttons(self):
-        """
-        @brief Creates the widget and layout for the mode and help menu buttons.
-        @return QWidget The mode and help menu buttons widget.
-        """
-        buttons_widget = QWidget(self)
-        buttons_layout = QHBoxLayout(buttons_widget)
-        buttons_layout.setContentsMargins(5, 5, 5, 5)
-        buttons_layout.setSpacing(3)
-
-        self.mode_menu_button = self.create_mode_menu_button()
-        self.help_menu_button = self.create_help_menu_button()
-
-        buttons_layout.addWidget(self.mode_menu_button)
-        buttons_layout.addWidget(self.help_menu_button)
-        buttons_layout.addStretch()
-        return buttons_widget
+        self.calculator_init = CalculatorInit(self)
 
     def display_frame(self):
         """
