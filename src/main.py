@@ -10,7 +10,6 @@ import os
 import ctypes
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QIcon
-
 from standard.calculator import App
 from utils.img_path import resource_path
 
